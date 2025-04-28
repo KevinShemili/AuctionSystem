@@ -1,0 +1,9 @@
+services:
+  auctionsystem:
+    container_name: AuctionSystem
+    image: auctionsystem
+    build:
+      context: .
+      dockerfile: AuctionSystem/Dockerfile
+    ports:
+      - "8080:80"

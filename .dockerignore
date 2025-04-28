@@ -1,0 +1,11 @@
+**/.git
+**/.gitignore
+**/.vs
+**/bin
+**/obj
+**/.env
+**/.dockerignore
+**/docker-compose*
+**/Dockerfile*
+README.md
+**/secrets.dev.yaml

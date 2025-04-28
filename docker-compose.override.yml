@@ -1,0 +1,4 @@
+services:
+  auctionsystem:
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
