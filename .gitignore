@@ -11,4 +11,6 @@ artifacts/
 *.snupkg
 .env
 secrets.json
-
+appsettings.Docker.json
+appsettings.json
+!appsettings.Template.json

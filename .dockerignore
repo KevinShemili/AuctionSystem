@@ -6,5 +6,8 @@
 **/.dockerignore
 **/docker-compose*
 **/Dockerfile*
-README.md
-**/secrets.dev.yaml
+**/.env
+**/appsettings.Docker.json
+**/appsettings.json
+!**/appsettings.Template.json
+**/README.md

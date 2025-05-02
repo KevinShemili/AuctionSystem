@@ -8,8 +8,8 @@ services:
     restart: always
     environment:
         POSTGRES_DB: AuctionSystemDB
-        POSTGRES_USER: admin
-        POSTGRES_PASSWORD: admin
+        POSTGRES_USER: ${POSTGRES_USER}
+        POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
     ports:
       - "15432:5432"
     volumes:
@@ -24,8 +24,8 @@ services:
     ports:
       - "5050:80"
     environment:
-        PGADMIN_DEFAULT_EMAIL: admin@mail.com
-        PGADMIN_DEFAULT_PASSWORD: admin
+        PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL}
+        PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD}
     depends_on:
       - postgresdb
     volumes:
