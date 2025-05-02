@@ -3,12 +3,12 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services
-	.AddInfrastructureLayer(builder.Configuration);
-
 builder.Configuration
 	.AddJsonFile("appsettings.json")
 	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true);
+
+builder.Services
+	.AddInfrastructureLayer(builder.Configuration);
 
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();

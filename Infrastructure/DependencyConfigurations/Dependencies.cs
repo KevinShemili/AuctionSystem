@@ -18,7 +18,7 @@ namespace Infrastructure.DependencyConfigurations {
 		private static void ConfigureDatabaseConnection(this IServiceCollection services,
 			IConfiguration configuration) {
 
-			var connString = configuration.GetConnectionString("DbConnection");
+			var connString = configuration.GetConnectionString("DockerConnectionString");
 
 			services.AddDbContext<DatabaseContext>(options =>
 				options.UseNpgsql(connString, b => b.MigrationsAssembly("Infrastructure")));

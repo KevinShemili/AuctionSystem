@@ -1,4 +1,38 @@
+version: "3.8"
+
 services:
+
+  postgresdb:
+    container_name: postgresdb
+    image: postgres:17.4
+    restart: always
+    environment:
+        POSTGRES_DB: AuctionSystemDB
+        POSTGRES_USER: admin
+        POSTGRES_PASSWORD: admin
+    ports:
+      - "15432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - auctionnetwork
+
+  pgadmin: 
+    container_name: pgadmin4
+    image: dpage/pgadmin4:9.3.0
+    restart: always
+    ports:
+      - "5050:80"
+    environment:
+        PGADMIN_DEFAULT_EMAIL: admin@mail.com
+        PGADMIN_DEFAULT_PASSWORD: admin
+    depends_on:
+      - postgresdb
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
+    networks:
+      - auctionnetwork
+
   auctionsystem:
     container_name: AuctionSystem
     image: auctionsystem
@@ -6,6 +40,19 @@ services:
       context: .
       dockerfile: WebAPI/Dockerfile
     environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
+        ASPNETCORE_ENVIRONMENT: Docker
+        ASPNETCORE_URLS: "http://+:80"
+    depends_on:
+      - postgresdb
     ports:
       - "8080:80"
+    networks:
+      - auctionnetwork
+
+networks:
+  auctionnetwork:
+    driver: bridge 
+
+volumes:
+   postgres_data:
+   pgadmin-data: 

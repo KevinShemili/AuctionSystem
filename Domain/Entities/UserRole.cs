@@ -1,5 +1,7 @@
-﻿namespace Domain.Entities {
-	public class UserRole {
+﻿using Domain.Common;
+
+namespace Domain.Entities {
+	public class UserRole : EntityBase {
 		public int UserId { get; set; }
 		public int RoleId { get; set; }
 		public Guid? AssignedBy { get; set; }
