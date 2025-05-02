@@ -20,18 +20,18 @@ COPY Infrastructure/Infrastructure.csproj Infrastructure/
 WORKDIR /src/Infrastructure
 RUN dotnet restore Infrastructure.csproj
 
-# WebAPI (AuctionSystem)
+# WebAPI
 WORKDIR /src
-COPY AuctionSystem/AuctionSystem.csproj AuctionSystem/
-WORKDIR /src/AuctionSystem
-RUN dotnet restore AuctionSystem.csproj
+COPY WebAPI/WebAPI.csproj WebAPI/
+WORKDIR /src/WebAPI
+RUN dotnet restore WebAPI.csproj
 
 # Copy all source files
 WORKDIR /src
 COPY . .
 
 # Build & Publish
-RUN dotnet publish AuctionSystem/AuctionSystem.csproj -c Release -o /app/publish /p:UseAppHost=false # Create DLL, but not .exe
+RUN dotnet publish WebAPI/WebAPI.csproj -c Release -o /app/publish /p:UseAppHost=false # Create DLL, but not .exe
 
 # -- RUNTIME STAGE --
 FROM mcr.microsoft.com/dotnet/aspnet:7.0 AS base
@@ -44,4 +44,4 @@ COPY --from=build /app/publish .
 EXPOSE 80
 
 # Run the API
-ENTRYPOINT ["dotnet", "AuctionSystem.dll"]
+ENTRYPOINT ["dotnet", "WebAPI.dll"]

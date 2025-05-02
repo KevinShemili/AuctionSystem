@@ -4,6 +4,6 @@ services:
     image: auctionsystem
     build:
       context: .
-      dockerfile: AuctionSystem/Dockerfile
+      dockerfile: WebAPI/Dockerfile
     ports:
       - "8080:80"
