@@ -2,6 +2,8 @@
 
 namespace Domain.Entities {
 	public class User : EntityBase {
+
+		// Fields
 		public string UserName { get; set; }
 		public string Email { get; set; }
 		public bool IsEmailVerified { get; set; }
@@ -10,9 +12,10 @@ namespace Domain.Entities {
 		public int FailedLoginTries { get; set; }
 		public bool IsBlocked { get; set; }
 
+		// Relationships
 		public virtual ICollection<Role> Roles { get; set; }
 		public virtual ICollection<UserRole> UserRoles { get; set; }
-		public virtual ICollection<RefreshToken> RefreshTokens { get; set; }
+		public virtual ICollection<AuthenticationToken> RefreshTokens { get; set; }
 		public virtual ICollection<UserToken> UserTokens { get; set; }
 	}
 }

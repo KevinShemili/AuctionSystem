@@ -1,12 +1,12 @@
 ﻿using Domain.Common;
 
 namespace Domain.Entities {
-	public class UserToken : EntityBase {
+	public class AuthenticationToken : EntityBase {
 
 		// Fields
-		public string Token { get; set; }
+		public string RefreshToken { get; set; }
 		public DateTime Expiry { get; set; }
-		public int TokenTypeId { get; set; }
+		public string AccessToken { get; set; }
 
 		// Foreign Keys
 		public Guid UserId { get; set; }

@@ -13,7 +13,7 @@ namespace Infrastructure.Persistence {
 		public DbSet<Permission> Permissions { get; set; }
 		public DbSet<RolePermission> RolePermissions { get; set; }
 		public DbSet<UserRole> UserRoles { get; set; }
-		public DbSet<RefreshToken> RefreshTokens { get; set; }
+		public DbSet<AuthenticationToken> RefreshTokens { get; set; }
 		public DbSet<UserToken> UserTokens { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder) {
