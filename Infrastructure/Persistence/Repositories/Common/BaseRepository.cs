@@ -1,7 +1,6 @@
 ﻿using Application.Contracts.Repositories.Common;
 using Domain.Common;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking;
 
 namespace Infrastructure.Persistence.Repositories.Common {
 	public abstract class BaseRepository<T> : IRepository<T> where T : AbstractEntity {
@@ -12,7 +11,7 @@ namespace Infrastructure.Persistence.Repositories.Common {
 			_context = context;
 		}
 
-		public async Task<EntityEntry<T>> CreateAsync(T entity, bool commitChanges = false,
+		public async Task<T> CreateAsync(T entity, bool commitChanges = false,
 			CancellationToken cancellationToken = default) {
 
 			if (entity is null)
@@ -20,12 +19,12 @@ namespace Infrastructure.Persistence.Repositories.Common {
 
 			entity.DateCreated = DateTime.UtcNow;
 
-			var entry = await _context.Set<T>().AddAsync(entity, cancellationToken);
+			_ = await _context.Set<T>().AddAsync(entity, cancellationToken);
 
 			if (commitChanges is true)
 				_ = await _context.SaveChangesAsync(cancellationToken);
 
-			return entry;
+			return entity;
 		}
 
 		public async Task<T> UpdateAsync(T entity, bool commitChanges = false,

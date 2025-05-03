@@ -3,6 +3,7 @@ using FluentValidation.AspNetCore;
 using Infrastructure.DependencyConfigurations;
 using Microsoft.OpenApi.Models;
 using System.Reflection;
+using WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -17,6 +18,7 @@ builder.Services
 
 builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddHttpClient();
 builder.Services.AddControllers();
 builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddEndpointsApiExplorer();
@@ -25,7 +27,7 @@ builder.Services.AddSwaggerGen(config => {
 	config.EnableAnnotations();
 
 	config.SwaggerDoc("v1", new OpenApiInfo {
-		Title = "Architecture",
+		Title = "Auction System",
 		Version = "v1"
 	});
 
@@ -60,6 +62,8 @@ builder.Services.AddProblemDetails();
 
 var app = builder.Build();
 
+app.UseMiddleware<GlobalExceptionHandler>();
+
 ConfigureSwagger(app);
 app.UseRouting();
 app.UseAuthentication();
@@ -68,7 +72,6 @@ app.MapControllers();
 app.Run();
 
 static void ConfigureSwagger(WebApplication app) {
-	app.UseDeveloperExceptionPage();
 	app.UseSwagger();
 	app.UseSwaggerUI();
 }

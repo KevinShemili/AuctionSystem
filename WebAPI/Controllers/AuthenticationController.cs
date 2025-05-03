@@ -28,5 +28,11 @@ namespace WebAPI.Controllers {
 
 			return Ok(result.Value);
 		}
+
+		[AllowAnonymous]
+		[HttpGet("throw")]
+		public IActionResult Throw() {
+			throw new Exception("This is a test exception.");
+		}
 	}
 }
