@@ -1,8 +1,8 @@
-﻿using Application.Contracts.Repositories;
-using Application.Contracts.Repositories.Common;
+﻿using Application.Common.EmailService;
+using Application.Contracts.Repositories;
+using Infrastructure.Email;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
-using Infrastructure.Persistence.Repositories.Common;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -10,8 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 namespace Infrastructure.DependencyConfigurations {
 	public static class Dependencies {
 
-		public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services,
-			IConfiguration configuration) {
+		public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, IConfiguration configuration) {
 
 			services.ConfigureDatabaseConnection(configuration);
 			services.ConfigureScopedServices();
@@ -19,8 +18,7 @@ namespace Infrastructure.DependencyConfigurations {
 			return services;
 		}
 
-		private static void ConfigureDatabaseConnection(this IServiceCollection services,
-			IConfiguration configuration) {
+		private static void ConfigureDatabaseConnection(this IServiceCollection services, IConfiguration configuration) {
 
 			var connString = configuration.GetConnectionString("DockerConnectionString");
 
@@ -29,7 +27,6 @@ namespace Infrastructure.DependencyConfigurations {
 		}
 
 		private static void ConfigureScopedServices(this IServiceCollection services) {
-			services.AddScoped(typeof(IRepository<>), typeof(BaseRepository<>));
 			services.AddScoped<IUserRepository, UserRepository>();
 			services.AddScoped<IAuthenticationTokenRepository, AuthenticationTokenRepository>();
 			services.AddScoped<IUserTokenRepository, UserTokenRepository>();
@@ -37,6 +34,7 @@ namespace Infrastructure.DependencyConfigurations {
 			services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
 			services.AddScoped<IRoleRepository, RoleRepository>();
 			services.AddScoped<IUserRoleRepository, UserRoleRepository>();
+			services.AddScoped<IEmailService, EmailService>();
 		}
 	}
 }

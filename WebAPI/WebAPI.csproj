@@ -3,10 +3,11 @@
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
 	<CheckEolTargetFramework>false</CheckEolTargetFramework>
-	<Nullable>enable</Nullable>
+	<Nullable>disable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+	<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 
   <ItemGroup>

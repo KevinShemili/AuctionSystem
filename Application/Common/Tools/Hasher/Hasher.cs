@@ -1,7 +1,7 @@
 ﻿using System.Security.Cryptography;
 using System.Text;
 
-namespace Application.Tools.Hasher {
+namespace Application.Common.Tools.Hasher {
 	public static class Hasher {
 		const int keySize = 64;
 		const int iterations = 350000;

@@ -1,5 +1,8 @@
+using Application.DependencyConfigurations;
+using FluentValidation.AspNetCore;
 using Infrastructure.DependencyConfigurations;
 using Microsoft.OpenApi.Models;
+using System.Reflection;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,10 +12,13 @@ builder.Configuration
 	.AddEnvironmentVariables();
 
 builder.Services
+	.AddApplicationLayer(builder.Configuration)
 	.AddInfrastructureLayer(builder.Configuration);
 
+builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddControllers();
+builder.Services.AddFluentValidationAutoValidation();
 builder.Services.AddEndpointsApiExplorer();
 
 builder.Services.AddSwaggerGen(config => {
@@ -48,9 +54,12 @@ builder.Services.AddSwaggerGen(config => {
 	});
 });
 
+builder.Services.AddAuthorization();
+builder.Services.AddAuthentication();
 builder.Services.AddProblemDetails();
 
 var app = builder.Build();
+
 ConfigureSwagger(app);
 app.UseRouting();
 app.UseAuthentication();
