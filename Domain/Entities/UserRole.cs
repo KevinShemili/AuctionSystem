@@ -1,7 +1,7 @@
 ﻿using Domain.Common;
 
 namespace Domain.Entities {
-	public class UserRole : EntityBase {
+	public class UserRole : AbstractEntity {
 
 		// Fields
 		public Guid? AssignedBy { get; set; }

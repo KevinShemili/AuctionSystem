@@ -19,7 +19,7 @@ namespace Infrastructure.Persistence {
 		protected override void OnModelCreating(ModelBuilder modelBuilder) {
 
 			base.OnModelCreating(modelBuilder);
-			modelBuilder.AddSoftDeleteGlobalFilter();
+			modelBuilder.SoftDeleteFilter();
 			modelBuilder.ApplyConfigurationsFromAssembly(typeof(DatabaseContext).Assembly);
 		}
 	}

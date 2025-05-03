@@ -1,7 +1,7 @@
 ﻿using Domain.Common;
 
 namespace Domain.Entities {
-	public class AuthenticationToken : EntityBase {
+	public class AuthenticationToken : AbstractEntity {
 
 		// Fields
 		public string RefreshToken { get; set; }

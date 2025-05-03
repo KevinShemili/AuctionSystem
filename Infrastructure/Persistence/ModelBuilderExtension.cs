@@ -11,11 +11,11 @@ namespace Infrastructure.Persistence {
 		// Get all entities inheriting from EntityBase
 		// - Add global query filter to automatically apply IsDeleted == false
 		// - Create index on the IsDeleted column to speed up queries
-		public static void AddSoftDeleteGlobalFilter(this ModelBuilder builder) {
+		public static void SoftDeleteFilter(this ModelBuilder builder) {
 
 			foreach (var entityType in builder.Model.GetEntityTypes()) {
 
-				if (typeof(EntityBase).IsAssignableFrom(entityType.ClrType)) {
+				if (typeof(AbstractEntity).IsAssignableFrom(entityType.ClrType)) {
 
 					// Apply query
 					builder
@@ -25,7 +25,7 @@ namespace Infrastructure.Persistence {
 					// Apply index
 					builder
 						.Entity(entityType.ClrType)
-						.HasIndex(nameof(EntityBase.IsDeleted))
+						.HasIndex(nameof(AbstractEntity.IsDeleted))
 						.HasFilter("\"IsDeleted\" = false");
 				}
 			}
@@ -38,7 +38,7 @@ namespace Infrastructure.Persistence {
 			var parameter = Expression.Parameter(entityType, "e");
 
 			// Add IsDeleted property -> e.IsDeleted
-			var property = Expression.Property(parameter, nameof(EntityBase.IsDeleted));
+			var property = Expression.Property(parameter, nameof(AbstractEntity.IsDeleted));
 
 			// Compare -> e.IsDeleted == false
 			var condition = Expression.Equal(property, Expression.Constant(false));
