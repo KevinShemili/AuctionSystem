@@ -2,14 +2,12 @@ name: SonarCloud
 on:
   push:
     branches: [ main ]
-  pull_request:
-    types: [opened, synchronize, reopened]
   workflow_dispatch: # Allows manual workflow runs
 
 jobs:
   sonarcloud:
     name: SonarCloud Analysis
-    runs-on: windows-latest # Using Windows as recommended by SonarCloud for .NET projects
+    runs-on: windows-latest
     
     steps:
     - name: Checkout repository
@@ -52,14 +50,14 @@ jobs:
     
     - name: Restore dependencies
       run: dotnet restore AuctionSystem.sln
-    
+      
     - name: Begin SonarCloud analysis
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Generated from SonarCloud project
       shell: powershell
       run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"KevinShemili_AuctionSystem" /o:"kevinshemili" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/*.xml" /d:sonar.coverage.exclusions="**Tests*.cs,**/obj/**,**/*.dll,**/bin/**,**/Migrations/**,**/EntityConfigurations/**" /d:sonar.exclusions="**/obj/**,**/*.dll,**/bin/**,**Tests*.cs,**/Migrations/**,**/EntityConfigurations/**" /d:sonar.verbose=true
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"KevinShemili_AuctionSystem" /o:"kevinshemili" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml" /d:sonar.coverage.exclusions="**Tests*.cs,**/obj/**,**/*.dll,**/bin/**,**/Migrations/**,**/EntityConfigurations/**" /d:sonar.exclusions="**/obj/**,**/*.dll,**/bin/**,**Tests*.cs,**/Migrations/**,**/EntityConfigurations/**"
     
     - name: Build solution
       run: dotnet build AuctionSystem.sln --configuration Release --no-restore
@@ -67,8 +65,19 @@ jobs:
     - name: Run tests with coverage
       shell: powershell
       run: |
-        dotnet test UnitTests/UnitTests.csproj --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="./coverage/"
+        dotnet test UnitTests/UnitTests.csproj --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="coverage.opencover.xml"
+        
+    - name: Check for coverage file
+      shell: powershell
+      run: |
         dir -r coverage*.xml
+        # Display content of the coverage file (first few lines) to validate format
+        if (Test-Path coverage.opencover.xml) {
+          Write-Host "Coverage file exists. First 10 lines:"
+          Get-Content coverage.opencover.xml -Head 10
+        } else {
+          Write-Host "Coverage file not found!"
+        }
       
     - name: End SonarCloud analysis
       env:
