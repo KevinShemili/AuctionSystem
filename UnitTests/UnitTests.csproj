@@ -13,8 +13,8 @@
 		<CollectCoverage>true</CollectCoverage>
 		<CoverletOutputFormat>opencover</CoverletOutputFormat>
 		<CoverletOutput>$(MSBuildThisFileDirectory)../coverage/</CoverletOutput>
-		<Include>[Application]*,[Infrastructure]*</Include>
-		<Exclude>[*]*.Migrations.*,[*]*.EntityConfigurations.*,[*]*.DependencyConfigurations.*,[*]*.Email.*,[*]*.Common.*,[*]*.*.Mappings.*</Exclude>
+		<Include>[Application]*,[Infrastructure]*.Repositories.*</Include>
+		<Exclude>[*]*.Migrations.*,[*]*.EntityConfigurations.*,[*]*.DependencyConfigurations.*,[*]*.Email.*,[Application]*.Common.*,[*]*.*.Mappings.*</Exclude>
 	</PropertyGroup>
 	
    <ItemGroup>
