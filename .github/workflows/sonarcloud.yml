@@ -80,17 +80,17 @@ jobs:
             --no-build `
             /p:CollectCoverage=true `
             /p:CoverletOutputFormat=opencover `
-            /p:CoverletOutput="../coverage.opencover.xml"
+            /p:CoverletOutput="$(pwd)/coverage.opencover.xml"
 
       - name: Check for coverage file
         shell: powershell
         run: |
-          dir -r coverage*.xml
-          if (Test-Path coverage.opencover.xml) {
-            Write-Host "✅ coverage.opencover.xml created"
-            Get-Content coverage.opencover.xml -Head 5
+          $coveragePath = "$(Resolve-Path ../coverage.opencover.xml)"
+          if (Test-Path $coveragePath) {
+            Write-Host "coverage.opencover.xml found at $coveragePath"
+            Get-Content $coveragePath -Head 5
           } else {
-            Write-Error "🚨 coverage.opencover.xml not found!"
+            Write-Error "coverage.opencover.xml not found at $coveragePath"
           }
 
       - name: End SonarCloud analysis
