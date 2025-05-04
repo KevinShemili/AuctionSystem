@@ -1,5 +1,4 @@
 name: SonarCloud
-
 on:
   push:
     branches: [ main ]
@@ -8,26 +7,27 @@ on:
 jobs:
   sonarcloud:
     name: SonarCloud Analysis
-    runs-on: ubuntu-latest
+    runs-on: windows-latest # Using Windows as recommended by SonarCloud for .NET projects
     
     steps:
     - name: Checkout repository
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
         
     - name: Setup .NET
-      uses: actions/setup-dotnet@v3
+      uses: actions/setup-dotnet@v4
       with:
         dotnet-version: 7.0.x
         
-    - name: Install SonarCloud scanner
-      run: |
-        dotnet tool install --global dotnet-sonarscanner
-        dotnet tool install --global dotnet-coverage
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: 17
+        distribution: 'zulu'
         
     - name: Cache SonarCloud packages
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: ~\sonar\cache
         key: ${{ runner.os }}-sonar
@@ -35,39 +35,40 @@ jobs:
         
     - name: Cache SonarCloud scanner
       id: cache-sonar-scanner
-      uses: actions/cache@v3
+      uses: actions/cache@v4
       with:
         path: .\.sonar\scanner
         key: ${{ runner.os }}-sonar-scanner
         restore-keys: ${{ runner.os }}-sonar-scanner
         
+    - name: Install SonarCloud scanner
+      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+      shell: powershell
+      run: |
+        New-Item -Path .\.sonar\scanner -ItemType Directory
+        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
+    
+    - name: Restore dependencies
+      run: dotnet restore AuctionSystem.sln
+    
     - name: Begin SonarCloud analysis
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Generated from SonarCloud project
+      shell: powershell
       run: |
-        dotnet-sonarscanner begin /k:"KevinShemili_AuctionSystem" \
-        /o:"kevinshemili" \
-        /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
-        /d:sonar.host.url="https://sonarcloud.io" \
-        /d:sonar.cs.vscoveragexml.reportsPaths=coverage.xml \
-        /d:sonar.coverage.exclusions="**Tests*.cs,**/obj/**,**/*.dll,**/bin/**" \
-        /d:sonar.exclusions="**/obj/**,**/*.dll,**/bin/**,**Tests*.cs"
+        .\.sonar\scanner\dotnet-sonarscanner begin /k:"KevinShemili_AuctionSystem" /o:"kevinshemili" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="**/coverage/*.xml" /d:sonar.coverage.exclusions="**Tests*.cs,**/obj/**,**/*.dll,**/bin/**,**/Migrations/**,**/EntityConfigurations/**" /d:sonar.exclusions="**/obj/**,**/*.dll,**/bin/**,**Tests*.cs,**/Migrations/**,**/EntityConfigurations/**"
     
-    - name: Build and analyze
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      run: |
-        dotnet build AuctionSystem.sln --configuration Release
+    - name: Build solution
+      run: dotnet build AuctionSystem.sln --configuration Release --no-restore
         
-    - name: Test with coverage
-      run: |
-        dotnet-coverage collect 'dotnet test UnitTests/UnitTests.csproj --configuration Release' -f xml -o coverage.xml
-        
+    - name: Run tests with coverage
+      run: dotnet test UnitTests/UnitTests.csproj --configuration Release --no-build
+      
     - name: End SonarCloud analysis
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      shell: powershell
       run: |
-        dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
