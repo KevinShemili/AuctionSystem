@@ -62,7 +62,7 @@ jobs:
         run: |
           .\.sonar\scanner\dotnet-sonarscanner begin `
             /k:"KevinShemili_AuctionSystem" `
-            /o:"KevinShemili" `
+            /o:"kevinshemili" `
             /d:sonar.host.url="https://sonarcloud.io" `
             /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
             /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml" `
