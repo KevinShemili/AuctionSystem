@@ -14,8 +14,10 @@
     <CollectCoverage>true</CollectCoverage>
 	<CoverletOutputFormat>opencover</CoverletOutputFormat>
 	<CoverletOutput>$(MSBuildThisFileDirectory)../coverage/</CoverletOutput>
-	<Include>[Domain]*,[Application]*,[Infrastructure]*,[WebAPI]*</Include>
-	<Exclude>[*]*.Migrations.*,[*]*.EntityConfigurations.*</Exclude>
+	   <Include>
+		   [Infrastructure]AuctionSystem.Infrastructure.Persistence.*,
+		   [Application]AuctionSystem.Application.UseCases.*
+	   </Include>
    </PropertyGroup>
 	
    <ItemGroup>
