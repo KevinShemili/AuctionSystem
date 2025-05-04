@@ -1,88 +1,102 @@
 name: SonarCloud
+
 on:
   push:
     branches: [ main ]
-  workflow_dispatch: # Allows manual workflow runs
+  pull_request:
+    types: [opened, synchronize, reopened]
+  workflow_dispatch:
 
 jobs:
   sonarcloud:
     name: SonarCloud Analysis
     runs-on: windows-latest
-    
+
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v4
-      with:
-        fetch-depth: 0  # Shallow clones should be disabled for better relevancy of analysis
-        
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: 7.0.x
-        
-    - name: Set up JDK 17
-      uses: actions/setup-java@v4
-      with:
-        java-version: 17
-        distribution: 'zulu'
-        
-    - name: Cache SonarCloud packages
-      uses: actions/cache@v4
-      with:
-        path: ~\sonar\cache
-        key: ${{ runner.os }}-sonar
-        restore-keys: ${{ runner.os }}-sonar
-        
-    - name: Cache SonarCloud scanner
-      id: cache-sonar-scanner
-      uses: actions/cache@v4
-      with:
-        path: .\.sonar\scanner
-        key: ${{ runner.os }}-sonar-scanner
-        restore-keys: ${{ runner.os }}-sonar-scanner
-        
-    - name: Install SonarCloud scanner
-      if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
-      shell: powershell
-      run: |
-        New-Item -Path .\.sonar\scanner -ItemType Directory
-        dotnet tool update dotnet-sonarscanner --tool-path .\.sonar\scanner
-    
-    - name: Restore dependencies
-      run: dotnet restore AuctionSystem.sln
-      
-    - name: Begin SonarCloud analysis
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}  # Needed to get PR information
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}    # Generated from SonarCloud project
-      shell: powershell
-      run: |
-        .\.sonar\scanner\dotnet-sonarscanner begin /k:"KevinShemili_AuctionSystem" /o:"kevinshemili" /d:sonar.token="${{ secrets.SONAR_TOKEN }}" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml" /d:sonar.coverage.exclusions="**Tests*.cs,**/obj/**,**/*.dll,**/bin/**,**/Migrations/**,**/EntityConfigurations/**" /d:sonar.exclusions="**/obj/**,**/*.dll,**/bin/**,**Tests*.cs,**/Migrations/**,**/EntityConfigurations/**"
-    
-    - name: Build solution
-      run: dotnet build AuctionSystem.sln --configuration Release --no-restore
-        
-    - name: Run tests with coverage
-      shell: powershell
-      run: |
-        dotnet test UnitTests/UnitTests.csproj --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="coverage.opencover.xml"
-        
-    - name: Check for coverage file
-      shell: powershell
-      run: |
-        dir -r coverage*.xml
-        # Display content of the coverage file (first few lines) to validate format
-        if (Test-Path coverage.opencover.xml) {
-          Write-Host "Coverage file exists. First 10 lines:"
-          Get-Content coverage.opencover.xml -Head 10
-        } else {
-          Write-Host "Coverage file not found!"
-        }
-      
-    - name: End SonarCloud analysis
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-      shell: powershell
-      run: |
-        .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '7.0.x'
+
+      - name: Set up JDK 17
+        uses: actions/setup-java@v4
+        with:
+          java-version: '17'
+          distribution: 'zulu'
+
+      - name: Cache SonarCloud packages
+        uses: actions/cache@v4
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - id: cache-sonar-scanner
+        name: Cache SonarCloud scanner
+        uses: actions/cache@v4
+        with:
+          path: .\.sonar\scanner
+          key: ${{ runner.os }}-sonar-scanner
+          restore-keys: ${{ runner.os }}-sonar-scanner
+
+      - name: Install SonarCloud scanner
+        if: steps.cache-sonar-scanner.outputs.cache-hit != 'true'
+        shell: powershell
+        run: |
+          New-Item -Path .\.sonar\scanner -ItemType Directory
+          dotnet tool install dotnet-sonarscanner --tool-path .\.sonar\scanner
+
+      - name: Restore dependencies
+        run: dotnet restore AuctionSystem.sln
+
+      - name: Begin SonarCloud analysis
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
+        run: |
+          .\.sonar\scanner\dotnet-sonarscanner begin `
+            /k:"KevinShemili_AuctionSystem" `
+            /o:"KevinShemili" `
+            /d:sonar.host.url="https://sonarcloud.io" `
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
+            /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml" `
+            /d:sonar.coverage.exclusions="**/*Tests*.cs,**/obj/**,**/bin/**,**/Migrations/**,**/EntityConfigurations/**" `
+            /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests*.cs,**/Migrations/**,**/EntityConfigurations/**"
+
+      - name: Build solution
+        run: dotnet build AuctionSystem.sln --configuration Release --no-restore
+
+      - name: Run tests with coverage
+        shell: powershell
+        run: |
+          dotnet test UnitTests/UnitTests.csproj `
+            --configuration Release `
+            --no-build `
+            /p:CollectCoverage=true `
+            /p:CoverletOutputFormat=opencover `
+            /p:CoverletOutput="../coverage.opencover.xml"
+
+      - name: Check for coverage file
+        shell: powershell
+        run: |
+          dir -r coverage*.xml
+          if (Test-Path coverage.opencover.xml) {
+            Write-Host "✅ coverage.opencover.xml created"
+            Get-Content coverage.opencover.xml -Head 5
+          } else {
+            Write-Error "🚨 coverage.opencover.xml not found!"
+          }
+
+      - name: End SonarCloud analysis
+        shell: powershell
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
+        run: |
+          .\.sonar\scanner\dotnet-sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
