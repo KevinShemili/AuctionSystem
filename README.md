@@ -1,3 +1,7 @@
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=coverage)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
+
 # Auction System
 
 # Setting Up The Development Environment (.NET Core 7 + PostgreSQL 17.4 + PGAdmin)

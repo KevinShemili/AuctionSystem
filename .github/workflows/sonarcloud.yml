@@ -3,8 +3,6 @@ name: SonarCloud
 on:
   push:
     branches: [ main ]
-  pull_request:
-    types: [opened, synchronize, reopened]
   workflow_dispatch:
 
 jobs:
@@ -60,14 +58,7 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin `
-            /k:"KevinShemili_AuctionSystem" `
-            /o:"kevinshemili" `
-            /d:sonar.host.url="https://sonarcloud.io" `
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" `
-            /d:sonar.cs.opencover.reportsPaths="coverage.opencover.xml" `
-            /d:sonar.coverage.exclusions="**/*Tests*.cs,**/obj/**,**/bin/**,**/Migrations/**,**/EntityConfigurations/**" `
-            /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests*.cs,**/Migrations/**,**/EntityConfigurations/**"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"KevinShemili_AuctionSystem" /o:"kevinshemili" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/coverage.opencover.xml" /d:sonar.coverage.exclusions="**/*Tests*.cs,**/obj/**,**/bin/**,**/Migrations/**,**/EntityConfigurations/**" /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests*.cs,**/Migrations/**,**/EntityConfigurations/**"
 
       - name: Build solution
         run: dotnet build AuctionSystem.sln --configuration Release --no-restore
@@ -75,22 +66,17 @@ jobs:
       - name: Run tests with coverage
         shell: powershell
         run: |
-          dotnet test UnitTests/UnitTests.csproj `
-            --configuration Release `
-            --no-build `
-            /p:CollectCoverage=true `
-            /p:CoverletOutputFormat=opencover `
-            /p:CoverletOutput="$(pwd)/coverage.opencover.xml"
+          dotnet test UnitTests/UnitTests.csproj --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${{ github.workspace }}/coverage.opencover.xml"
 
       - name: Check for coverage file
         shell: powershell
         run: |
-          $coveragePath = "$(Resolve-Path ../coverage.opencover.xml)"
-          if (Test-Path $coveragePath) {
-            Write-Host "coverage.opencover.xml found at $coveragePath"
-            Get-Content $coveragePath -Head 5
+          if (Test-Path "${{ github.workspace }}/coverage.opencover.xml") {
+            Write-Host "Coverage file found at ${{ github.workspace }}/coverage.opencover.xml"
+            Get-Content "${{ github.workspace }}/coverage.opencover.xml" -Head 5
           } else {
-            Write-Error "coverage.opencover.xml not found at $coveragePath"
+            Write-Error "Coverage file not found at ${{ github.workspace }}/coverage.opencover.xml"
+            Get-ChildItem -Path ${{ github.workspace }} -Recurse -Filter "*.opencover.xml" | ForEach-Object { Write-Host "Found coverage file at: $($_.FullName)" }
           }
 
       - name: End SonarCloud analysis
