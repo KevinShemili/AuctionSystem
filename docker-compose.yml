@@ -49,10 +49,37 @@ services:
     networks:
       - auctionnetwork
 
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:8.18.0    
+    environment:
+      - discovery.type=single-node
+      - xpack.security.enabled=false
+      - xpack.monitoring.collection.enabled=true
+    ports:
+      - "9200:9200"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    networks:
+      - auctionnetwork
+
+  kibana:
+    container_name: kibana
+    image: kibana:8.18.0
+    depends_on:
+      - elasticsearch
+    environment:
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+    ports:
+      - "5601:5601"
+    networks:
+      - auctionnetwork
+
 networks:
   auctionnetwork:
     driver: bridge 
 
 volumes:
    postgres_data:
-   pgadmin-data: 
+   pgadmin-data:
+   es_data:

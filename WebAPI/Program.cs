@@ -2,6 +2,9 @@ using Application.DependencyConfigurations;
 using FluentValidation.AspNetCore;
 using Infrastructure.DependencyConfigurations;
 using Microsoft.OpenApi.Models;
+using Serilog;
+using Serilog.Exceptions;
+using Serilog.Sinks.Elasticsearch;
 using System.Reflection;
 using WebAPI.Middleware;
 
@@ -60,6 +63,9 @@ builder.Services.AddAuthorization();
 builder.Services.AddAuthentication();
 builder.Services.AddProblemDetails();
 
+ConfigureLogging();
+builder.Host.UseSerilog();
+
 var app = builder.Build();
 
 app.UseMiddleware<GlobalExceptionHandler>();
@@ -74,4 +80,31 @@ app.Run();
 static void ConfigureSwagger(WebApplication app) {
 	app.UseSwagger();
 	app.UseSwaggerUI();
+}
+
+static void ConfigureLogging() {
+	var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
+
+	var config = new ConfigurationBuilder()
+		.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+		.AddJsonFile($"appsettings.{environment}.json", optional: true)
+		.Build();
+
+	Log.Logger = new LoggerConfiguration()
+		.Enrich.FromLogContext()
+		.Enrich.WithEnvironmentName()
+		.Enrich.WithMachineName()
+		.Enrich.WithExceptionDetails()
+		.WriteTo.Debug()
+		.WriteTo.Console()
+		.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(config["ElasticConfiguration:Uri"])) {
+			AutoRegisterTemplate = true,
+			IndexFormat = $"{Assembly.GetExecutingAssembly()?.GetName()?.Name?.ToLower().Replace(".", "-")}-{environment?.ToLower()}-{DateTime.UtcNow:yyyy-MM-dd}",
+			NumberOfReplicas = 1,
+			NumberOfShards = 2
+		})
+		.Enrich.WithProperty("Environment", environment)
+		.ReadFrom.Configuration(config)
+		.CreateLogger();
+
 }

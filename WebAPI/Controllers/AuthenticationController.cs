@@ -11,7 +11,12 @@ namespace WebAPI.Controllers {
 
 	public class AuthenticationController : AbstractController {
 
-		public AuthenticationController(IMediator mediator, IMapper mapper) : base(mediator, mapper) {
+		private readonly ILogger<AuthenticationController> _logger;
+
+		public AuthenticationController(IMediator mediator,
+								  IMapper mapper,
+								  ILogger<AuthenticationController> logger) : base(mediator, mapper) {
+			_logger = logger;
 		}
 
 		[AllowAnonymous]
@@ -33,6 +38,16 @@ namespace WebAPI.Controllers {
 		[HttpGet("throw")]
 		public IActionResult Throw() {
 			throw new Exception("This is a test exception.");
+		}
+
+		[AllowAnonymous]
+		[HttpGet("log")]
+		public IActionResult LogTest() {
+
+			_logger.LogInformation("LogTest test: {Now}", DateTime.UtcNow);
+
+
+			return Ok("Log Test Done.");
 		}
 	}
 }
