@@ -1,0 +1,116 @@
+﻿using Application.Common.ErrorMessages.AuthenticationUseCase;
+using Application.Common.ResultPattern;
+using Application.Common.TokenService;
+using Application.Common.Tools.Hasher;
+using Application.Common.Tools.Transcode;
+using Application.Contracts.Repositories;
+using Application.Contracts.Repositories.UnitOfWork;
+using Application.UseCases.Authentication.Results;
+using AutoMapper;
+using Domain.Entities;
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
+
+namespace Application.UseCases.Authentication.Commands {
+	public class SignInCommand : IRequest<Result<SignInCommandResult>> {
+		public string Email { get; set; }
+		public string Password { get; set; }
+	}
+
+	public class SignInCommandHandler : IRequestHandler<SignInCommand, Result<SignInCommandResult>> {
+
+		private readonly ITokenService _tokenService;
+		private readonly IConfiguration _configuration;
+		private readonly IMapper _mapper;
+		private readonly IUserRepository _userRepository;
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly ILogger<SignInCommandHandler> _logger;
+		private readonly IAuthenticationTokenRepository _authenticationTokenRepository;
+
+		public SignInCommandHandler(ITokenService tokenService,
+							  IConfiguration configuration,
+							  IMapper mapper,
+							  IUnitOfWork unitOfWork,
+							  ILogger<SignInCommandHandler> logger,
+							  IUserRepository userRepository,
+							  IAuthenticationTokenRepository authenticationTokenRepository) {
+			_tokenService = tokenService;
+			_configuration = configuration;
+			_mapper = mapper;
+			_unitOfWork = unitOfWork;
+			_logger = logger;
+			_userRepository = userRepository;
+			_authenticationTokenRepository = authenticationTokenRepository;
+		}
+
+		public async Task<Result<SignInCommandResult>> Handle(SignInCommand request, CancellationToken cancellationToken) {
+
+			var user = await _userRepository.GetUserWithAuthenticationTokensAsync(request.Email, cancellationToken: cancellationToken);
+
+			if (user is null)
+				return Result<SignInCommandResult>.Failure(AuthenticationErrors.UserNotFound(request.Email));
+
+			if (user.IsEmailVerified is false)
+				return Result<SignInCommandResult>.Failure(AuthenticationErrors.AccountNotVerified);
+
+			if (user.IsBlocked is true)
+				return Result<SignInCommandResult>.Failure(AuthenticationErrors.LockedOut);
+
+			var isPasswordCorrect = Hasher.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
+
+			if (isPasswordCorrect is false) {
+				var maxTries = int.Parse(_configuration["FailedLogin:MaxTries"]);
+
+				if (user.FailedLoginTries >= maxTries) {
+					user.IsBlocked = true;
+
+					_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+					return Result<SignInCommandResult>.Failure(AuthenticationErrors.LockedOut);
+				}
+
+				user.FailedLoginTries += 1;
+
+				_ = await _userRepository.UpdateAsync(user, true, cancellationToken);
+
+				return Result<SignInCommandResult>.Failure(AuthenticationErrors.SignInFailure);
+			}
+
+			user.FailedLoginTries = 0;
+
+			var accessToken = await _tokenService.GenerateAccessTokenAsync(request.Email, cancellationToken);
+			(var refreshToken, var refreshExpiry) = _tokenService.GenerateRefreshToken();
+
+			var lastestRefreshToken = user.AuthenticationTokens.OrderByDescending(x => x.DateCreated)
+													 .FirstOrDefault();
+
+			if (lastestRefreshToken is not null)
+				_ = await _authenticationTokenRepository.DeleteAsync(lastestRefreshToken, cancellationToken: cancellationToken);
+
+			user.AuthenticationTokens.Add(new AuthenticationToken {
+				RefreshToken = refreshToken,
+				Expiry = refreshExpiry,
+				AccessToken = accessToken
+			});
+
+			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+			return Result<SignInCommandResult>.Success(new SignInCommandResult {
+				AccessToken = accessToken,
+				RefreshToken = Transcode.EncodeURL(refreshToken)
+			});
+		}
+	}
+
+	public class SignInCommandValidator : AbstractValidator<SignInCommand> {
+		public SignInCommandValidator() {
+			RuleFor(x => x.Email)
+				.NotEmpty();
+
+			RuleFor(x => x.Password)
+				.NotEmpty();
+		}
+	}
+}

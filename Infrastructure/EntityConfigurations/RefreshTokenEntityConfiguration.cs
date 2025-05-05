@@ -6,7 +6,7 @@ namespace Infrastructure.EntityConfigurations {
 	public class RefreshTokenEntityConfiguration : IEntityTypeConfiguration<AuthenticationToken> {
 		public void Configure(EntityTypeBuilder<AuthenticationToken> builder) {
 			builder.HasOne(x => x.User)
-				   .WithMany(x => x.RefreshTokens)
+				   .WithMany(x => x.AuthenticationTokens)
 				   .HasForeignKey(x => x.UserId);
 		}
 	}

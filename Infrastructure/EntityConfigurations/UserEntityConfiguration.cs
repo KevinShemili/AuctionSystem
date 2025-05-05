@@ -11,7 +11,7 @@ namespace Infrastructure.EntityConfigurations {
 				   .WithMany(x => x.Users)
 				   .UsingEntity<UserRole>(x => x.HasKey(x => x.Id));
 
-			builder.HasMany(x => x.RefreshTokens)
+			builder.HasMany(x => x.AuthenticationTokens)
 				   .WithOne(x => x.User)
 				   .HasForeignKey(x => x.UserId);
 

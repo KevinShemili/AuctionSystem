@@ -33,7 +33,7 @@ namespace Application.Common.ErrorMessages.AuthenticationUseCase {
 		public static Error UserNotFound(string Email) => new(StatusCodes.Status404NotFound,
 			$"User with email: {Email} does not exist in the system");
 
-		public static Error UserNotFound(int id) => new(StatusCodes.Status404NotFound,
+		public static Error UserNotFound(Guid id) => new(StatusCodes.Status404NotFound,
 			$"User with ID: {id} does not exist in the system");
 	}
 }

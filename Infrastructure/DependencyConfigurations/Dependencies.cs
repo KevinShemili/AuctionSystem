@@ -1,5 +1,6 @@
 ﻿using Application.Common.EmailService;
 using Application.Contracts.Repositories;
+using Application.Contracts.Repositories.UnitOfWork;
 using Infrastructure.Email;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
@@ -35,6 +36,7 @@ namespace Infrastructure.DependencyConfigurations {
 			services.AddScoped<IRoleRepository, RoleRepository>();
 			services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 			services.AddScoped<IEmailService, EmailService>();
+			services.AddScoped<IUnitOfWork, UnitOfWork>();
 		}
 	}
 }

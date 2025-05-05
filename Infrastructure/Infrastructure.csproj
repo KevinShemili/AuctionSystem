@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
 	<CheckEolTargetFramework>false</CheckEolTargetFramework>
 	<ImplicitUsings>enable</ImplicitUsings>
-    <Nullable>enable</Nullable>
+    <Nullable>disable</Nullable>
 	<SuppressTfmSupportBuildWarnings>true</SuppressTfmSupportBuildWarnings>
   </PropertyGroup>
 

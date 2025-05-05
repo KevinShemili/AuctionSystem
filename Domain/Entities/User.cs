@@ -15,7 +15,7 @@ namespace Domain.Entities {
 		// Relationships
 		public virtual ICollection<Role> Roles { get; set; }
 		public virtual ICollection<UserRole> UserRoles { get; set; }
-		public virtual ICollection<AuthenticationToken> RefreshTokens { get; set; }
+		public virtual ICollection<AuthenticationToken> AuthenticationTokens { get; set; }
 		public virtual ICollection<UserToken> UserTokens { get; set; }
 	}
 }

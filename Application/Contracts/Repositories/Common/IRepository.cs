@@ -15,7 +15,5 @@ namespace Application.Contracts.Repositories.Common {
 		IQueryable<T> SetNoTracking();
 
 		DbSet<T> SetTracking();
-
-		Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default);
 	}
 }

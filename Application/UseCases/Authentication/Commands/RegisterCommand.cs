@@ -4,11 +4,14 @@ using Application.Common.ResultPattern;
 using Application.Common.TokenService;
 using Application.Common.Tools.Hasher;
 using Application.Contracts.Repositories;
+using Application.Contracts.Repositories.UnitOfWork;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Enumerations;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Authentication.Commands {
 	public class RegisterCommand : IRequest<Result<bool>> {
@@ -24,19 +27,25 @@ namespace Application.UseCases.Authentication.Commands {
 		private readonly IEmailService _emailService;
 		private readonly IConfiguration _configuration;
 		private readonly IUserTokenRepository _userTokenRepository;
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly ILogger<RegisterCommandHandler> _logger;
 
 		public RegisterCommandHandler(IUserRepository userRepository,
 								IMapper mapper,
 								ITokenService tokenService,
 								IEmailService emailService,
 								IConfiguration configuration,
-								IUserTokenRepository userTokenRepository) {
+								IUserTokenRepository userTokenRepository,
+								IUnitOfWork unitOfWork,
+								ILogger<RegisterCommandHandler> logger) {
 			_userRepository = userRepository;
 			_mapper = mapper;
 			_tokenService = tokenService;
 			_emailService = emailService;
 			_configuration = configuration;
 			_userTokenRepository = userTokenRepository;
+			_unitOfWork = unitOfWork;
+			_logger = logger;
 		}
 
 		public async Task<Result<bool>> Handle(RegisterCommand request, CancellationToken cancellationToken) {
@@ -53,6 +62,7 @@ namespace Application.UseCases.Authentication.Commands {
 			(user.PasswordHash, user.PasswordSalt) = Hasher.HashPasword(request.Password);
 
 			_ = await _userRepository.CreateAsync(user, cancellationToken: cancellationToken);
+
 			_ = await _userTokenRepository.CreateAsync(new UserToken {
 				Token = emailToken,
 				Expiry = DateTime.UtcNow.AddHours(
@@ -62,9 +72,20 @@ namespace Application.UseCases.Authentication.Commands {
 			}, cancellationToken: cancellationToken);
 
 			await _emailService.SendConfirmationEmailAsync(emailToken, request.Email, cancellationToken);
-			_ = await _userRepository.SaveChangesAsync(cancellationToken);
+			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 			return Result<bool>.Success(true);
+		}
+	}
+
+	public class RegisterCommandValidator : AbstractValidator<RegisterCommand> {
+		public RegisterCommandValidator() {
+			RuleFor(x => x.Email)
+				.NotEmpty()
+				.EmailAddress();
+
+			RuleFor(x => x.Password)
+				.NotEmpty();
 		}
 	}
 }
