@@ -11,12 +11,8 @@ namespace WebAPI.Controllers {
 
 	public class AuthenticationController : AbstractController {
 
-		private readonly ILogger<AuthenticationController> _logger;
-
 		public AuthenticationController(IMediator mediator,
-								  IMapper mapper,
-								  ILogger<AuthenticationController> logger) : base(mediator, mapper) {
-			_logger = logger;
+										IMapper mapper) : base(mediator, mapper) {
 		}
 
 		[AllowAnonymous]
@@ -35,19 +31,67 @@ namespace WebAPI.Controllers {
 		}
 
 		[AllowAnonymous]
-		[HttpGet("throw")]
-		public IActionResult Throw() {
-			throw new Exception("This is a test exception.");
+		[SwaggerOperation(Summary = "Sign In")]
+		[HttpPost("sign-in")]
+		public async Task<IActionResult> SignIn([FromBody] SignInDTO signInDTO) {
+
+			var command = _mapper.Map<SignInCommand>(signInDTO);
+
+			var result = await _mediator.Send(command);
+
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
+
+			return Ok(result.Value);
 		}
 
 		[AllowAnonymous]
-		[HttpGet("log")]
-		public IActionResult LogTest() {
+		[SwaggerOperation(Summary = "Refresh Token")]
+		[HttpPost("refresh")]
+		public async Task<IActionResult> Refresh([FromBody] TokensDTO tokensDTO) {
 
-			_logger.LogInformation("LogTest test: {Now}", DateTime.UtcNow);
+			var command = _mapper.Map<RefreshTokenCommand>(tokensDTO);
 
+			var result = await _mediator.Send(command);
 
-			return Ok("Log Test Done.");
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
+
+			return Ok(result.Value);
+		}
+
+		[Authorize]
+		[SwaggerOperation(Summary = "Revoke Refresh Token")]
+		[HttpPost("revoke-refresh")]
+		public async Task<IActionResult> RevokeRefreshToken(Guid userId) {
+
+			var command = new RevokeRefreshTokenCommand { UserId = userId };
+
+			var result = await _mediator.Send(command);
+
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
+
+			return Ok(result.Value);
+		}
+
+		// [FromQuery] is always a GET request.
+		[AllowAnonymous]
+		[SwaggerOperation(Summary = "Confirm Email")]
+		[HttpGet("confirm-email")]
+		public async Task<IActionResult> ConfirmEmail([FromQuery] string token, [FromQuery] string email) {
+
+			var command = new ConfirmEmailCommand {
+				Email = email,
+				Token = token
+			};
+
+			var result = await _mediator.Send(command);
+
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
+
+			return Ok(result.Value);
 		}
 	}
 }

@@ -5,6 +5,8 @@ namespace WebAPI.DTOs.AuthenticationDTOs.Mappings {
 	public class MapperConfigurations : Profile {
 		public MapperConfigurations() {
 			CreateMap<RegisterDTO, RegisterCommand>();
+			CreateMap<SignInDTO, SignInCommand>();
+			CreateMap<TokensDTO, RefreshTokenCommand>();
 		}
 	}
 }
