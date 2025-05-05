@@ -12,15 +12,15 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250503105154_InitialCommit")]
-    partial class InitialCommit
+    [Migration("20250505175022_RenameTable")]
+    partial class RenameTable
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "7.0.20")
+                .HasAnnotation("ProductVersion", "7.0.18")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
@@ -59,7 +59,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("RefreshTokens");
+                    b.ToTable("AuthenticationTokens");
                 });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>
@@ -303,8 +303,8 @@ namespace Infrastructure.Migrations
                             IsBlocked = false,
                             IsDeleted = false,
                             IsEmailVerified = true,
-                            PasswordHash = "078F0EF053FBCD2B963EA1ABBBEEE9119F483A790BBE9FFE0B92BF61F2F9069979B8D10CBAB656EF98AA69AD47CC7E4CC5C271367B6CCF2435F99E92078BBE89",
-                            PasswordSalt = "F57F044AD084B76ACB7C990D41BBA460F433FB25C2CBCFE5C71BE660C0E6D5BA452BF664DE1F26AB3DA846FF8E91D646B422F9587F67F6DA37FF231E357986CC",
+                            PasswordHash = "5A7F8905C754E3A6D71F1B47EA34AA9070A8609CA17D6C3CCFC66E21E32012A3A205280FA1EACBB87457197EEB8B37F72C8D68E9C3DE93DA2B92EC59B32F55AF",
+                            PasswordSalt = "C12062A48E7BC42709B4B964D67C82FA02CC4460D1DBA0F8B791649FE2C4D0CCB867FFFA51E2C8954D1D7D6A0ADDEE412D369F268F1CA1E9ACC5BD63364C6FBF",
                             UserName = "admin"
                         });
                 });
@@ -408,7 +408,7 @@ namespace Infrastructure.Migrations
             modelBuilder.Entity("Domain.Entities.AuthenticationToken", b =>
                 {
                     b.HasOne("Domain.Entities.User", "User")
-                        .WithMany("RefreshTokens")
+                        .WithMany("AuthenticationTokens")
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
@@ -479,7 +479,7 @@ namespace Infrastructure.Migrations
 
             modelBuilder.Entity("Domain.Entities.User", b =>
                 {
-                    b.Navigation("RefreshTokens");
+                    b.Navigation("AuthenticationTokens");
 
                     b.Navigation("UserRoles");
 

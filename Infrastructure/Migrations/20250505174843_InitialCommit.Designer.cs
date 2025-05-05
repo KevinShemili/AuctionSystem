@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250505174843_InitialCommit")]
+    partial class InitialCommit
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -56,7 +59,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("UserId");
 
-                    b.ToTable("AuthenticationTokens");
+                    b.ToTable("RefreshTokens");
                 });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>
@@ -300,8 +303,8 @@ namespace Infrastructure.Migrations
                             IsBlocked = false,
                             IsDeleted = false,
                             IsEmailVerified = true,
-                            PasswordHash = "5A7F8905C754E3A6D71F1B47EA34AA9070A8609CA17D6C3CCFC66E21E32012A3A205280FA1EACBB87457197EEB8B37F72C8D68E9C3DE93DA2B92EC59B32F55AF",
-                            PasswordSalt = "C12062A48E7BC42709B4B964D67C82FA02CC4460D1DBA0F8B791649FE2C4D0CCB867FFFA51E2C8954D1D7D6A0ADDEE412D369F268F1CA1E9ACC5BD63364C6FBF",
+                            PasswordHash = "4ACC92FAF0D85C4B1D7D238F1AD224066D94643283BF70BFE3C901FAF13696D3968E39298DE8D9D316BB1E58DCEAAA18970AC66A9D87B7881F28874BDBA1324C",
+                            PasswordSalt = "1C61786FB7F2EFB83CE14A1E3D0CB85A1B2F2A431653982278ABF3C3DB0B7002A174BD96CB7400FBD8C276AC81A4BBE0293B6CB5C39D43B911737F79D0CB37C2",
                             UserName = "admin"
                         });
                 });

@@ -93,5 +93,11 @@ namespace WebAPI.Controllers {
 
 			return Ok(result.Value);
 		}
+
+		[Authorize(Policy = "policy.name")]
+		[HttpPut("clickme")]
+		public IActionResult ClickMe() {
+			return Ok();
+		}
 	}
 }

@@ -1,11 +1,14 @@
 using Application.DependencyConfigurations;
 using FluentValidation.AspNetCore;
 using Infrastructure.DependencyConfigurations;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Sinks.Elasticsearch;
 using System.Reflection;
+using System.Text;
 using WebAPI.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -46,8 +49,7 @@ builder.Services.AddSwaggerGen(config => {
 	config.AddSecurityRequirement(new OpenApiSecurityRequirement
 	{
 		{
-			new OpenApiSecurityScheme
-			{
+			new OpenApiSecurityScheme {
 				Reference = new OpenApiReference
 				{
 					Type = ReferenceType.SecurityScheme,
@@ -60,10 +62,30 @@ builder.Services.AddSwaggerGen(config => {
 });
 
 builder.Services.AddAuthorization();
-builder.Services.AddAuthentication();
+builder.Services.AddAuthentication(x => {
+	x.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+	x.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+	x.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+}).AddJwtBearer(x => {
+	x.RequireHttpsMetadata = false;
+	x.SaveToken = true;
+	x.TokenValidationParameters = new TokenValidationParameters {
+		ValidateIssuer = false,
+		ValidateAudience = false,
+		ValidateLifetime = true,
+		ValidateIssuerSigningKey = true,
+		ValidIssuer = builder.Configuration["JWTSettings:Issuer"],
+		ValidAudience = builder.Configuration["JWTSettings:Audience"],
+		IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["JWTSettings:Secret"]!)),
+		ClockSkew = TimeSpan.Zero,
+		RequireExpirationTime = false
+	};
+});
+
 builder.Services.AddProblemDetails();
 
 ConfigureLogging();
+
 builder.Host.UseSerilog();
 
 var app = builder.Build();
@@ -83,28 +105,30 @@ static void ConfigureSwagger(WebApplication app) {
 }
 
 static void ConfigureLogging() {
+
 	var environment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT");
 
-	var config = new ConfigurationBuilder()
-		.AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
-		.AddJsonFile($"appsettings.{environment}.json", optional: true)
-		.Build();
+	if (environment == "Docker") {
+		var config = new ConfigurationBuilder()
+			  .AddJsonFile("appsettings.json", optional: false, reloadOnChange: true)
+			  .AddJsonFile($"appsettings.{environment}.json", optional: true)
+			  .Build();
 
-	Log.Logger = new LoggerConfiguration()
-		.Enrich.FromLogContext()
-		.Enrich.WithEnvironmentName()
-		.Enrich.WithMachineName()
-		.Enrich.WithExceptionDetails()
-		.WriteTo.Debug()
-		.WriteTo.Console()
-		.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(config["ElasticConfiguration:Uri"])) {
-			AutoRegisterTemplate = true,
-			IndexFormat = $"{Assembly.GetExecutingAssembly()?.GetName()?.Name?.ToLower().Replace(".", "-")}-{environment?.ToLower()}-{DateTime.UtcNow:yyyy-MM-dd}",
-			NumberOfReplicas = 1,
-			NumberOfShards = 2
-		})
-		.Enrich.WithProperty("Environment", environment)
-		.ReadFrom.Configuration(config)
-		.CreateLogger();
-
+		Log.Logger = new LoggerConfiguration()
+			.Enrich.FromLogContext()
+			.Enrich.WithEnvironmentName()
+			.Enrich.WithMachineName()
+			.Enrich.WithExceptionDetails()
+			.WriteTo.Debug()
+			.WriteTo.Console()
+			.WriteTo.Elasticsearch(new ElasticsearchSinkOptions(new Uri(config["ElasticConfiguration:Uri"])) {
+				AutoRegisterTemplate = true,
+				IndexFormat = $"{Assembly.GetExecutingAssembly()?.GetName()?.Name?.ToLower().Replace(".", "-")}-{environment?.ToLower()}-{DateTime.UtcNow:yyyy-MM-dd}",
+				NumberOfReplicas = 1,
+				NumberOfShards = 2
+			})
+			.Enrich.WithProperty("Environment", environment)
+			.ReadFrom.Configuration(config)
+			.CreateLogger();
+	}
 }

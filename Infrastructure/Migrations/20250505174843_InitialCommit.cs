@@ -21,9 +21,9 @@ namespace Infrastructure.Migrations
                     Key = table.Column<string>(type: "text", nullable: true),
                     Name = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -37,9 +37,9 @@ namespace Infrastructure.Migrations
                     Id = table.Column<Guid>(type: "uuid", nullable: false),
                     Name = table.Column<string>(type: "text", nullable: true),
                     Description = table.Column<string>(type: "text", nullable: true),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -58,9 +58,9 @@ namespace Infrastructure.Migrations
                     PasswordSalt = table.Column<string>(type: "text", nullable: true),
                     FailedLoginTries = table.Column<int>(type: "integer", nullable: false),
                     IsBlocked = table.Column<bool>(type: "boolean", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -76,9 +76,9 @@ namespace Infrastructure.Migrations
                     AssignedByName = table.Column<string>(type: "text", nullable: true),
                     RoleId = table.Column<Guid>(type: "uuid", nullable: false),
                     PermissionId = table.Column<Guid>(type: "uuid", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -106,9 +106,9 @@ namespace Infrastructure.Migrations
                     Expiry = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     AccessToken = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -130,9 +130,9 @@ namespace Infrastructure.Migrations
                     AssignedByName = table.Column<string>(type: "text", nullable: true),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
                     RoleId = table.Column<Guid>(type: "uuid", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -160,9 +160,9 @@ namespace Infrastructure.Migrations
                     Expiry = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
                     TokenTypeId = table.Column<int>(type: "integer", nullable: false),
                     UserId = table.Column<Guid>(type: "uuid", nullable: false),
-                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false),
                     DateCreated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
-                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true)
+                    DateUpdated = table.Column<DateTime>(type: "timestamp with time zone", nullable: true),
+                    IsDeleted = table.Column<bool>(type: "boolean", nullable: false)
                 },
                 constraints: table =>
                 {
@@ -198,7 +198,7 @@ namespace Infrastructure.Migrations
             migrationBuilder.InsertData(
                 table: "Users",
                 columns: new[] { "Id", "DateCreated", "DateUpdated", "Email", "FailedLoginTries", "IsBlocked", "IsDeleted", "IsEmailVerified", "PasswordHash", "PasswordSalt", "UserName" },
-                values: new object[] { new Guid("5fc111de-788d-49b2-ba73-7a1e62e9c42e"), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "admin@mail.com", 0, false, false, true, "078F0EF053FBCD2B963EA1ABBBEEE9119F483A790BBE9FFE0B92BF61F2F9069979B8D10CBAB656EF98AA69AD47CC7E4CC5C271367B6CCF2435F99E92078BBE89", "F57F044AD084B76ACB7C990D41BBA460F433FB25C2CBCFE5C71BE660C0E6D5BA452BF664DE1F26AB3DA846FF8E91D646B422F9587F67F6DA37FF231E357986CC", "admin" });
+                values: new object[] { new Guid("5fc111de-788d-49b2-ba73-7a1e62e9c42e"), new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc), null, "admin@mail.com", 0, false, false, true, "4ACC92FAF0D85C4B1D7D238F1AD224066D94643283BF70BFE3C901FAF13696D3968E39298DE8D9D316BB1E58DCEAAA18970AC66A9D87B7881F28874BDBA1324C", "1C61786FB7F2EFB83CE14A1E3D0CB85A1B2F2A431653982278ABF3C3DB0B7002A174BD96CB7400FBD8C276AC81A4BBE0293B6CB5C39D43B911737F79D0CB37C2", "admin" });
 
             migrationBuilder.InsertData(
                 table: "RolePermissions",
