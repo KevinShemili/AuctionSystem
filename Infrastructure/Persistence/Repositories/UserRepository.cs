@@ -30,7 +30,7 @@ namespace Infrastructure.Persistence.Repositories {
 
 		public async Task<User> GetUserWithAuthenticationTokensAsync(string email, CancellationToken cancellationToken = default) {
 			var user = await SetTracking().Include(x => x.AuthenticationTokens)
-										.FirstOrDefaultAsync(x => x.Email == email, cancellationToken: cancellationToken);
+										  .FirstOrDefaultAsync(x => x.Email == email, cancellationToken: cancellationToken);
 
 			return user;
 		}
@@ -42,10 +42,18 @@ namespace Infrastructure.Persistence.Repositories {
 			return user;
 		}
 
+		public async Task<User> GetUserWithRolesAndPermissionsNoTrackingAsync(string email, CancellationToken cancellationToken = default) {
+			var user = await SetNoTracking().Include(x => x.Roles)
+											.ThenInclude(x => x.Permissions)
+											.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
+
+			return user;
+		}
+
 		public async Task<User> GetUserWithTokensAsync(string email, CancellationToken cancellationToken = default) {
 			var user = await SetTracking().Include(x => x.UserTokens)
-										.Where(x => x.Email == email)
-										.FirstOrDefaultAsync(cancellationToken: cancellationToken);
+										  .Where(x => x.Email == email)
+										  .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
 			return user;
 		}

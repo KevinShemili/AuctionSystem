@@ -1,5 +1,4 @@
 ﻿using Application.Contracts.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -19,10 +18,7 @@ namespace Application.Common.TokenService {
 
 		public async Task<string> GenerateAccessTokenAsync(string email, CancellationToken cancellationToken) {
 
-			var user = await _userRepository.SetNoTracking()
-											.Include(x => x.Roles)
-											.ThenInclude(x => x.Permissions)
-											.FirstOrDefaultAsync(x => x.Email == email, cancellationToken);
+			var user = await _userRepository.GetUserWithRolesAndPermissionsNoTrackingAsync(email, cancellationToken: cancellationToken);
 
 			if (user is null)
 				ArgumentNullException.ThrowIfNull(user);
