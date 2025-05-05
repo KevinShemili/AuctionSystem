@@ -1,6 +1,8 @@
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
 [![Coverage](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=coverage)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
 [![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
 
 # Auction System
 
