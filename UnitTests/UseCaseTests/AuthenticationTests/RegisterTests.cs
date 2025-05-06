@@ -1,5 +1,5 @@
 ﻿using Application.Common.EmailService;
-using Application.Common.ErrorMessages.AuthenticationUseCase;
+using Application.Common.ErrorMessages;
 using Application.Common.TokenService;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
@@ -62,7 +62,7 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 			// Assert
 			_userRepositoryMock.Verify(x => x.DoesEmailExistAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Once);
 			Assert.False(result.IsSuccess);
-			Assert.Equal(AuthenticationErrors.EmailAlreadyExists, result.Error);
+			Assert.Equal(Errors.EmailAlreadyExists, result.Error);
 		}
 
 		[Fact]
