@@ -1,4 +1,5 @@
-﻿using Application.Common.ErrorMessages;
+﻿using Application.Common.Broadcast;
+using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
@@ -22,17 +23,20 @@ namespace Application.UseCases.Bidding.Commands {
 		private readonly IAuctionRepository _auctionRepository;
 		private readonly IUserRepository _userRepository;
 		private readonly IBidRepository _bidRepository;
+		private readonly IBroadcastService _broadcastService;
 
 		public PlaceBidCommandHandler(IUnitOfWork unitOfWork,
 									  ILogger<PlaceBidCommandHandler> logger,
 									  IUserRepository userRepository,
 									  IAuctionRepository auctionRepository,
-									  IBidRepository bidRepository) {
+									  IBidRepository bidRepository,
+									  IBroadcastService broadcastService) {
 			_unitOfWork = unitOfWork;
 			_logger = logger;
 			_userRepository = userRepository;
 			_auctionRepository = auctionRepository;
 			_bidRepository = bidRepository;
+			_broadcastService = broadcastService;
 		}
 
 		public async Task<Result<Guid>> Handle(PlaceBidCommand request, CancellationToken cancellationToken) {
@@ -89,6 +93,14 @@ namespace Application.UseCases.Bidding.Commands {
 			_ = await _bidRepository.CreateAsync(bid, cancellationToken: cancellationToken);
 
 			await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+			await _broadcastService.PublishAsync("NEW-BID", new {
+				AuctionId = request.AuctionId,
+				BidId = bid.Id,
+				FirstName = bidder.FirstName,
+				LastName = bidder.LastName,
+				PlacedAt = DateTime.UtcNow
+			});
 
 			return Result<Guid>.Success(bid.Id);
 		}

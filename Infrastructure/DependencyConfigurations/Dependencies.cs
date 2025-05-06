@@ -1,7 +1,9 @@
-﻿using Application.Common.EmailService;
+﻿using Application.Common.Broadcast;
+using Application.Common.EmailService;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
 using Infrastructure.Authorization;
+using Infrastructure.Broadcast;
 using Infrastructure.Email;
 using Infrastructure.Persistence;
 using Infrastructure.Persistence.Repositories;
@@ -17,6 +19,7 @@ namespace Infrastructure.DependencyConfigurations {
 		public static IServiceCollection AddInfrastructureLayer(this IServiceCollection services, IConfiguration configuration) {
 
 			services.ConfigureDatabaseConnection(configuration);
+			services.ConfigureSingletonServices();
 			services.ConfigureScopedServices();
 			services.ConfigureAuthorizationPolicy();
 
@@ -48,6 +51,10 @@ namespace Infrastructure.DependencyConfigurations {
 			services.AddScoped<IBidRepository, BidRepository>();
 			services.AddScoped<IWalletRepository, WalletRepository>();
 			services.AddScoped<IWalletTransactionRepository, WalletTransactionRepository>();
+		}
+
+		private static void ConfigureSingletonServices(this IServiceCollection services) {
+			services.AddSingleton<IBroadcastService, BroadcastService>();
 		}
 
 		private static void ConfigureAuthorizationPolicy(this IServiceCollection services) {
