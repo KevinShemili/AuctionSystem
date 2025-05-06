@@ -1,6 +1,9 @@
 using Application.DependencyConfigurations;
+using Application.UseCases.AutomaticExpiry;
 using FluentValidation.AspNetCore;
+using Hangfire;
 using Infrastructure.DependencyConfigurations;
+using Infrastructure.Hangfire;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -93,6 +96,18 @@ var app = builder.Build();
 app.UseMiddleware<GlobalExceptionHandler>();
 
 ConfigureSwagger(app);
+
+app.UseHangfireDashboard("/hangfire", new DashboardOptions {
+	Authorization = new[] { new AllowAllDashboardAuthorizationFilter() }
+});
+
+var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+recurringJobManager.AddOrUpdate<ITestJob>(
+	"TestJob",
+	job => job.ExecuteAsync(),
+	Cron.Minutely
+);
+
 app.UseRouting();
 app.UseAuthentication();
 app.UseAuthorization();

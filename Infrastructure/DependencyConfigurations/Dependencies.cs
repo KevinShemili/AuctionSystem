@@ -2,6 +2,9 @@
 using Application.Common.EmailService;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
+using Application.UseCases.AutomaticExpiry;
+using Hangfire;
+using Hangfire.PostgreSql;
 using Infrastructure.Authorization;
 using Infrastructure.Broadcast;
 using Infrastructure.Email;
@@ -22,6 +25,7 @@ namespace Infrastructure.DependencyConfigurations {
 			services.ConfigureSingletonServices();
 			services.ConfigureScopedServices();
 			services.ConfigureAuthorizationPolicy();
+			services.ConfigureHangfire(configuration);
 
 			return services;
 		}
@@ -60,6 +64,28 @@ namespace Infrastructure.DependencyConfigurations {
 		private static void ConfigureAuthorizationPolicy(this IServiceCollection services) {
 			services.AddSingleton<IAuthorizationPolicyProvider, PermissionAuthorizationPolicyProvider>();
 			services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
+		}
+
+		private static void ConfigureHangfire(this IServiceCollection services, IConfiguration configuration) {
+
+			var conn = configuration.GetConnectionString("DBString");
+
+			services.AddHangfire(hf => hf
+				.SetDataCompatibilityLevel(CompatibilityLevel.Version_170)
+				.UseSimpleAssemblyNameTypeSerializer()
+				.UseRecommendedSerializerSettings()
+				.UsePostgreSqlStorage(
+					options => options.UseNpgsqlConnection(conn),
+					new PostgreSqlStorageOptions {
+						SchemaName = "hangfire",
+						QueuePollInterval = TimeSpan.FromSeconds(15)
+					}
+				)
+			);
+
+			services.AddHangfireServer();
+			services.AddTransient<ITestJob, TestJob>();
+
 		}
 	}
 }
