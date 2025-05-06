@@ -3,5 +3,6 @@ using Domain.Entities;
 
 namespace Application.Contracts.Repositories {
 	public interface IAuctionRepository : IRepository<Auction> {
+		Task<Auction> GetAuctionWithBidsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default);
 	}
 }

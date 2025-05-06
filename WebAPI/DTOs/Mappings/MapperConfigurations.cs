@@ -1,8 +1,10 @@
 ﻿using Application.UseCases.Auctions.Commands;
 using Application.UseCases.Authentication.Commands;
+using Application.UseCases.Bidding.Commands;
 using AutoMapper;
 using WebAPI.DTOs.AuctionDTOs;
 using WebAPI.DTOs.AuthenticationDTOs;
+using WebAPI.DTOs.BidDTOs;
 
 namespace WebAPI.DTOs.Mappings {
 	public class MapperConfigurations : Profile {
@@ -11,6 +13,7 @@ namespace WebAPI.DTOs.Mappings {
 			CreateMap<SignInDTO, SignInCommand>();
 			CreateMap<TokensDTO, RefreshTokenCommand>();
 			CreateMap<CreateAuctionDTO, CreateAuctionCommand>();
+			CreateMap<PlaceBidDTO, PlaceBidCommand>();
 		}
 	}
 }

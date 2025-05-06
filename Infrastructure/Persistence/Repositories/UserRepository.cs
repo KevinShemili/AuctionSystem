@@ -57,5 +57,14 @@ namespace Infrastructure.Persistence.Repositories {
 
 			return user;
 		}
+
+		public async Task<User> GetUserWithWalletAndTransactionsAsync(Guid id, CancellationToken cancellationToken = default) {
+			var user = await SetTracking().Include(x => x.Wallet)
+										  .ThenInclude(x => x.Transactions)
+										  .Where(x => x.Id == id)
+										  .FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+			return user;
+		}
 	}
 }

@@ -1,4 +1,4 @@
-﻿using Application.Common.ErrorMessages.AuthenticationUseCase;
+﻿using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Common.TokenService;
 using Application.Common.Tools.Transcode;
@@ -46,7 +46,7 @@ namespace Application.UseCases.Authentication.Commands {
 			}
 			catch (Exception) {
 				_logger.LogWarning("Refresh Token Command failed. RefreshToken: {RefreshToken} AccessToken: {AccessToken}", request.RefreshToken, request.AccessToken);
-				return Result<RefreshTokenCommandResult>.Failure(AuthenticationErrors.InvalidToken);
+				return Result<RefreshTokenCommandResult>.Failure(Errors.InvalidToken);
 			}
 
 			var email = claims.FindFirst(ClaimTypes.Email)!.Value;
@@ -58,7 +58,7 @@ namespace Application.UseCases.Authentication.Commands {
 				_logger.LogCritical("This command has been hit, with a valid a valid JWT & Refresh, although no such user exists in the system" +
 					"User: {User}. AccessToken: {AccessToken}, RefreshToken: {RefreshToken}"
 					, user.Email, request.AccessToken, request.RefreshToken);
-				return Result<RefreshTokenCommandResult>.Failure(AuthenticationErrors.ServerError);
+				return Result<RefreshTokenCommandResult>.Failure(Errors.ServerError);
 			}
 
 			var decodedRefreshToken = Transcode.DecodeURL(request.RefreshToken);
@@ -67,17 +67,17 @@ namespace Application.UseCases.Authentication.Commands {
 
 			if (currentRefreshToken is null) {
 				_logger.LogWarning("Refresh Token Command failed. No refresh available, re-login: User: {User}", user.Email);
-				return Result<RefreshTokenCommandResult>.Failure(AuthenticationErrors.Unauthorized);
+				return Result<RefreshTokenCommandResult>.Failure(Errors.Unauthorized);
 			}
 
 			if (currentRefreshToken.AccessToken != request.AccessToken) {
 				_logger.LogWarning("Unauthorized request. User: {User} AccessToken: {AccessToken} RefreshToken: {RefreshToken}", user.Email, request.AccessToken, request.RefreshToken);
-				return Result<RefreshTokenCommandResult>.Failure(AuthenticationErrors.Unauthorized);
+				return Result<RefreshTokenCommandResult>.Failure(Errors.Unauthorized);
 			}
 
 			if (currentRefreshToken.Expiry >= DateTime.UtcNow) {
 				_logger.LogWarning("Refresh Token Command failed. Expired refresh. User: {User}", user.Email);
-				return Result<RefreshTokenCommandResult>.Failure(AuthenticationErrors.Unauthorized);
+				return Result<RefreshTokenCommandResult>.Failure(Errors.Unauthorized);
 			}
 
 			var newAccessToken = _tokenService.GenerateAccessToken(claims.Claims);

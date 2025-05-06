@@ -1,4 +1,4 @@
-﻿using Application.Common.ErrorMessages.AuthenticationUseCase;
+﻿using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Common.TokenService;
 using Application.Common.Tools.Hasher;
@@ -47,17 +47,17 @@ namespace Application.UseCases.Authentication.Commands {
 
 			if (user is null) {
 				_logger.LogWarning("SignIn attempt failed: Email {Email} does not exist.", request.Email);
-				return Result<SignInCommandResult>.Failure(AuthenticationErrors.UserNotFound(request.Email));
+				return Result<SignInCommandResult>.Failure(Errors.UserNotFound(request.Email));
 			}
 
 			if (user.IsEmailVerified is false) {
 				_logger.LogWarning("SignIn attempt failed: Email {Email} is not verified.", request.Email);
-				return Result<SignInCommandResult>.Failure(AuthenticationErrors.AccountNotVerified);
+				return Result<SignInCommandResult>.Failure(Errors.AccountNotVerified);
 			}
 
 			if (user.IsBlocked is true) {
 				_logger.LogWarning("SignIn attempt failed: User {FirstName} {LastName} is blocked.", user.FirstName, user.LastName);
-				return Result<SignInCommandResult>.Failure(AuthenticationErrors.LockedOut);
+				return Result<SignInCommandResult>.Failure(Errors.LockedOut);
 			}
 
 			var isPasswordCorrect = Hasher.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
@@ -70,14 +70,14 @@ namespace Application.UseCases.Authentication.Commands {
 
 					_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 					_logger.LogWarning("User {FirstName} {LastName} reached max tries: Blocked.", user.FirstName, user.LastName);
-					return Result<SignInCommandResult>.Failure(AuthenticationErrors.LockedOut);
+					return Result<SignInCommandResult>.Failure(Errors.LockedOut);
 				}
 
 				user.FailedLoginTries += 1;
 
 				_ = await _userRepository.UpdateAsync(user, true, cancellationToken);
 
-				return Result<SignInCommandResult>.Failure(AuthenticationErrors.SignInFailure);
+				return Result<SignInCommandResult>.Failure(Errors.SignInFailure);
 			}
 
 			user.FailedLoginTries = 0;
@@ -94,7 +94,8 @@ namespace Application.UseCases.Authentication.Commands {
 			user.AuthenticationTokens.Add(new AuthenticationToken {
 				RefreshToken = refreshToken,
 				Expiry = refreshExpiry,
-				AccessToken = accessToken
+				AccessToken = accessToken,
+				DateCreated = DateTime.UtcNow,
 			});
 
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);

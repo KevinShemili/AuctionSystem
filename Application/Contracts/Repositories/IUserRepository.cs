@@ -9,5 +9,6 @@ namespace Application.Contracts.Repositories {
 		Task<User> GetUserWithAuthenticationTokensAsync(string email, CancellationToken cancellationToken = default);
 		Task<User> GetUserWithTokensAsync(string email, CancellationToken cancellationToken = default);
 		Task<User> GetUserWithRolesAndPermissionsNoTrackingAsync(string email, CancellationToken cancellationToken = default);
+		Task<User> GetUserWithWalletAndTransactionsAsync(Guid id, CancellationToken cancellationToken = default);
 	}
 }

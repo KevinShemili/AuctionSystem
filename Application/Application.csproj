@@ -25,6 +25,8 @@
   <ItemGroup>
     <Folder Include="UseCases\Auctions\Queries\" />
     <Folder Include="UseCases\Authentication\Queries\" />
+    <Folder Include="UseCases\Bidding\Mappings\" />
+    <Folder Include="UseCases\Bidding\Queries\" />
   </ItemGroup>
 
 </Project>

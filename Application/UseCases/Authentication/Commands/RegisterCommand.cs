@@ -1,5 +1,5 @@
 ﻿using Application.Common.EmailService;
-using Application.Common.ErrorMessages.AuthenticationUseCase;
+using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Common.TokenService;
 using Application.Common.Tools.Hasher;
@@ -57,7 +57,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 			if (isExistingEmail is true) {
 				_logger.LogWarning("Registration attempt failed: Email {Email} already exists.", request.Email);
-				return Result<bool>.Failure(AuthenticationErrors.EmailAlreadyExists);
+				return Result<bool>.Failure(Errors.EmailAlreadyExists);
 			}
 
 			// Generate email verification token
@@ -71,7 +71,8 @@ namespace Application.UseCases.Authentication.Commands {
 
 			// Add default initial wallet 10000$
 			user.Wallet = new Wallet {
-				Balance = 10000
+				Balance = 10000,
+				DateCreated = DateTime.UtcNow,
 			};
 
 			// Create user

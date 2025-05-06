@@ -3,9 +3,6 @@ using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers.Common {
-
-	[ApiController]
-	[Route("api/[controller]")]
 	public abstract class AbstractController : ControllerBase {
 
 		protected readonly IMediator _mediator;

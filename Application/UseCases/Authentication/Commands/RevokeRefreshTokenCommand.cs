@@ -1,4 +1,4 @@
-﻿using Application.Common.ErrorMessages.AuthenticationUseCase;
+﻿using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Contracts.Repositories;
 using FluentValidation;
@@ -27,7 +27,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 			if (refreshToken is null) {
 				_logger.LogWarning("Revoke Refresh Command failed. No refresh available for user. User: {UserId}", request.UserId);
-				return Result<bool>.Failure(AuthenticationErrors.UserNotFound(request.UserId));
+				return Result<bool>.Failure(Errors.UserNotFound(request.UserId));
 			}
 
 			_ = await _authenticationTokenRepository.DeleteAsync(refreshToken, true, cancellationToken);

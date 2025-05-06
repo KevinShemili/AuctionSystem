@@ -9,6 +9,8 @@ using WebAPI.DTOs.AuthenticationDTOs;
 
 namespace WebAPI.Controllers {
 
+	[ApiController]
+	[Route("api/[controller]")]
 	public class AuthenticationController : AbstractController {
 
 		public AuthenticationController(IMediator mediator,

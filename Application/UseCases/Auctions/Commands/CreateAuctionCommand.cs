@@ -1,5 +1,4 @@
-﻿using Application.Common.ErrorMessages.AuctionUsecCase;
-using Application.Common.ErrorMessages.AuthenticationUseCase;
+﻿using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Common.TokenService;
 using Application.Contracts.Repositories;
@@ -7,6 +6,7 @@ using Application.Contracts.Repositories.UnitOfWork;
 using Application.UseCases.Auctions.Commands;
 using AutoMapper;
 using Domain.Entities;
+using Domain.Enumerations;
 using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
@@ -19,7 +19,7 @@ namespace Application.UseCases.Auctions.Commands {
 		public DateTime StartTime { get; set; }
 		public DateTime EndTime { get; set; }
 		public IEnumerable<byte[]> Images { get; set; }
-		public string AccessToken { get; set; }
+		public Guid SellerId { get; set; }
 	}
 
 	public class CreateAuctionCommandHandler : IRequestHandler<CreateAuctionCommand, Result<Guid>> {
@@ -47,48 +47,49 @@ namespace Application.UseCases.Auctions.Commands {
 
 		public async Task<Result<Guid>> Handle(CreateAuctionCommand request, CancellationToken cancellationToken) {
 
-			var userId = _tokenService.GetUserId(request.AccessToken);
-			var user = await _userRepository.GetByIdNoTrackingAsync(userId, cancellationToken);
+			var user = await _userRepository.GetByIdNoTrackingAsync(request.SellerId, cancellationToken);
 
 			if (user is null) {
 				_logger.LogWarning("Create Auction attempt failed, unauthorized. User: {User}.", user);
-				return Result<Guid>.Failure(AuthenticationErrors.Unauthorized);
+				return Result<Guid>.Failure(Errors.Unauthorized);
 			}
 
 			if (request.BaselinePrice <= 0) {
 				_logger.LogWarning("Create Auction attempt failed, negative price. BaselinePrice: {BaselinePrice}.", request.BaselinePrice);
-				return Result<Guid>.Failure(AuctionErrors.NegativeBaselinePrice);
+				return Result<Guid>.Failure(Errors.NegativeBaselinePrice);
 			}
 
 			if (request.StartTime < DateTime.UtcNow) {
 				_logger.LogWarning("Create Auction attempt failed, past start time. TimeNow: {TimeNow} StartTime: {StartTime}", DateTime.UtcNow, request.StartTime);
-				return Result<Guid>.Failure(AuctionErrors.PastStartTime);
+				return Result<Guid>.Failure(Errors.PastStartTime);
 			}
 
 			if (request.EndTime <= request.StartTime) {
 				_logger.LogWarning("Create Auction attempt failed, invalid end time. StartTime: {StartTime} EndTime: {EndTime}", request.StartTime, request.EndTime);
-				return Result<Guid>.Failure(AuctionErrors.EndSmallerEqualStart);
+				return Result<Guid>.Failure(Errors.EndSmallerEqualStart);
 			}
 
 			if (request.Images == null || !request.Images.Any()) {
 				_logger.LogWarning("Create Auction attempt failed, no images provided.");
-				return Result<Guid>.Failure(AuctionErrors.OneOrMoreImages);
+				return Result<Guid>.Failure(Errors.OneOrMoreImages);
 			}
 
 			foreach (var img in request.Images) {
 				if (img == null || img.Length == 0) {
 					_logger.LogWarning("Create Auction attempt failed, empty image data {data}", img);
-					return Result<Guid>.Failure(AuctionErrors.OneOrMoreImages);
+					return Result<Guid>.Failure(Errors.OneOrMoreImages);
 				}
 			}
 
 			var auction = _mapper.Map<Auction>(request);
-			auction.SellerId = user.Id;
+			auction.SellerId = request.SellerId;
 			auction.Images = new List<AuctionImage>();
+			auction.Status = (int)AuctionStatusEnum.Active;
 
 			foreach (var img in request.Images) {
 				auction.Images.Add(new AuctionImage {
 					Data = img,
+					DateCreated = DateTime.UtcNow,
 				});
 			}
 

@@ -1,5 +1,5 @@
 ﻿using Application.Common.EmailService;
-using Application.Common.ErrorMessages.AuthenticationUseCase;
+using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Common.TokenService;
 using Application.Common.Tools.Transcode;
@@ -50,12 +50,12 @@ namespace Application.UseCases.Authentication.Commands {
 
 			if (user is null) {
 				_logger.LogWarning("Email Verification attempt failed. Email: {Email} Token: {Token}", request.Email, request.Token);
-				return Result<bool>.Failure(AuthenticationErrors.InvalidToken);
+				return Result<bool>.Failure(Errors.InvalidToken);
 			}
 
 			if (user.IsEmailVerified is true) {
 				_logger.LogWarning("Email Verification attempt failed. Email: {Email} Token: {Token}", request.Email, request.Token);
-				return Result<bool>.Failure(AuthenticationErrors.AccountAlreadyVerified);
+				return Result<bool>.Failure(Errors.AccountAlreadyVerified);
 			}
 
 			var decodedToken = Transcode.DecodeURL(request.Token);
@@ -64,7 +64,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 			if (token is null) {
 				_logger.LogWarning("Email Verification attempt failed. User: {Email}", user.Email);
-				return Result<bool>.Failure(AuthenticationErrors.InvalidToken);
+				return Result<bool>.Failure(Errors.InvalidToken);
 			}
 
 			if (DateTime.UtcNow > token.Expiry) {
@@ -85,7 +85,7 @@ namespace Application.UseCases.Authentication.Commands {
 				_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 				_logger.LogWarning("Email Verification attempt failed, expired token. Email: {Email}", user.Email);
-				return Result<bool>.Failure(AuthenticationErrors.ExpiredEmailToken);
+				return Result<bool>.Failure(Errors.ExpiredEmailToken);
 			}
 
 			user.IsEmailVerified = true;
