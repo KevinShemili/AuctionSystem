@@ -78,7 +78,7 @@ builder.Services.AddAuthentication(x => {
 		ValidAudience = builder.Configuration["JWTSettings:Audience"],
 		IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(builder.Configuration["JWTSettings:Secret"]!)),
 		ClockSkew = TimeSpan.Zero,
-		RequireExpirationTime = false
+		RequireExpirationTime = true
 	};
 });
 

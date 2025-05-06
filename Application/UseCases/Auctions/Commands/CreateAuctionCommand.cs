@@ -1,0 +1,118 @@
+﻿using Application.Common.ErrorMessages.AuctionUsecCase;
+using Application.Common.ErrorMessages.AuthenticationUseCase;
+using Application.Common.ResultPattern;
+using Application.Common.TokenService;
+using Application.Contracts.Repositories;
+using Application.Contracts.Repositories.UnitOfWork;
+using Application.UseCases.Auctions.Commands;
+using AutoMapper;
+using Domain.Entities;
+using FluentValidation;
+using MediatR;
+using Microsoft.Extensions.Logging;
+
+namespace Application.UseCases.Auctions.Commands {
+	public class CreateAuctionCommand : IRequest<Result<Guid>> {
+		public string Name { get; set; }
+		public string Description { get; set; }
+		public decimal BaselinePrice { get; set; }
+		public DateTime StartTime { get; set; }
+		public DateTime EndTime { get; set; }
+		public IEnumerable<byte[]> Images { get; set; }
+		public string AccessToken { get; set; }
+	}
+
+	public class CreateAuctionCommandHandler : IRequestHandler<CreateAuctionCommand, Result<Guid>> {
+
+		private readonly IUnitOfWork _unitOfWork;
+		private readonly ILogger<CreateAuctionCommandHandler> _logger;
+		private readonly IMapper _mapper;
+		private readonly IAuctionRepository _auctionRepository;
+		private readonly ITokenService _tokenService;
+		private readonly IUserRepository _userRepository;
+
+		public CreateAuctionCommandHandler(IUnitOfWork unitOfWork,
+										   ILogger<CreateAuctionCommandHandler> logger,
+										   IMapper mapper,
+										   IAuctionRepository auctionRepository,
+										   ITokenService tokenService,
+										   IUserRepository userRepository) {
+			_unitOfWork = unitOfWork;
+			_logger = logger;
+			_mapper = mapper;
+			_auctionRepository = auctionRepository;
+			_tokenService = tokenService;
+			_userRepository = userRepository;
+		}
+
+		public async Task<Result<Guid>> Handle(CreateAuctionCommand request, CancellationToken cancellationToken) {
+
+			var userId = _tokenService.GetUserId(request.AccessToken);
+			var user = await _userRepository.GetByIdNoTrackingAsync(userId, cancellationToken);
+
+			if (user is null) {
+				_logger.LogWarning("Create Auction attempt failed, unauthorized. User: {User}.", user);
+				return Result<Guid>.Failure(AuthenticationErrors.Unauthorized);
+			}
+
+			if (request.BaselinePrice <= 0) {
+				_logger.LogWarning("Create Auction attempt failed, negative price. BaselinePrice: {BaselinePrice}.", request.BaselinePrice);
+				return Result<Guid>.Failure(AuctionErrors.NegativeBaselinePrice);
+			}
+
+			if (request.StartTime < DateTime.UtcNow) {
+				_logger.LogWarning("Create Auction attempt failed, past start time. TimeNow: {TimeNow} StartTime: {StartTime}", DateTime.UtcNow, request.StartTime);
+				return Result<Guid>.Failure(AuctionErrors.PastStartTime);
+			}
+
+			if (request.EndTime <= request.StartTime) {
+				_logger.LogWarning("Create Auction attempt failed, invalid end time. StartTime: {StartTime} EndTime: {EndTime}", request.StartTime, request.EndTime);
+				return Result<Guid>.Failure(AuctionErrors.EndSmallerEqualStart);
+			}
+
+			if (request.Images == null || !request.Images.Any()) {
+				_logger.LogWarning("Create Auction attempt failed, no images provided.");
+				return Result<Guid>.Failure(AuctionErrors.OneOrMoreImages);
+			}
+
+			foreach (var img in request.Images) {
+				if (img == null || img.Length == 0) {
+					_logger.LogWarning("Create Auction attempt failed, empty image data {data}", img);
+					return Result<Guid>.Failure(AuctionErrors.OneOrMoreImages);
+				}
+			}
+
+			var auction = _mapper.Map<Auction>(request);
+			auction.SellerId = user.Id;
+			auction.Images = new List<AuctionImage>();
+
+			foreach (var img in request.Images) {
+				auction.Images.Add(new AuctionImage {
+					Data = img,
+				});
+			}
+
+			// Persist
+			_ = await _auctionRepository.CreateAsync(auction, cancellationToken: cancellationToken);
+			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
+
+			return Result<Guid>.Success(auction.Id);
+		}
+	}
+}
+
+public class CreateAuctionCommandValidator : AbstractValidator<CreateAuctionCommand> {
+	public CreateAuctionCommandValidator() {
+		RuleFor(x => x.Name)
+			.NotEmpty().WithMessage("Auction title is required.");
+
+		RuleFor(x => x.BaselinePrice)
+			.NotEmpty().WithMessage("Baseline price is required.");
+
+		RuleFor(x => x.StartTime)
+			.NotEmpty().WithMessage("Start time is required.");
+
+		RuleFor(x => x.EndTime)
+			.NotEmpty().WithMessage("End time is required.");
+	}
+}

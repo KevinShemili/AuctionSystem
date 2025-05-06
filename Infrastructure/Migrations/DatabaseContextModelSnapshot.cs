@@ -66,7 +66,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("SellerId");
 
-                    b.ToTable("Auction");
+                    b.ToTable("Auctions");
                 });
 
             modelBuilder.Entity("Domain.Entities.AuctionImage", b =>
@@ -77,6 +77,9 @@ namespace Infrastructure.Migrations
 
                     b.Property<Guid>("AuctionId")
                         .HasColumnType("uuid");
+
+                    b.Property<byte[]>("Data")
+                        .HasColumnType("bytea");
 
                     b.Property<DateTime?>("DateCreated")
                         .HasColumnType("timestamp with time zone");
@@ -94,7 +97,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("IsDeleted")
                         .HasFilter("\"IsDeleted\" = false");
 
-                    b.ToTable("AuctionImage");
+                    b.ToTable("AuctionImages");
                 });
 
             modelBuilder.Entity("Domain.Entities.AuthenticationToken", b =>
@@ -171,7 +174,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("IsDeleted")
                         .HasFilter("\"IsDeleted\" = false");
 
-                    b.ToTable("Bid");
+                    b.ToTable("Bids");
                 });
 
             modelBuilder.Entity("Domain.Entities.Permission", b =>
@@ -420,8 +423,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "admin",
-                            PasswordHash = "96EB8454320FD2098616A5A9028C997B643573C7C91A94652FA836024919C8FCD968B3AC34E1A5C9CBC6B11C720F9AD79354DFA2461975C4E5E73A788111579E",
-                            PasswordSalt = "DAC28373E0B8A556BE09F635D812F2E2E7FFAAEC6B913FD7DD9E0CE1B504183037BDDB1AE33D61F48ABBAB8E8E922C9BE935AFCBCFBB8249DCD4D015445EB57B"
+                            PasswordHash = "D84D9978471C1A486EC56F6D1CC45F2EC0F7034BC6BB118E58F8E318DAE402E0F2D91622B5DEBBC47910189DD1E1E58FE1920A7D79ED10914B1E7DD06B8F77B3",
+                            PasswordSalt = "7BA19F28E92D1DC5CF6F199D486329BAB94B2D49893D755C2FED387DC4FD9FE94A625271702F4632C2A1F57367BA7BC459828DF75D60DD6CEBFB5E88B992537A"
                         });
                 });
 
@@ -555,7 +558,7 @@ namespace Infrastructure.Migrations
                     b.HasIndex("UserId")
                         .IsUnique();
 
-                    b.ToTable("Wallet");
+                    b.ToTable("Wallets");
                 });
 
             modelBuilder.Entity("Domain.Entities.WalletTransaction", b =>
@@ -595,7 +598,7 @@ namespace Infrastructure.Migrations
 
                     b.HasIndex("WalletId");
 
-                    b.ToTable("WalletTransaction");
+                    b.ToTable("WalletTransactions");
                 });
 
             modelBuilder.Entity("Domain.Entities.Auction", b =>

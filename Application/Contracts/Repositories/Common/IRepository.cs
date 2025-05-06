@@ -12,8 +12,12 @@ namespace Application.Contracts.Repositories.Common {
 
 		Task<T> UpdateAsync(T entity, bool commitChanges = false, CancellationToken cancellationToken = default);
 
+		Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default);
+
 		IQueryable<T> SetNoTracking();
 
 		DbSet<T> SetTracking();
+
+		Task<T> GetByIdNoTrackingAsync(Guid id, CancellationToken cancellationToken = default);
 	}
 }

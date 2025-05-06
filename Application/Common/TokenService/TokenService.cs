@@ -54,6 +54,12 @@ namespace Application.Common.TokenService {
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 
+		public Guid GetUserId(string accessToken) {
+			var token = new JwtSecurityToken(accessToken);
+			var userId = Guid.Parse(token.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
+			return userId;
+		}
+
 		public string GenerateAccessToken(IEnumerable<Claim> claims) {
 			var key = new SymmetricSecurityKey(
 				Encoding.UTF8.GetBytes(_configuration["JWTSettings:Secret"]!));

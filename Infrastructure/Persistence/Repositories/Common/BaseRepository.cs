@@ -80,5 +80,25 @@ namespace Infrastructure.Persistence.Repositories.Common {
 		public DbSet<T> SetTracking() {
 			return _context.Set<T>();
 		}
+
+		public async Task<T> GetByIdAsync(Guid id, CancellationToken cancellationToken = default) {
+
+			if (id == Guid.Empty)
+				throw new ArgumentNullException(nameof(id));
+
+			var entity = await SetTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+			return entity;
+		}
+
+		public async Task<T> GetByIdNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+
+			if (id == Guid.Empty)
+				throw new ArgumentNullException(nameof(id));
+
+			var entity = await SetNoTracking().FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+			return entity;
+		}
 	}
 }

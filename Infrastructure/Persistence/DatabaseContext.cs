@@ -15,6 +15,11 @@ namespace Infrastructure.Persistence {
 		public DbSet<UserRole> UserRoles { get; set; }
 		public DbSet<AuthenticationToken> AuthenticationTokens { get; set; }
 		public DbSet<UserToken> UserTokens { get; set; }
+		public DbSet<Auction> Auctions { get; set; }
+		public DbSet<AuctionImage> AuctionImages { get; set; }
+		public DbSet<Bid> Bids { get; set; }
+		public DbSet<Wallet> Wallets { get; set; }
+		public DbSet<WalletTransaction> WalletTransactions { get; set; }
 
 		protected override void OnModelCreating(ModelBuilder modelBuilder) {
 

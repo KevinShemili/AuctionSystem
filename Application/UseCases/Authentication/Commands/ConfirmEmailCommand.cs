@@ -48,18 +48,24 @@ namespace Application.UseCases.Authentication.Commands {
 
 			var user = await _userRepository.GetUserWithTokensAsync(request.Email, cancellationToken);
 
-			if (user is null)
+			if (user is null) {
+				_logger.LogWarning("Email Verification attempt failed. Email: {Email} Token: {Token}", request.Email, request.Token);
 				return Result<bool>.Failure(AuthenticationErrors.InvalidToken);
+			}
 
-			if (user.IsEmailVerified is true)
+			if (user.IsEmailVerified is true) {
+				_logger.LogWarning("Email Verification attempt failed. Email: {Email} Token: {Token}", request.Email, request.Token);
 				return Result<bool>.Failure(AuthenticationErrors.AccountAlreadyVerified);
+			}
 
 			var decodedToken = Transcode.DecodeURL(request.Token);
 
 			var token = user.UserTokens.FirstOrDefault(x => x.Token == decodedToken && x.TokenTypeId == (int)TokenTypeEnum.EmailVerificationToken);
 
-			if (token is null)
+			if (token is null) {
+				_logger.LogWarning("Email Verification attempt failed. User: {Email}", user.Email);
 				return Result<bool>.Failure(AuthenticationErrors.InvalidToken);
+			}
 
 			if (DateTime.UtcNow > token.Expiry) {
 
@@ -78,6 +84,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 				_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+				_logger.LogWarning("Email Verification attempt failed, expired token. Email: {Email}", user.Email);
 				return Result<bool>.Failure(AuthenticationErrors.ExpiredEmailToken);
 			}
 

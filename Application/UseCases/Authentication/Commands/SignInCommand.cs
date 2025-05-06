@@ -6,7 +6,6 @@ using Application.Common.Tools.Transcode;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
 using Application.UseCases.Authentication.Results;
-using AutoMapper;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
@@ -23,7 +22,6 @@ namespace Application.UseCases.Authentication.Commands {
 
 		private readonly ITokenService _tokenService;
 		private readonly IConfiguration _configuration;
-		private readonly IMapper _mapper;
 		private readonly IUserRepository _userRepository;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<SignInCommandHandler> _logger;
@@ -31,14 +29,12 @@ namespace Application.UseCases.Authentication.Commands {
 
 		public SignInCommandHandler(ITokenService tokenService,
 							  IConfiguration configuration,
-							  IMapper mapper,
 							  IUnitOfWork unitOfWork,
 							  ILogger<SignInCommandHandler> logger,
 							  IUserRepository userRepository,
 							  IAuthenticationTokenRepository authenticationTokenRepository) {
 			_tokenService = tokenService;
 			_configuration = configuration;
-			_mapper = mapper;
 			_unitOfWork = unitOfWork;
 			_logger = logger;
 			_userRepository = userRepository;
@@ -49,14 +45,20 @@ namespace Application.UseCases.Authentication.Commands {
 
 			var user = await _userRepository.GetUserWithAuthenticationTokensAsync(request.Email, cancellationToken: cancellationToken);
 
-			if (user is null)
+			if (user is null) {
+				_logger.LogWarning("SignIn attempt failed: Email {Email} does not exist.", request.Email);
 				return Result<SignInCommandResult>.Failure(AuthenticationErrors.UserNotFound(request.Email));
+			}
 
-			if (user.IsEmailVerified is false)
+			if (user.IsEmailVerified is false) {
+				_logger.LogWarning("SignIn attempt failed: Email {Email} is not verified.", request.Email);
 				return Result<SignInCommandResult>.Failure(AuthenticationErrors.AccountNotVerified);
+			}
 
-			if (user.IsBlocked is true)
+			if (user.IsBlocked is true) {
+				_logger.LogWarning("SignIn attempt failed: User {FirstName} {LastName} is blocked.", user.FirstName, user.LastName);
 				return Result<SignInCommandResult>.Failure(AuthenticationErrors.LockedOut);
+			}
 
 			var isPasswordCorrect = Hasher.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
 
@@ -67,7 +69,7 @@ namespace Application.UseCases.Authentication.Commands {
 					user.IsBlocked = true;
 
 					_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
-
+					_logger.LogWarning("User {FirstName} {LastName} reached max tries: Blocked.", user.FirstName, user.LastName);
 					return Result<SignInCommandResult>.Failure(AuthenticationErrors.LockedOut);
 				}
 
@@ -107,10 +109,10 @@ namespace Application.UseCases.Authentication.Commands {
 	public class SignInCommandValidator : AbstractValidator<SignInCommand> {
 		public SignInCommandValidator() {
 			RuleFor(x => x.Email)
-				.NotEmpty();
+				.NotEmpty().WithMessage("Email is required.");
 
 			RuleFor(x => x.Password)
-				.NotEmpty();
+				.NotEmpty().WithMessage("Password is required.");
 		}
 	}
 }

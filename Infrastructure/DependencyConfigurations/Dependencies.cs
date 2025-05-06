@@ -43,6 +43,11 @@ namespace Infrastructure.DependencyConfigurations {
 			services.AddScoped<IUserRoleRepository, UserRoleRepository>();
 			services.AddScoped<IEmailService, EmailService>();
 			services.AddScoped<IUnitOfWork, UnitOfWork>();
+			services.AddScoped<IAuctionRepository, AuctionRepository>();
+			services.AddScoped<IAuctionImageRepostiory, AuctionImageRepostiory>();
+			services.AddScoped<IBidRepository, BidRepository>();
+			services.AddScoped<IWalletRepository, WalletRepository>();
+			services.AddScoped<IWalletTransactionRepository, WalletTransactionRepository>();
 		}
 
 		private static void ConfigureAuthorizationPolicy(this IServiceCollection services) {

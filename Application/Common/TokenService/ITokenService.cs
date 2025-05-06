@@ -7,5 +7,6 @@ namespace Application.Common.TokenService {
 		string GenerateEmailVerificationToken();
 		ClaimsPrincipal GetClaims(string accessToken);
 		string GenerateAccessToken(IEnumerable<Claim> claims);
+		Guid GetUserId(string accessToken);
 	}
 }

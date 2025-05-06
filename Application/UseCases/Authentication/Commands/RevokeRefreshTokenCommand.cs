@@ -13,7 +13,7 @@ namespace Application.UseCases.Authentication.Commands {
 	public class RevokeRefreshTokenCommandHandler : IRequestHandler<RevokeRefreshTokenCommand, Result<bool>> {
 
 		private readonly IAuthenticationTokenRepository _authenticationTokenRepository;
-		private ILogger<RevokeRefreshTokenCommandHandler> _logger;
+		private readonly ILogger<RevokeRefreshTokenCommandHandler> _logger;
 
 		public RevokeRefreshTokenCommandHandler(ILogger<RevokeRefreshTokenCommandHandler> logger,
 										  IAuthenticationTokenRepository authenticationTokenRepository) {
@@ -25,8 +25,10 @@ namespace Application.UseCases.Authentication.Commands {
 
 			var refreshToken = await _authenticationTokenRepository.GetByUserID(request.UserId, cancellationToken);
 
-			if (refreshToken is null)
+			if (refreshToken is null) {
+				_logger.LogWarning("Revoke Refresh Command failed. No refresh available for user. User: {UserId}", request.UserId);
 				return Result<bool>.Failure(AuthenticationErrors.UserNotFound(request.UserId));
+			}
 
 			_ = await _authenticationTokenRepository.DeleteAsync(refreshToken, true, cancellationToken);
 
