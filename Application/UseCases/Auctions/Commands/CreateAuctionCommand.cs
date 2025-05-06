@@ -59,6 +59,10 @@ namespace Application.UseCases.Auctions.Commands {
 				return Result<Guid>.Failure(Errors.NegativeBaselinePrice);
 			}
 
+			// Normalize to minute precision
+			request.StartTime = TruncateToMinute(request.StartTime);
+			request.EndTime = TruncateToMinute(request.EndTime);
+
 			if (request.StartTime < DateTime.UtcNow) {
 				_logger.LogWarning("Create Auction attempt failed, past start time. TimeNow: {TimeNow} StartTime: {StartTime}", DateTime.UtcNow, request.StartTime);
 				return Result<Guid>.Failure(Errors.PastStartTime);
@@ -98,6 +102,13 @@ namespace Application.UseCases.Auctions.Commands {
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 			return Result<Guid>.Success(auction.Id);
+		}
+
+		private static DateTime TruncateToMinute(DateTime dt) {
+			return new DateTime(
+					dt.Year, dt.Month, dt.Day,
+					dt.Hour, dt.Minute, 0,
+					dt.Kind);
 		}
 	}
 }
