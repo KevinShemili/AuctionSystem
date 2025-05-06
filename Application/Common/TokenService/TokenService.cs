@@ -25,7 +25,7 @@ namespace Application.Common.TokenService {
 
 			var tokenClaims = new List<Claim> {
 							new (ClaimTypes.Email, user.Email),
-							new (ClaimTypes.Name, user.UserName),
+							new (ClaimTypes.Name, user.LastName),
 							new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 							new (JwtRegisteredClaimNames.Sub, user.Id.ToString())};
 

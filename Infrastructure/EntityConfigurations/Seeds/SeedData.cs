@@ -70,7 +70,8 @@ namespace Infrastructure.EntityConfigurations.Seeds {
 		#region Users
 		public static readonly User AdminUser = new User {
 			Id = Guid.Parse("5fc111de-788d-49b2-ba73-7a1e62e9c42e"),
-			UserName = "admin",
+			FirstName = "admin",
+			LastName = "admin",
 			Email = "admin@mail.com",
 			IsEmailVerified = true,
 			PasswordHash = Hasher.AdminHash,

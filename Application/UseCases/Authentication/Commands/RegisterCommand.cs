@@ -15,6 +15,8 @@ using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Authentication.Commands {
 	public class RegisterCommand : IRequest<Result<bool>> {
+		public string FirstName { get; set; }
+		public string LastName { get; set; }
 		public string Email { get; set; }
 		public string Password { get; set; }
 	}
@@ -67,6 +69,11 @@ namespace Application.UseCases.Authentication.Commands {
 			// Hash password
 			(user.PasswordHash, user.PasswordSalt) = Hasher.HashPasword(request.Password);
 
+			// Add default initial wallet 10000$
+			user.Wallet = new Wallet {
+				Balance = 10000
+			};
+
 			// Create user
 			_ = await _userRepository.CreateAsync(user, cancellationToken: cancellationToken);
 
@@ -91,12 +98,28 @@ namespace Application.UseCases.Authentication.Commands {
 
 	public class RegisterCommandValidator : AbstractValidator<RegisterCommand> {
 		public RegisterCommandValidator() {
+
 			RuleFor(x => x.Email)
-				.NotEmpty()
-				.EmailAddress();
+				.NotEmpty().WithMessage("Email is required.")
+				.EmailAddress().WithMessage("Email format is invalid.");
+
+			RuleFor(x => x.FirstName)
+				.NotEmpty().WithMessage("First name is required.")
+				.MinimumLength(2).WithMessage("First name must be at least 2 characters.")
+				.MaximumLength(50).WithMessage("First name must not exceed 50 characters.");
+
+			RuleFor(x => x.LastName)
+				.NotEmpty().WithMessage("Last name is required.")
+				.MinimumLength(2).WithMessage("Last name must be at least 2 characters.")
+				.MaximumLength(50).WithMessage("Last name must not exceed 50 characters.");
 
 			RuleFor(x => x.Password)
-				.NotEmpty();
+				.NotEmpty().WithMessage("Password is required.")
+				.MinimumLength(8).WithMessage("Password must be at least 8 characters.")
+				.MaximumLength(50).WithMessage("Password must not exceed 50 characters.")
+				.Must(x => x.Any(char.IsDigit)).WithMessage("Password must contain at least one digit.")
+				.Must(x => x.Any(char.IsUpper)).WithMessage("Password must contain at least one uppercase letter.")
+				.Must(x => x.Any(char.IsLower)).WithMessage("Password must contain at least one lowercase letter.");
 		}
 	}
 }
