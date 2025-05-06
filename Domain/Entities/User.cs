@@ -17,5 +17,8 @@ namespace Domain.Entities {
 		public virtual ICollection<UserRole> UserRoles { get; set; }
 		public virtual ICollection<AuthenticationToken> AuthenticationTokens { get; set; }
 		public virtual ICollection<UserToken> UserTokens { get; set; }
+		public virtual Wallet Wallet { get; set; }
+		public virtual ICollection<Auction> Auctions { get; set; }
+		public virtual ICollection<Bid> Bids { get; set; }
 	}
 }

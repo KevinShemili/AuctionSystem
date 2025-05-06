@@ -19,6 +19,18 @@ namespace Infrastructure.EntityConfigurations {
 				   .WithOne(x => x.User)
 				   .HasForeignKey(x => x.UserId);
 
+			builder.HasOne(x => x.Wallet)
+				   .WithOne(x => x.User)
+				   .HasForeignKey<Wallet>(x => x.UserId);
+
+			builder.HasMany(x => x.Auctions)
+				   .WithOne(x => x.Seller)
+				   .HasForeignKey(x => x.SellerId);
+
+			builder.HasMany(x => x.Bids)
+				   .WithOne(x => x.Bidder)
+				   .HasForeignKey(x => x.BidderId);
+
 			// Seed Data
 			builder.HasData(SeedData.Users);
 		}
