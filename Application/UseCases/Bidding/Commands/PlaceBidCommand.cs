@@ -24,19 +24,22 @@ namespace Application.UseCases.Bidding.Commands {
 		private readonly IUserRepository _userRepository;
 		private readonly IBidRepository _bidRepository;
 		private readonly IBroadcastService _broadcastService;
+		private readonly IWalletTransactionRepository _walletTransactionRepository;
 
 		public PlaceBidCommandHandler(IUnitOfWork unitOfWork,
 									  ILogger<PlaceBidCommandHandler> logger,
 									  IUserRepository userRepository,
 									  IAuctionRepository auctionRepository,
 									  IBidRepository bidRepository,
-									  IBroadcastService broadcastService) {
+									  IBroadcastService broadcastService,
+									  IWalletTransactionRepository walletTransactionRepository) {
 			_unitOfWork = unitOfWork;
 			_logger = logger;
 			_userRepository = userRepository;
 			_auctionRepository = auctionRepository;
 			_bidRepository = bidRepository;
 			_broadcastService = broadcastService;
+			_walletTransactionRepository = walletTransactionRepository;
 		}
 
 		public async Task<Result<Guid>> Handle(PlaceBidCommand request, CancellationToken cancellationToken) {
@@ -67,42 +70,95 @@ namespace Application.UseCases.Bidding.Commands {
 
 			var availableBalance = bidder.Wallet.Balance - bidder.Wallet.FrozenBalance;
 
-			if (availableBalance < request.Amount) {
-				_logger.LogWarning("Place Bid failed: insufficient funds. UserId: {UserId}, WalletId: {WalletId}", bidder.Id, bidder.Wallet.Id);
-				return Result<Guid>.Failure(Errors.InsufficientFunds);
+			// has already bid once, overide the previous bid
+			if (auction.Bids.Any(x => x.BidderId == request.BidderId) is true) {
+
+				var existingBid = auction.Bids.FirstOrDefault(x => x.BidderId == request.BidderId);
+
+				var amountDifference = request.Amount - existingBid.Amount;
+
+				if (amountDifference != 0) {
+					if (amountDifference > 0) { // Wants to increase
+
+						if (amountDifference > availableBalance) {
+							_logger.LogWarning("Place Bid failed: Insufficient funds to increase bid. AuctionId: {AuctionId}, Amount: {Amount}", request.AuctionId, request.Amount);
+							return Result<Guid>.Failure(Errors.IncreaseBidInsufficientFunds);
+						}
+
+						bidder.Wallet.FrozenBalance += Math.Abs(amountDifference);
+
+						var transaction = new WalletTransaction {
+							Amount = Math.Abs(amountDifference),
+							TransactionType = (int)WalletTransactionEnum.Freeze,
+							WalletId = bidder.Wallet.Id,
+							BidId = existingBid.Id,
+							DateCreated = DateTime.UtcNow
+						};
+
+						_ = await _walletTransactionRepository.CreateAsync(transaction, cancellationToken: cancellationToken);
+					}
+					else { // Wants to decrease
+						bidder.Wallet.FrozenBalance -= Math.Abs(amountDifference);
+
+						var transaction = new WalletTransaction {
+							Amount = Math.Abs(amountDifference),
+							TransactionType = (int)WalletTransactionEnum.Unfreeze,
+							WalletId = bidder.Wallet.Id,
+							BidId = existingBid.Id,
+							DateCreated = DateTime.UtcNow
+						};
+
+						_ = await _walletTransactionRepository.CreateAsync(transaction, cancellationToken: cancellationToken);
+					}
+
+					existingBid.Amount = request.Amount;
+
+					_ = await _bidRepository.UpdateAsync(existingBid, cancellationToken: cancellationToken);
+
+					_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
+				}
+
+				return Result<Guid>.Success(existingBid.Id);
 			}
+			else { // First time bidding
 
-			var bid = new Bid {
-				Amount = request.Amount,
-				IsWinningBid = false,
-				AuctionId = request.AuctionId,
-				BidderId = request.BidderId
-			};
+				if (availableBalance < request.Amount) {
+					_logger.LogWarning("Place Bid failed: insufficient funds. UserId: {UserId}, WalletId: {WalletId}", bidder.Id, bidder.Wallet.Id);
+					return Result<Guid>.Failure(Errors.InsufficientFunds);
+				}
 
-			var transaction = new WalletTransaction {
-				Amount = request.Amount,
-				TransactionType = (int)WalletTransactionEnum.Freeze,
-				WalletId = bidder.Wallet.Id,
-				Bid = bid,
-				DateCreated = DateTime.UtcNow
-			};
+				var bid = new Bid {
+					Amount = request.Amount,
+					IsWinningBid = false,
+					AuctionId = request.AuctionId,
+					BidderId = request.BidderId
+				};
 
-			bidder.Wallet.FrozenBalance += request.Amount;
-			bidder.Wallet.Transactions.Add(transaction);
+				var transaction = new WalletTransaction {
+					Amount = request.Amount,
+					TransactionType = (int)WalletTransactionEnum.Freeze,
+					WalletId = bidder.Wallet.Id,
+					Bid = bid,
+					DateCreated = DateTime.UtcNow
+				};
 
-			_ = await _bidRepository.CreateAsync(bid, cancellationToken: cancellationToken);
+				bidder.Wallet.FrozenBalance += request.Amount;
+				bidder.Wallet.Transactions.Add(transaction);
 
-			await _unitOfWork.SaveChangesAsync(cancellationToken);
+				_ = await _bidRepository.CreateAsync(bid, cancellationToken: cancellationToken);
 
-			await _broadcastService.PublishAsync("NEW-BID", new {
-				AuctionId = request.AuctionId,
-				BidId = bid.Id,
-				FirstName = bidder.FirstName,
-				LastName = bidder.LastName,
-				PlacedAt = DateTime.UtcNow
-			});
+				_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-			return Result<Guid>.Success(bid.Id);
+				await _broadcastService.PublishAsync("NEW-BID", new {
+					AuctionId = request.AuctionId,
+					BidId = bid.Id,
+					FirstName = bidder.FirstName,
+					LastName = bidder.LastName,
+					PlacedAt = DateTime.UtcNow
+				});
+
+				return Result<Guid>.Success(bid.Id);
+			}
 		}
 	}
 

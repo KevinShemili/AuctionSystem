@@ -28,6 +28,9 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error InsufficientFunds = new(StatusCodes.Status400BadRequest,
 			"Insufficient available funds to place this bid.");
 
+		public static readonly Error IncreaseBidInsufficientFunds = new(StatusCodes.Status400BadRequest,
+			"Insufficient available funds to increase this bid.");
+
 		public static readonly Error InvalidBidAmount = new(StatusCodes.Status400BadRequest,
 			"Bid amount must be greater than zero.");
 
