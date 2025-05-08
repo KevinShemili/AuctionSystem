@@ -1,27 +1,39 @@
-﻿using MediatR;
+﻿using Application.UseCases.Administrator.Queries;
+using MediatR;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using WebAPI.Controllers.Common;
+using WebAPI.DTOs;
 
 namespace WebAPI.Controllers {
+	[ApiController]
+	[Route("api/[controller]")]
 	public class AdminController : AbstractController {
 		public AdminController(IMediator mediator) : base(mediator) {
 		}
 
-		/*[Authorize(Policy = "view.user")]
+		[Authorize(Policy = "view.user")]
 		[HttpGet("users")]
-		public async Task<IActionResult> ViewUsers() {
+		public async Task<IActionResult> ViewUsers([FromQuery] PagedParamsDTO pagedParams) {
 
-			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
-
-			var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			var query = new GetAllUsersQuery {
+				Filter = pagedParams.Filter,
+				PageNumber = pagedParams.PageNumber,
+				PageSize = pagedParams.PageSize,
+				SortBy = pagedParams.SortBy,
+				SortDesc = pagedParams.SortDesc
+			};
 
 			var result = await _mediator.Send(query);
+
 			if (result.IsFailure) {
 				return StatusCode(result.Error.Code, result.Error.Message);
 			}
+
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "view.user")]
+		/*[Authorize(Policy = "view.user")]
 		[HttpGet("user/{id}")]
 		public async Task<IActionResult> ViewUser() {
 

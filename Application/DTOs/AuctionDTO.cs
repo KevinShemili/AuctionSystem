@@ -2,6 +2,7 @@
 
 namespace Application.DTOs {
 	public class AuctionDTO {
+		public Guid Id { get; set; }
 		public string Name { get; set; }
 		public string Description { get; set; }
 		public decimal BaselinePrice { get; set; }
@@ -13,11 +14,13 @@ namespace Application.DTOs {
 	}
 
 	public class AuctionImageDTO {
+		public Guid Id { get; set; }
 		[SwaggerSchema(Format = "uri")]
 		public string Url { get; set; }
 	}
 
 	public class BidDTO {
+		public Guid Id { get; set; }
 		public decimal Amount { get; set; }
 		public bool IsWinningBid { get; set; }
 	}

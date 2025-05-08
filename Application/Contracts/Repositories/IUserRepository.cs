@@ -11,5 +11,6 @@ namespace Application.Contracts.Repositories {
 		Task<User> GetUserWithRolesAndPermissionsNoTrackingAsync(string email, CancellationToken cancellationToken = default);
 		Task<User> GetUserWithWalletAndTransactionsAsync(Guid id, CancellationToken cancellationToken = default);
 		Task<User> GetUserWithWalletAndTransactionsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default);
+		IQueryable<User> GetAllUsersWithRole();
 	}
 }

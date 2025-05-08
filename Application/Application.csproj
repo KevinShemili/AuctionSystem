@@ -25,7 +25,6 @@
   <ItemGroup>
     <Folder Include="UseCases\Auctions\Queries\" />
     <Folder Include="UseCases\Bidding\Queries\" />
-    <Folder Include="UseCases\Administrator\" />
   </ItemGroup>
 
 </Project>

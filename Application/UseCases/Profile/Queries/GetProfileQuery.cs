@@ -7,11 +7,11 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Profile.Queries {
-	public class GetProfileQuery : IRequest<Result<ProfileDTO>> {
+	public class GetProfileQuery : IRequest<Result<UserDTO>> {
 		public Guid UserId { get; set; }
 	}
 
-	public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, Result<ProfileDTO>> {
+	public class GetProfileQueryHandler : IRequestHandler<GetProfileQuery, Result<UserDTO>> {
 
 		private readonly IUserRepository _userRepository;
 		private readonly ILogger<GetProfileQueryHandler> _logger;
@@ -23,25 +23,25 @@ namespace Application.UseCases.Profile.Queries {
 			_auctionRepository = auctionRepository;
 		}
 
-		public async Task<Result<ProfileDTO>> Handle(GetProfileQuery request, CancellationToken cancellationToken) {
+		public async Task<Result<UserDTO>> Handle(GetProfileQuery request, CancellationToken cancellationToken) {
 
 			var user = await _userRepository.GetUserWithWalletAndTransactionsNoTrackingAsync(request.UserId, cancellationToken);
 
 			if (user is null) {
 				_logger.LogCritical("User bypassed authorization. {UserId} not found", request.UserId);
-				return Result<ProfileDTO>.Failure(Errors.Unauthorized);
+				return Result<UserDTO>.Failure(Errors.Unauthorized);
 			}
 
 			var createdAuctions = await _auctionRepository.GetAuctionsCreatedByUserNoTrackingAsync(request.UserId, cancellationToken);
 
 			var participatedAuctions = await _auctionRepository.GetAuctionsPartecipatedByUserNoTrackingAsync(request.UserId, cancellationToken);
 
-			return Result<ProfileDTO>.Success(MapResponse(user, createdAuctions, participatedAuctions));
+			return Result<UserDTO>.Success(MapResponse(user, createdAuctions, participatedAuctions));
 		}
 
-		private static ProfileDTO MapResponse(User user, IEnumerable<Auction> createdAuctions, IEnumerable<Auction> participatedAuctions) {
+		private static UserDTO MapResponse(User user, IEnumerable<Auction> createdAuctions, IEnumerable<Auction> participatedAuctions) {
 
-			var profile = new ProfileDTO {
+			var profile = new UserDTO {
 				FirstName = user.FirstName,
 				LastName = user.LastName,
 				Email = user.Email,

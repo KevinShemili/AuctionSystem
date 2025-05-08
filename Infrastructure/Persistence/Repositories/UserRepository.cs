@@ -18,6 +18,12 @@ namespace Infrastructure.Persistence.Repositories {
 			return emailBool;
 		}
 
+		public IQueryable<User> GetAllUsersWithRole() {
+			var users = SetNoTracking().Include(x => x.Roles);
+
+			return users;
+		}
+
 		public async Task<User> GetByEmailNoTrackingAsync(string email, CancellationToken cancellationToken = default) {
 
 			if (string.IsNullOrWhiteSpace(email))
