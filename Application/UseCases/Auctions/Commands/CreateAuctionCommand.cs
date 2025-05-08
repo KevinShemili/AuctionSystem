@@ -1,10 +1,8 @@
 ﻿using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
-using Application.Common.TokenService;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
 using Application.UseCases.Auctions.Commands;
-using AutoMapper;
 using Domain.Entities;
 using Domain.Enumerations;
 using FluentValidation;
@@ -26,22 +24,16 @@ namespace Application.UseCases.Auctions.Commands {
 
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<CreateAuctionCommandHandler> _logger;
-		private readonly IMapper _mapper;
 		private readonly IAuctionRepository _auctionRepository;
-		private readonly ITokenService _tokenService;
 		private readonly IUserRepository _userRepository;
 
 		public CreateAuctionCommandHandler(IUnitOfWork unitOfWork,
 										   ILogger<CreateAuctionCommandHandler> logger,
-										   IMapper mapper,
 										   IAuctionRepository auctionRepository,
-										   ITokenService tokenService,
 										   IUserRepository userRepository) {
 			_unitOfWork = unitOfWork;
 			_logger = logger;
-			_mapper = mapper;
 			_auctionRepository = auctionRepository;
-			_tokenService = tokenService;
 			_userRepository = userRepository;
 		}
 
@@ -85,17 +77,7 @@ namespace Application.UseCases.Auctions.Commands {
 				}
 			}
 
-			var auction = _mapper.Map<Auction>(request);
-			auction.SellerId = request.SellerId;
-			auction.Images = new List<AuctionImage>();
-			auction.Status = (int)AuctionStatusEnum.Active;
-
-			foreach (var img in request.Images) {
-				auction.Images.Add(new AuctionImage {
-					Data = img,
-					DateCreated = DateTime.UtcNow,
-				});
-			}
+			var auction = Map(request);
 
 			// Persist
 			_ = await _auctionRepository.CreateAsync(auction, cancellationToken: cancellationToken);
@@ -109,6 +91,29 @@ namespace Application.UseCases.Auctions.Commands {
 					dt.Year, dt.Month, dt.Day,
 					dt.Hour, dt.Minute, 0,
 					dt.Kind);
+		}
+
+		private static Auction Map(CreateAuctionCommand request) {
+
+			var auction = new Auction {
+				Name = request.Name,
+				Description = request.Description,
+				BaselinePrice = request.BaselinePrice,
+				StartTime = request.StartTime,
+				EndTime = request.EndTime,
+				SellerId = request.SellerId,
+				Images = new List<AuctionImage>(),
+				Status = (int)AuctionStatusEnum.Active
+			};
+
+			foreach (var img in request.Images) {
+				auction.Images.Add(new AuctionImage {
+					Data = img,
+					DateCreated = DateTime.UtcNow,
+				});
+			}
+
+			return auction;
 		}
 	}
 }

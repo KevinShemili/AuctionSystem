@@ -5,7 +5,7 @@ using Application.Common.Tools.Hasher;
 using Application.Common.Tools.Transcode;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
-using Application.UseCases.Authentication.Results;
+using Application.DTOs;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
@@ -13,12 +13,12 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Authentication.Commands {
-	public class SignInCommand : IRequest<Result<SignInCommandResult>> {
+	public class SignInCommand : IRequest<Result<SignInDTO>> {
 		public string Email { get; set; }
 		public string Password { get; set; }
 	}
 
-	public class SignInCommandHandler : IRequestHandler<SignInCommand, Result<SignInCommandResult>> {
+	public class SignInCommandHandler : IRequestHandler<SignInCommand, Result<SignInDTO>> {
 
 		private readonly ITokenService _tokenService;
 		private readonly IConfiguration _configuration;
@@ -41,23 +41,23 @@ namespace Application.UseCases.Authentication.Commands {
 			_authenticationTokenRepository = authenticationTokenRepository;
 		}
 
-		public async Task<Result<SignInCommandResult>> Handle(SignInCommand request, CancellationToken cancellationToken) {
+		public async Task<Result<SignInDTO>> Handle(SignInCommand request, CancellationToken cancellationToken) {
 
 			var user = await _userRepository.GetUserWithAuthenticationTokensAsync(request.Email, cancellationToken: cancellationToken);
 
 			if (user is null) {
 				_logger.LogWarning("SignIn attempt failed: Email {Email} does not exist.", request.Email);
-				return Result<SignInCommandResult>.Failure(Errors.UserNotFound(request.Email));
+				return Result<SignInDTO>.Failure(Errors.UserNotFound(request.Email));
 			}
 
 			if (user.IsEmailVerified is false) {
 				_logger.LogWarning("SignIn attempt failed: Email {Email} is not verified.", request.Email);
-				return Result<SignInCommandResult>.Failure(Errors.AccountNotVerified);
+				return Result<SignInDTO>.Failure(Errors.AccountNotVerified);
 			}
 
 			if (user.IsBlocked is true) {
 				_logger.LogWarning("SignIn attempt failed: User {FirstName} {LastName} is blocked.", user.FirstName, user.LastName);
-				return Result<SignInCommandResult>.Failure(Errors.LockedOut);
+				return Result<SignInDTO>.Failure(Errors.LockedOut);
 			}
 
 			var isPasswordCorrect = Hasher.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
@@ -70,14 +70,14 @@ namespace Application.UseCases.Authentication.Commands {
 
 					_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 					_logger.LogWarning("User {FirstName} {LastName} reached max tries: Blocked.", user.FirstName, user.LastName);
-					return Result<SignInCommandResult>.Failure(Errors.LockedOut);
+					return Result<SignInDTO>.Failure(Errors.LockedOut);
 				}
 
 				user.FailedLoginTries += 1;
 
 				_ = await _userRepository.UpdateAsync(user, true, cancellationToken);
 
-				return Result<SignInCommandResult>.Failure(Errors.SignInFailure);
+				return Result<SignInDTO>.Failure(Errors.SignInFailure);
 			}
 
 			user.FailedLoginTries = 0;
@@ -100,7 +100,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-			return Result<SignInCommandResult>.Success(new SignInCommandResult {
+			return Result<SignInDTO>.Success(new SignInDTO {
 				AccessToken = accessToken,
 				RefreshToken = Transcode.EncodeURL(refreshToken)
 			});

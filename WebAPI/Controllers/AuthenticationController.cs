@@ -1,5 +1,4 @@
 ﻿using Application.UseCases.Authentication.Commands;
-using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,8 +12,7 @@ namespace WebAPI.Controllers {
 	[Route("api/[controller]")]
 	public class AuthenticationController : AbstractController {
 
-		public AuthenticationController(IMediator mediator,
-										IMapper mapper) : base(mediator, mapper) {
+		public AuthenticationController(IMediator mediator) : base(mediator) {
 		}
 
 		[AllowAnonymous]
@@ -22,7 +20,12 @@ namespace WebAPI.Controllers {
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO) {
 
-			var command = _mapper.Map<RegisterCommand>(registerDTO);
+			var command = new RegisterCommand {
+				Email = registerDTO.Email,
+				FirstName = registerDTO.FirstName,
+				LastName = registerDTO.LastName,
+				Password = registerDTO.Password
+			};
 
 			var result = await _mediator.Send(command);
 
@@ -37,7 +40,10 @@ namespace WebAPI.Controllers {
 		[HttpPost("sign-in")]
 		public async Task<IActionResult> SignIn([FromBody] SignInDTO signInDTO) {
 
-			var command = _mapper.Map<SignInCommand>(signInDTO);
+			var command = new SignInCommand {
+				Email = signInDTO.Email,
+				Password = signInDTO.Password
+			};
 
 			var result = await _mediator.Send(command);
 
@@ -52,22 +58,10 @@ namespace WebAPI.Controllers {
 		[HttpPost("refresh")]
 		public async Task<IActionResult> Refresh([FromBody] TokensDTO tokensDTO) {
 
-			var command = _mapper.Map<RefreshTokenCommand>(tokensDTO);
-
-			var result = await _mediator.Send(command);
-
-			if (result.IsFailure)
-				return StatusCode(result.Error.Code, result.Error.Message);
-
-			return Ok(result.Value);
-		}
-
-		[Authorize]
-		[SwaggerOperation(Summary = "Revoke Refresh Token")]
-		[HttpPost("revoke-refresh")]
-		public async Task<IActionResult> RevokeRefreshToken(Guid userId) {
-
-			var command = new RevokeRefreshTokenCommand { UserId = userId };
+			var command = new RefreshTokenCommand {
+				AccessToken = tokensDTO.AccessToken,
+				RefreshToken = tokensDTO.RefreshToken
+			};
 
 			var result = await _mediator.Send(command);
 
@@ -94,12 +88,6 @@ namespace WebAPI.Controllers {
 				return StatusCode(result.Error.Code, result.Error.Message);
 
 			return Ok(result.Value);
-		}
-
-		[Authorize(Policy = "policy.name")]
-		[HttpPut("clickme")]
-		public IActionResult ClickMe() {
-			return Ok();
 		}
 	}
 }

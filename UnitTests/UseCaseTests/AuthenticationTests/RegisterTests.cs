@@ -4,7 +4,6 @@ using Application.Common.TokenService;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
 using Application.UseCases.Authentication.Commands;
-using AutoMapper;
 using Domain.Entities;
 using Domain.Enumerations;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +13,6 @@ using Moq;
 namespace UnitTests.UseCaseTests.AuthenticationTests {
 	public class RegisterTests {
 
-		private readonly Mock<IMapper> _mapperMock;
 		private readonly Mock<IUserRepository> _userRepositoryMock;
 		private readonly Mock<ITokenService> _tokenServiceMock;
 		private readonly Mock<IEmailService> _emailServiceMock;
@@ -31,12 +29,10 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 			_emailServiceMock = new Mock<IEmailService>();
 			_configMock = new Mock<IConfiguration>();
 			_unitOfWorkMock = new Mock<IUnitOfWork>();
-			_mapperMock = new Mock<IMapper>();
 			_loggerMock = new Mock<ILogger<RegisterCommandHandler>>();
 
 			_handler = new RegisterCommandHandler(
 				_userRepositoryMock.Object,
-				_mapperMock.Object,
 				_tokenServiceMock.Object,
 				_emailServiceMock.Object,
 				_configMock.Object,
@@ -84,8 +80,6 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 							 .Returns(token);
 
 			var mappedUser = new User { Id = userId, Email = email };
-			_mapperMock.Setup(x => x.Map<User>(command))
-					   .Returns(mappedUser);
 
 			_configMock.Setup(x => x["VerificationTokenExpiries:ExpiryHours"])
 					   .Returns("5");
@@ -113,7 +107,6 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 
 			_userRepositoryMock.Verify(x => x.DoesEmailExistAsync(email, It.IsAny<CancellationToken>()), Times.Once);
 			_tokenServiceMock.Verify(x => x.GenerateEmailVerificationToken(), Times.Once);
-			_mapperMock.Verify(x => x.Map<User>(command), Times.Once);
 			_userRepositoryMock.Verify(x => x.CreateAsync(mappedUser, It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
 			_userTokenRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<UserToken>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
 			_emailServiceMock.Verify(x => x.SendConfirmationEmailAsync(token, email, It.IsAny<CancellationToken>()), Times.Once);

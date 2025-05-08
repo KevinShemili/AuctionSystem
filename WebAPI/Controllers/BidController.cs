@@ -1,5 +1,4 @@
 ﻿using Application.UseCases.Bidding.Commands;
-using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,7 @@ namespace WebAPI.Controllers {
 	[Route("api/[controller]")]
 	public class BidController : AbstractController {
 
-		public BidController(IMediator mediator, IMapper mapper) : base(mediator, mapper) {
+		public BidController(IMediator mediator) : base(mediator) {
 		}
 
 		[Authorize]
@@ -24,8 +23,11 @@ namespace WebAPI.Controllers {
 
 			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-			var command = _mapper.Map<PlaceBidCommand>(dto);
-			command.BidderId = userId;
+			var command = new PlaceBidCommand {
+				BidderId = userId,
+				Amount = dto.Amount,
+				AuctionId = dto.AuctionId
+			};
 
 			var result = await _mediator.Send(command);
 

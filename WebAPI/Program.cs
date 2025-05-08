@@ -25,7 +25,6 @@ builder.Services
 	.AddApplicationLayer(builder.Configuration)
 	.AddInfrastructureLayer(builder.Configuration);
 
-builder.Services.AddAutoMapper(Assembly.GetExecutingAssembly());
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddHttpClient();
 builder.Services.AddControllers();
@@ -105,7 +104,7 @@ var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>(
 recurringJobManager.AddOrUpdate<IAuctionCloser>(
 	"Close Expired Auctions",
 	job => job.AutomaticClose(),
-	Cron.Hourly(1)
+	Cron.Monthly(1)
 );
 
 app.UseRouting();

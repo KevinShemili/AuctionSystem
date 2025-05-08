@@ -4,7 +4,7 @@ using Application.Common.TokenService;
 using Application.Common.Tools.Transcode;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
-using Application.UseCases.Authentication.Results;
+using Application.DTOs;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
@@ -12,12 +12,12 @@ using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 
 namespace Application.UseCases.Authentication.Commands {
-	public class RefreshTokenCommand : IRequest<Result<RefreshTokenCommandResult>> {
+	public class RefreshTokenCommand : IRequest<Result<RefreshTokenDTO>> {
 		public string AccessToken { get; set; }
 		public string RefreshToken { get; set; }
 	}
 
-	public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, Result<RefreshTokenCommandResult>> {
+	public class RefreshTokenCommandHandler : IRequestHandler<RefreshTokenCommand, Result<RefreshTokenDTO>> {
 
 		private readonly ITokenService _tokenService;
 		private readonly IUnitOfWork _unitOfWork;
@@ -37,7 +37,7 @@ namespace Application.UseCases.Authentication.Commands {
 			_authenticationTokenRepository = authenticationTokenRepository;
 		}
 
-		public async Task<Result<RefreshTokenCommandResult>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken) {
+		public async Task<Result<RefreshTokenDTO>> Handle(RefreshTokenCommand request, CancellationToken cancellationToken) {
 
 			ClaimsPrincipal claims;
 
@@ -46,7 +46,7 @@ namespace Application.UseCases.Authentication.Commands {
 			}
 			catch (Exception) {
 				_logger.LogWarning("Refresh Token Command failed. RefreshToken: {RefreshToken} AccessToken: {AccessToken}", request.RefreshToken, request.AccessToken);
-				return Result<RefreshTokenCommandResult>.Failure(Errors.InvalidToken);
+				return Result<RefreshTokenDTO>.Failure(Errors.InvalidToken);
 			}
 
 			var email = claims.FindFirst(ClaimTypes.Email)!.Value;
@@ -58,7 +58,7 @@ namespace Application.UseCases.Authentication.Commands {
 				_logger.LogCritical("This command has been hit, with a valid a valid JWT & Refresh, although no such user exists in the system" +
 					"User: {User}. AccessToken: {AccessToken}, RefreshToken: {RefreshToken}"
 					, user.Email, request.AccessToken, request.RefreshToken);
-				return Result<RefreshTokenCommandResult>.Failure(Errors.ServerError);
+				return Result<RefreshTokenDTO>.Failure(Errors.ServerError);
 			}
 
 			var decodedRefreshToken = Transcode.DecodeURL(request.RefreshToken);
@@ -67,17 +67,17 @@ namespace Application.UseCases.Authentication.Commands {
 
 			if (currentRefreshToken is null) {
 				_logger.LogWarning("Refresh Token Command failed. No refresh available, re-login: User: {User}", user.Email);
-				return Result<RefreshTokenCommandResult>.Failure(Errors.Unauthorized);
+				return Result<RefreshTokenDTO>.Failure(Errors.Unauthorized);
 			}
 
 			if (currentRefreshToken.AccessToken != request.AccessToken) {
 				_logger.LogWarning("Unauthorized request. User: {User} AccessToken: {AccessToken} RefreshToken: {RefreshToken}", user.Email, request.AccessToken, request.RefreshToken);
-				return Result<RefreshTokenCommandResult>.Failure(Errors.Unauthorized);
+				return Result<RefreshTokenDTO>.Failure(Errors.Unauthorized);
 			}
 
 			if (currentRefreshToken.Expiry >= DateTime.UtcNow) {
 				_logger.LogWarning("Refresh Token Command failed. Expired refresh. User: {User}", user.Email);
-				return Result<RefreshTokenCommandResult>.Failure(Errors.Unauthorized);
+				return Result<RefreshTokenDTO>.Failure(Errors.Unauthorized);
 			}
 
 			var newAccessToken = _tokenService.GenerateAccessToken(claims.Claims);
@@ -93,7 +93,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
-			return Result<RefreshTokenCommandResult>.Success(new RefreshTokenCommandResult {
+			return Result<RefreshTokenDTO>.Success(new RefreshTokenDTO {
 				AccessToken = newAccessToken,
 				RefreshToken = Transcode.EncodeURL(newRefreshToken)
 			});

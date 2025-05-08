@@ -5,7 +5,6 @@ using Application.Common.TokenService;
 using Application.Common.Tools.Hasher;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
-using AutoMapper;
 using Domain.Entities;
 using Domain.Enumerations;
 using FluentValidation;
@@ -23,7 +22,6 @@ namespace Application.UseCases.Authentication.Commands {
 
 	public class RegisterCommandHandler : IRequestHandler<RegisterCommand, Result<bool>> {
 
-		private readonly IMapper _mapper;
 		private readonly IUserRepository _userRepository;
 		private readonly ITokenService _tokenService;
 		private readonly IEmailService _emailService;
@@ -33,7 +31,6 @@ namespace Application.UseCases.Authentication.Commands {
 		private readonly ILogger<RegisterCommandHandler> _logger;
 
 		public RegisterCommandHandler(IUserRepository userRepository,
-								IMapper mapper,
 								ITokenService tokenService,
 								IEmailService emailService,
 								IConfiguration configuration,
@@ -41,7 +38,6 @@ namespace Application.UseCases.Authentication.Commands {
 								IUnitOfWork unitOfWork,
 								ILogger<RegisterCommandHandler> logger) {
 			_userRepository = userRepository;
-			_mapper = mapper;
 			_tokenService = tokenService;
 			_emailService = emailService;
 			_configuration = configuration;
@@ -64,7 +60,11 @@ namespace Application.UseCases.Authentication.Commands {
 			var emailToken = _tokenService.GenerateEmailVerificationToken();
 
 			// Map to domain user
-			var user = _mapper.Map<User>(request);
+			var user = new User {
+				Email = request.Email,
+				FirstName = request.FirstName,
+				LastName = request.LastName
+			};
 
 			// Hash password
 			(user.PasswordHash, user.PasswordSalt) = Hasher.HashPasword(request.Password);

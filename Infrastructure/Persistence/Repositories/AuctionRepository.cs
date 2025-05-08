@@ -9,6 +9,31 @@ namespace Infrastructure.Persistence.Repositories {
 		public AuctionRepository(DatabaseContext context) : base(context) {
 		}
 
+		public async Task<IEnumerable<Auction>> GetAuctionsCreatedByUserNoTrackingAsync(Guid userId, CancellationToken cancellationToken = default) {
+
+			if (userId == Guid.Empty)
+				throw new ArgumentNullException(nameof(userId));
+
+			var auctions = await SetNoTracking().Include(x => x.Images)
+												.Where(x => x.SellerId == userId)
+												.ToListAsync(cancellationToken);
+
+			return auctions;
+		}
+
+		public async Task<IEnumerable<Auction>> GetAuctionsPartecipatedByUserNoTrackingAsync(Guid userId, CancellationToken cancellationToken = default) {
+
+			if (userId == Guid.Empty)
+				throw new ArgumentNullException(nameof(userId));
+
+			var auctions = await SetNoTracking().Include(x => x.Images)
+												.Include(x => x.Bids)
+												.Where(x => x.Bids.Any(x => x.BidderId == userId))
+												.ToListAsync(cancellationToken);
+
+			return auctions;
+		}
+
 		public async Task<Auction> GetAuctionWithBidsAndSellerNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
 
 			if (id == Guid.Empty)

@@ -14,7 +14,6 @@ namespace Application.DependencyConfigurations {
 
 			services.ConfigureMediatR();
 			services.ConfigureFluentValidation();
-			services.ConfigureAutoMapper();
 			services.ConfigureScopedServices();
 
 			return services;
@@ -27,10 +26,6 @@ namespace Application.DependencyConfigurations {
 		private static void ConfigureFluentValidation(this IServiceCollection services) {
 			services.AddScoped(typeof(IPipelineBehavior<,>), typeof(FluentValidationPipelineBehaviour<,>));
 			services.AddValidatorsFromAssemblyContaining<RegisterCommand>(includeInternalTypes: true);
-		}
-
-		private static void ConfigureAutoMapper(this IServiceCollection services) {
-			services.AddAutoMapper(Assembly.GetExecutingAssembly());
 		}
 
 		private static void ConfigureScopedServices(this IServiceCollection services) {

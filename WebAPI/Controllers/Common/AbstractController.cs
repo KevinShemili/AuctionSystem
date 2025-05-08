@@ -1,16 +1,13 @@
-﻿using AutoMapper;
-using MediatR;
+﻿using MediatR;
 using Microsoft.AspNetCore.Mvc;
 
 namespace WebAPI.Controllers.Common {
 	public abstract class AbstractController : ControllerBase {
 
 		protected readonly IMediator _mediator;
-		protected readonly IMapper _mapper;
 
-		public AbstractController(IMediator mediator, IMapper mapper) {
+		public AbstractController(IMediator mediator) {
 			_mediator = mediator;
-			_mapper = mapper;
 		}
 	}
 }

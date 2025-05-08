@@ -24,8 +24,7 @@ namespace Application.Common.TokenService {
 				ArgumentNullException.ThrowIfNull(user);
 
 			var tokenClaims = new List<Claim> {
-							new (ClaimTypes.Email, user.Email),
-							new (ClaimTypes.Name, user.LastName),
+							new (ClaimTypes.NameIdentifier, user.Id.ToString()), // What controller reads
 							new (JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString()),
 							new (JwtRegisteredClaimNames.Sub, user.Id.ToString())};
 
@@ -52,12 +51,6 @@ namespace Application.Common.TokenService {
 			);
 
 			return new JwtSecurityTokenHandler().WriteToken(token);
-		}
-
-		public Guid GetUserId(string accessToken) {
-			var token = new JwtSecurityToken(accessToken);
-			var userId = Guid.Parse(token.Claims.First(x => x.Type == JwtRegisteredClaimNames.Sub).Value);
-			return userId;
 		}
 
 		public string GenerateAccessToken(IEnumerable<Claim> claims) {

@@ -1,5 +1,4 @@
 ﻿using Application.UseCases.Auctions.Commands;
-using AutoMapper;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +13,7 @@ namespace WebAPI.Controllers {
 	[Route("api/[controller]")]
 	public class AuctionController : AbstractController {
 
-		public AuctionController(IMediator mediator, IMapper mapper) : base(mediator, mapper) {
+		public AuctionController(IMediator mediator) : base(mediator) {
 		}
 
 		[Authorize]
@@ -32,9 +31,15 @@ namespace WebAPI.Controllers {
 				imageBytes.Add(ms.ToArray());
 			}
 
-			var command = _mapper.Map<CreateAuctionCommand>(dto);
-			command.SellerId = userId;
-			command.Images = imageBytes;
+			var command = new CreateAuctionCommand {
+				StartTime = dto.StartTime,
+				EndTime = dto.EndTime,
+				BaselinePrice = dto.BaselinePrice,
+				Description = dto.Description,
+				Name = dto.Name,
+				SellerId = userId,
+				Images = imageBytes
+			};
 
 			var result = await _mediator.Send(command);
 
