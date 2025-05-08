@@ -102,10 +102,10 @@ app.UseHangfireDashboard("/hangfire", new DashboardOptions {
 });
 
 var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
-recurringJobManager.AddOrUpdate<ITestJob>(
-	"TestJob",
-	job => job.ExecuteAsync(),
-	Cron.Minutely
+recurringJobManager.AddOrUpdate<IAuctionCloser>(
+	"Close Expired Auctions",
+	job => job.AutomaticClose(),
+	Cron.Hourly(1)
 );
 
 app.UseRouting();

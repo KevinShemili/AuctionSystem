@@ -84,7 +84,7 @@ namespace Infrastructure.DependencyConfigurations {
 			);
 
 			services.AddHangfireServer();
-			services.AddTransient<ITestJob, TestJob>();
+			services.AddTransient<IAuctionCloser, AuctionCloser>();
 
 		}
 	}

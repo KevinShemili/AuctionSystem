@@ -61,6 +61,9 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error Unauthorized = new(StatusCodes.Status401Unauthorized,
 			"Unauthorized. Please login.");
 
+		public static readonly Error BidderIsSeller = new(StatusCodes.Status400BadRequest,
+			"Seller cannot bid on his auction.");
+
 		public static Error UserNotFound(string Email) => new(StatusCodes.Status404NotFound,
 			$"User with email: {Email} does not exist in the system");
 

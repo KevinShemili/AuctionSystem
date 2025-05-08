@@ -9,7 +9,7 @@ namespace Domain.Entities {
 
 		// Foreign Keys
 		public Guid WalletId { get; set; }
-		public Guid BidId { get; set; }
+		public Guid? BidId { get; set; }
 
 		// Relationships
 		public virtual Wallet Wallet { get; set; }

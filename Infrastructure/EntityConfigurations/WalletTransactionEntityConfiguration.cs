@@ -15,7 +15,8 @@ namespace Infrastructure.EntityConfigurations {
 
 			builder.HasOne(x => x.Bid)
 				   .WithMany(x => x.Transactions)
-				   .HasForeignKey(x => x.BidId);
+				   .HasForeignKey(x => x.BidId)
+				   .IsRequired(false);
 		}
 	}
 }
