@@ -48,6 +48,8 @@ services:
       - "8080:80"
     networks:
       - auctionnetwork
+    volumes:
+      - auction_uploads:/app/wwwroot/uploads/auctions
 
   elasticsearch:
     container_name: elasticsearch
@@ -83,3 +85,4 @@ volumes:
    postgres_data:
    pgadmin-data:
    es_data:
+   auction_uploads:

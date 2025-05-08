@@ -40,6 +40,9 @@ WORKDIR /app
 # Copy published output
 COPY --from=build /app/publish .
 
+# ensure upload directory exists for docker volume (store images)
+RUN mkdir -p wwwroot/uploads/auctions
+
 # Expose port
 EXPOSE 80
 

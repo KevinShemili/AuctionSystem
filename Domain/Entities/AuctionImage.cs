@@ -3,7 +3,7 @@
 namespace Domain.Entities {
 	public class AuctionImage : AbstractEntity {
 		// Fields
-		public byte[] Data { get; set; }
+		public string FilePath { get; set; }
 
 		// Foreign Keys
 		public Guid AuctionId { get; set; }

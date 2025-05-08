@@ -1,4 +1,6 @@
-﻿namespace Application.DTOs {
+﻿using Swashbuckle.AspNetCore.Annotations;
+
+namespace Application.DTOs {
 	public class AuctionDTO {
 		public string Name { get; set; }
 		public string Description { get; set; }
@@ -11,7 +13,8 @@
 	}
 
 	public class AuctionImageDTO {
-		public byte[] ImageData { get; set; }
+		[SwaggerSchema(Format = "uri")]
+		public string Url { get; set; }
 	}
 
 	public class BidDTO {

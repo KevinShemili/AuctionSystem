@@ -47,7 +47,11 @@ namespace Application.UseCases.Profile.Queries {
 				Email = user.Email,
 				Wallet = new WalletDTO {
 					Balance = user.Wallet.Balance,
-					FrozenBalance = user.Wallet.FrozenBalance
+					FrozenBalance = user.Wallet.FrozenBalance,
+					Transactions = user.Wallet.Transactions.Select(x => new TransactionsDTO {
+						Amount = x.Amount,
+						TransactionType = x.TransactionType
+					})
 				},
 				CreatedAuctions = createdAuctions.Select(x => new AuctionDTO {
 					Name = x.Name,
@@ -56,8 +60,8 @@ namespace Application.UseCases.Profile.Queries {
 					Description = x.Description,
 					EndTime = x.EndTime,
 					Status = x.Status,
-					Images = x.Images.Select(i => new AuctionImageDTO {
-						ImageData = i.Data
+					Images = x.Images.Select(x => new AuctionImageDTO {
+						Url = x.FilePath
 					}),
 				}),
 				ParticipatedAuctions = participatedAuctions.Select(x => new AuctionDTO {
@@ -67,12 +71,12 @@ namespace Application.UseCases.Profile.Queries {
 					Description = x.Description,
 					EndTime = x.EndTime,
 					Status = x.Status,
-					Images = x.Images.Select(i => new AuctionImageDTO {
-						ImageData = i.Data
+					Images = x.Images.Select(x => new AuctionImageDTO {
+						Url = x.FilePath
 					}),
-					Bids = x.Bids.Select(b => new BidDTO {
-						Amount = b.Amount,
-						IsWinningBid = b.IsWinningBid
+					Bids = x.Bids.Select(x => new BidDTO {
+						Amount = x.Amount,
+						IsWinningBid = x.IsWinningBid
 					})
 				})
 			};

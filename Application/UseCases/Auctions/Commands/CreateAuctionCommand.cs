@@ -16,7 +16,7 @@ namespace Application.UseCases.Auctions.Commands {
 		public decimal BaselinePrice { get; set; }
 		public DateTime StartTime { get; set; }
 		public DateTime EndTime { get; set; }
-		public IEnumerable<byte[]> Images { get; set; }
+		public IEnumerable<string> Images { get; set; }
 		public Guid SellerId { get; set; }
 	}
 
@@ -108,7 +108,7 @@ namespace Application.UseCases.Auctions.Commands {
 
 			foreach (var img in request.Images) {
 				auction.Images.Add(new AuctionImage {
-					Data = img,
+					FilePath = img,
 					DateCreated = DateTime.UtcNow,
 				});
 			}
