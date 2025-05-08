@@ -69,5 +69,8 @@ namespace Application.Common.ErrorMessages {
 
 		public static Error UserNotFound(Guid id) => new(StatusCodes.Status404NotFound,
 			$"User with ID: {id} does not exist in the system");
+
+		public static readonly Error InvalidId = new(StatusCodes.Status400BadRequest,
+			"Id format is invalid.");
 	}
 }

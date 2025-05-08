@@ -18,8 +18,18 @@ namespace Infrastructure.Persistence.Repositories {
 			return emailBool;
 		}
 
-		public IQueryable<User> GetAllUsersWithRole() {
-			var users = SetNoTracking().Include(x => x.Roles);
+		public IQueryable<User> GetAllWithRolesPermissionsWalletAuctionsBidsNoTrackingAsync() {
+
+			var users = SetNoTracking().Include(x => x.Roles)
+											.ThenInclude(x => x.Permissions)
+									   .Include(x => x.Auctions)
+									   .Include(x => x.Wallet)
+											.ThenInclude(x => x.Transactions)
+									   .Include(x => x.Auctions)
+											.ThenInclude(x => x.Images)
+									   .Include(x => x.Bids)
+											.ThenInclude(x => x.Auction)
+											.ThenInclude(x => x.Images);
 
 			return users;
 		}
@@ -44,6 +54,24 @@ namespace Infrastructure.Persistence.Repositories {
 		public async Task<User> GetUserWithAuthenticationTokensNoTrackingAsync(string email, CancellationToken cancellationToken = default) {
 			var user = await SetNoTracking().Include(x => x.AuthenticationTokens)
 											.FirstOrDefaultAsync(x => x.Email == email, cancellationToken: cancellationToken);
+
+			return user;
+		}
+
+		public async Task<User> GetUserWithRolesPermissionsWalletAuctionsBidsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+
+			var user = await SetNoTracking().Include(x => x.Roles)
+												.ThenInclude(x => x.Permissions)
+											.Include(x => x.Auctions)
+											.Include(x => x.Wallet)
+												.ThenInclude(x => x.Transactions)
+											.Include(x => x.Auctions)
+												.ThenInclude(x => x.Images)
+											.Include(x => x.Bids)
+												.ThenInclude(x => x.Auction)
+												.ThenInclude(x => x.Images)
+											.Where(x => x.Id == id)
+											.FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
 			return user;
 		}
@@ -73,9 +101,8 @@ namespace Infrastructure.Persistence.Repositories {
 			return user;
 		}
 
-		public async Task<User> GetUserWithWalletAndTransactionsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+		public async Task<User> GetUserWithWalletNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
 			var user = await SetNoTracking().Include(x => x.Wallet)
-											.ThenInclude(x => x.Transactions)
 											.Where(x => x.Id == id)
 											.FirstOrDefaultAsync(cancellationToken: cancellationToken);
 

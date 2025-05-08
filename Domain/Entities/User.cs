@@ -12,6 +12,7 @@ namespace Domain.Entities {
 		public string PasswordSalt { get; set; }
 		public int FailedLoginTries { get; set; }
 		public bool IsBlocked { get; set; }
+		public bool IsAdministrator { get; set; }
 
 		// Relationships
 		public virtual ICollection<Role> Roles { get; set; }

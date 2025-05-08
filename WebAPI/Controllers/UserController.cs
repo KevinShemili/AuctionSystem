@@ -28,23 +28,7 @@ namespace WebAPI.Controllers {
 				return StatusCode(result.Error.Code, result.Error.Message);
 			}
 
-			var response = result.Value;
-
-			var baseUrl = $"{Request.Scheme}://{Request.Host}/";
-
-			foreach (var auction in response.CreatedAuctions) {
-				foreach (var image in auction.Images) {
-					image.Url = baseUrl + image.Url;
-				}
-			}
-
-			foreach (var auction in response.ParticipatedAuctions) {
-				foreach (var image in auction.Images) {
-					image.Url = baseUrl + image.Url;
-				}
-			}
-
-			return Ok(response);
+			return Ok(result);
 		}
 	}
 }

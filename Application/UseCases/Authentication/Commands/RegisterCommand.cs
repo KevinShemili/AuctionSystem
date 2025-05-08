@@ -63,7 +63,8 @@ namespace Application.UseCases.Authentication.Commands {
 			var user = new User {
 				Email = request.Email,
 				FirstName = request.FirstName,
-				LastName = request.LastName
+				LastName = request.LastName,
+				IsAdministrator = false,
 			};
 
 			// Hash password

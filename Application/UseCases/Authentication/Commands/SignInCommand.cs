@@ -5,7 +5,7 @@ using Application.Common.Tools.Hasher;
 using Application.Common.Tools.Transcode;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
-using Application.DTOs;
+using Application.UseCases.Authentication.DTOs;
 using Domain.Entities;
 using FluentValidation;
 using MediatR;
