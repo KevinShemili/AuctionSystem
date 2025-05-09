@@ -11,7 +11,7 @@ using WebAPI.DTOs;
 
 namespace WebAPI.Controllers {
 	[ApiController]
-	[Route("api/[controller]")]
+	[Route("api/admin")]
 	public class AdminController : AbstractController {
 		public AdminController(IMediator mediator) : base(mediator) {
 		}

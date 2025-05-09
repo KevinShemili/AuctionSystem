@@ -34,7 +34,6 @@ namespace WebAPI.Controllers {
 				return error;
 
 			var command = new CreateAuctionCommand {
-				StartTime = createAuctionDTO.StartTime,
 				EndTime = createAuctionDTO.EndTime,
 				BaselinePrice = createAuctionDTO.BaselinePrice,
 				Description = createAuctionDTO.Description,
@@ -76,7 +75,6 @@ namespace WebAPI.Controllers {
 				Name = dto.Name,
 				Description = dto.Description,
 				BaselinePrice = dto.BaselinePrice,
-				StartTime = dto.StartTime,
 				EndTime = dto.EndTime,
 				NewImages = imageDirectories
 			};
@@ -198,7 +196,7 @@ namespace WebAPI.Controllers {
 
 		[Authorize]
 		[SwaggerOperation(Summary = "Delete auction")]
-		[HttpDelete("auctions/{auctionId}/resume")]
+		[HttpDelete("auctions/{auctionId}/delete")]
 		public async Task<IActionResult> DeleteAuction([FromRoute] Guid auctionId) {
 
 			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);

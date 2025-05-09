@@ -15,7 +15,6 @@ namespace Application.UseCases.Auctions.Commands {
 		public string Name { get; set; }
 		public string Description { get; set; }
 		public decimal BaselinePrice { get; set; }
-		public DateTime StartTime { get; set; }
 		public DateTime EndTime { get; set; }
 		public IEnumerable<string> Images { get; set; }
 		public Guid SellerId { get; set; }
@@ -47,22 +46,21 @@ namespace Application.UseCases.Auctions.Commands {
 				return Result<Guid>.Failure(Errors.Unauthorized);
 			}
 
+			if (user.IsAdministrator) {
+				return Result<Guid>.Failure(Errors.NotAccessibleByAdmins);
+			}
+
 			if (request.BaselinePrice <= 0) {
 				_logger.LogWarning("Create Auction attempt failed, negative price. BaselinePrice: {BaselinePrice}.", request.BaselinePrice);
 				return Result<Guid>.Failure(Errors.NegativeBaselinePrice);
 			}
 
 			// Normalize to minute precision
-			request.StartTime = TruncateTime.ToMinute(request.StartTime);
+			var startTime = TruncateTime.ToMinute(DateTime.UtcNow);
 			request.EndTime = TruncateTime.ToMinute(request.EndTime);
 
-			if (request.StartTime < DateTime.UtcNow) {
-				_logger.LogWarning("Create Auction attempt failed, past start time. TimeNow: {TimeNow} StartTime: {StartTime}", DateTime.UtcNow, request.StartTime);
-				return Result<Guid>.Failure(Errors.PastStartTime);
-			}
-
-			if (request.EndTime <= request.StartTime) {
-				_logger.LogWarning("Create Auction attempt failed, invalid end time. StartTime: {StartTime} EndTime: {EndTime}", request.StartTime, request.EndTime);
+			if (request.EndTime <= startTime) {
+				_logger.LogWarning("Create Auction attempt failed, invalid end time. StartTime: {StartTime} EndTime: {EndTime}", startTime, request.EndTime);
 				return Result<Guid>.Failure(Errors.EndSmallerEqualStart);
 			}
 
@@ -78,7 +76,7 @@ namespace Application.UseCases.Auctions.Commands {
 				}
 			}
 
-			var auction = Map(request);
+			var auction = Map(request, startTime);
 
 			// Persist
 			_ = await _auctionRepository.CreateAsync(auction, cancellationToken: cancellationToken);
@@ -87,13 +85,13 @@ namespace Application.UseCases.Auctions.Commands {
 			return Result<Guid>.Success(auction.Id);
 		}
 
-		private static Auction Map(CreateAuctionCommand request) {
+		private static Auction Map(CreateAuctionCommand request, DateTime startTime) {
 
 			var auction = new Auction {
 				Name = request.Name,
 				Description = request.Description,
 				BaselinePrice = request.BaselinePrice,
-				StartTime = request.StartTime,
+				StartTime = startTime,
 				EndTime = request.EndTime,
 				SellerId = request.SellerId,
 				Images = new List<AuctionImage>(),
@@ -116,13 +114,8 @@ public class CreateAuctionCommandValidator : AbstractValidator<CreateAuctionComm
 	public CreateAuctionCommandValidator() {
 		RuleFor(x => x.Name)
 			.NotEmpty().WithMessage("Auction title is required.");
-
 		RuleFor(x => x.BaselinePrice)
 			.NotEmpty().WithMessage("Baseline price is required.");
-
-		RuleFor(x => x.StartTime)
-			.NotEmpty().WithMessage("Start time is required.");
-
 		RuleFor(x => x.EndTime)
 			.NotEmpty().WithMessage("End time is required.");
 	}

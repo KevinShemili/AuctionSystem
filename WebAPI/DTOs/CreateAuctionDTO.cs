@@ -9,8 +9,6 @@ namespace WebAPI.DTOs {
 		[Required]
 		public decimal BaselinePrice { get; set; }
 		[Required]
-		public DateTime StartTime { get; set; }
-		[Required]
 		public DateTime EndTime { get; set; }
 		[Required]
 		public List<IFormFile> Images { get; set; }

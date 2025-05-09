@@ -15,7 +15,7 @@
 			var result = await reader.ReadToEndAsync(cancellationToken);
 
 			var body = result.Replace("LINKHERE",
-				$"{url}/api/Authentication/confirm-email?token={token}&email={email}");
+				$"{url}/api/auth/confirm-email?token={token}&email={email}");
 
 			return body;
 		}

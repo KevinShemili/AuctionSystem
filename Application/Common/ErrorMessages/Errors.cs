@@ -7,9 +7,6 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error NegativeBaselinePrice = new(StatusCodes.Status400BadRequest,
 			"Baseline price should be greater than 0.");
 
-		public static readonly Error PastStartTime = new(StatusCodes.Status400BadRequest,
-			"Start time cannot be a time in the past.");
-
 		public static readonly Error EndSmallerEqualStart = new(StatusCodes.Status400BadRequest,
 			"End time should be greater than start time.");
 
@@ -32,7 +29,7 @@ namespace Application.Common.ErrorMessages {
 			"Auction is not in state paused.");
 
 		public static readonly Error AuctionHasBids = new(StatusCodes.Status409Conflict,
-			"Cannot pause an auction with current active bids.");
+			"Cannot perform changes on this auction as it has active bids.");
 
 		public static readonly Error BidTooLow = new(StatusCodes.Status409Conflict,
 			"Bid must be at least equal to the baseline price.");

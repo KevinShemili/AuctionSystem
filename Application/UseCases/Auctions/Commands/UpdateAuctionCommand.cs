@@ -16,7 +16,6 @@ namespace Application.UseCases.Auctions.Commands {
 		public string Name { get; set; }
 		public string Description { get; set; }
 		public decimal BaselinePrice { get; set; }
-		public DateTime StartTime { get; set; }
 		public DateTime EndTime { get; set; }
 		public IEnumerable<string> NewImages { get; set; }
 	}
@@ -52,16 +51,11 @@ namespace Application.UseCases.Auctions.Commands {
 			if (auction.Bids.Any())
 				return Result<bool>.Failure(Errors.AuctionHasBids);
 
-			request.StartTime = TruncateTime.ToMinute(request.StartTime);
+			var startTime = TruncateTime.ToMinute(DateTime.UtcNow);
 			request.EndTime = TruncateTime.ToMinute(request.EndTime);
 
-			if (request.StartTime < DateTime.UtcNow) {
-				_logger.LogWarning("Create Auction attempt failed, past start time. TimeNow: {TimeNow} StartTime: {StartTime}", DateTime.UtcNow, request.StartTime);
-				return Result<bool>.Failure(Errors.PastStartTime);
-			}
-
-			if (request.EndTime <= request.StartTime) {
-				_logger.LogWarning("Create Auction attempt failed, invalid end time. StartTime: {StartTime} EndTime: {EndTime}", request.StartTime, request.EndTime);
+			if (request.EndTime <= startTime) {
+				_logger.LogWarning("Create Auction attempt failed, invalid end time. StartTime: {StartTime} EndTime: {EndTime}", startTime, request.EndTime);
 				return Result<bool>.Failure(Errors.EndSmallerEqualStart);
 			}
 
@@ -83,7 +77,7 @@ namespace Application.UseCases.Auctions.Commands {
 			auction.Name = request.Name;
 			auction.Description = request.Description;
 			auction.BaselinePrice = request.BaselinePrice;
-			auction.StartTime = request.StartTime;
+			auction.StartTime = startTime;
 			auction.EndTime = request.EndTime;
 
 			if (request.NewImages != null && request.NewImages.Any()) {
@@ -104,13 +98,12 @@ namespace Application.UseCases.Auctions.Commands {
 
 		public class UpdateAuctionCommandValidator : AbstractValidator<UpdateAuctionCommand> {
 			public UpdateAuctionCommandValidator() {
-				RuleFor(x => x.Name).NotEmpty().WithMessage("Auction title is required.");
+				RuleFor(x => x.Name)
+					.NotEmpty().WithMessage("Auction title is required.");
 				RuleFor(x => x.BaselinePrice)
-					.GreaterThan(0).WithMessage("Baseline price must be > 0.");
-				RuleFor(x => x.StartTime).NotEmpty().WithMessage("Start time is required.");
+					.NotEmpty().WithMessage("Baseline price must be > 0.");
 				RuleFor(x => x.EndTime)
-					.GreaterThan(x => x.StartTime)
-					.WithMessage("End time must be after start time.");
+					.NotEmpty().WithMessage("End time must be after start time.");
 			}
 		}
 

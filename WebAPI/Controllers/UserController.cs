@@ -30,7 +30,7 @@ namespace WebAPI.Controllers {
 				return StatusCode(result.Error.Code, result.Error.Message);
 			}
 
-			return Ok(result);
+			return Ok(result.Value);
 		}
 
 		[Authorize]

@@ -12,7 +12,6 @@ namespace Application.UseCases.Auctions.Commands {
 	public class ResumeAuctionCommand : IRequest<Result<bool>> {
 		public Guid UserId { get; set; }
 		public Guid AuctionId { get; set; }
-		public DateTime StartTime { get; set; }
 		public DateTime EndTime { get; set; }
 	}
 
@@ -48,21 +47,16 @@ namespace Application.UseCases.Auctions.Commands {
 				return Result<bool>.Failure(Errors.AuctionNotPaused);
 			}
 
-			request.StartTime = TruncateTime.ToMinute(request.StartTime);
+			var startTime = TruncateTime.ToMinute(DateTime.UtcNow);
 			request.EndTime = TruncateTime.ToMinute(request.EndTime);
 
-			if (request.StartTime < DateTime.UtcNow) {
-				_logger.LogWarning("Create Auction attempt failed, past start time. TimeNow: {TimeNow} StartTime: {StartTime}", DateTime.UtcNow, request.StartTime);
-				return Result<bool>.Failure(Errors.PastStartTime);
-			}
-
-			if (request.EndTime <= request.StartTime) {
-				_logger.LogWarning("Create Auction attempt failed, invalid end time. StartTime: {StartTime} EndTime: {EndTime}", request.StartTime, request.EndTime);
+			if (request.EndTime <= startTime) {
+				_logger.LogWarning("Create Auction attempt failed, invalid end time. StartTime: {StartTime} EndTime: {EndTime}", startTime, request.EndTime);
 				return Result<bool>.Failure(Errors.EndSmallerEqualStart);
 			}
 
 			auction.Status = (int)AuctionStatusEnum.Active;
-			auction.StartTime = request.StartTime;
+			auction.StartTime = startTime;
 			auction.EndTime = request.EndTime;
 
 			_ = await _auctionRepository.UpdateAsync(auction, cancellationToken: cancellationToken);
