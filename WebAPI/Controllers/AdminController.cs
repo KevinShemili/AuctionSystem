@@ -1,7 +1,10 @@
-﻿using Application.UseCases.Administrator.Queries;
+﻿using Application.UseCases.Administrator.Commands;
+using Application.UseCases.Administrator.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Swashbuckle.AspNetCore.Annotations;
+using System.Security.Claims;
 using WebAPI.Controllers.Common;
 using WebAPI.DTOs;
 
@@ -13,6 +16,7 @@ namespace WebAPI.Controllers {
 		}
 
 		[Authorize(Policy = "view.user")]
+		[SwaggerOperation(Summary = "Get all users")]
 		[HttpGet("users")]
 		public async Task<IActionResult> ViewUsers([FromQuery] PagedParamsDTO pagedParams) {
 
@@ -26,15 +30,15 @@ namespace WebAPI.Controllers {
 
 			var result = await _mediator.Send(query);
 
-			if (result.IsFailure) {
+			if (result.IsFailure)
 				return StatusCode(result.Error.Code, result.Error.Message);
-			}
 
 			return Ok(result.Value);
 		}
 
 		[Authorize(Policy = "view.user")]
-		[HttpGet("user/{id}")]
+		[SwaggerOperation(Summary = "Get user by ID")]
+		[HttpGet("users/{id}")]
 		public async Task<IActionResult> ViewUser([FromRoute] Guid id) {
 
 			var query = new GetUserQuery {
@@ -43,192 +47,256 @@ namespace WebAPI.Controllers {
 
 			var result = await _mediator.Send(query);
 
-			if (result.IsFailure) {
+			if (result.IsFailure)
 				return StatusCode(result.Error.Code, result.Error.Message);
-			}
 
 			return Ok(result.Value);
 		}
 
-		/*
-				[Authorize(Policy = "edit.user")]
-				[HttpPatch("user/{id}/ban")]
-				public async Task<IActionResult> BanUser() {
+		[Authorize(Policy = "edit.user")]
+		[SwaggerOperation(Summary = "Ban a user")]
+		[HttpPatch("users/{id}/ban")]
+		public async Task<IActionResult> BanUser([FromRoute] Guid id, [FromBody] string reason) {
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			var command = new BanUserCommand {
+				UserId = id,
+				Reason = reason
+			};
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			var result = await _mediator.Send(command);
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
 
-				[Authorize(Policy = "create.user")]
-				[HttpPost]
-				public async Task<IActionResult> CreateAdministrator() {
+			return Ok(result.Value);
+		}
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+		[Authorize(Policy = "create.user")]
+		[SwaggerOperation(Summary = "Create an admin")]
+		[HttpPost("admins")]
+		public async Task<IActionResult> CreateAdministrator([FromBody] CreateAdminDTO createAdminDTO) {
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			var command = new CreateAdminCommand {
+				Email = createAdminDTO.Email,
+				FirstName = createAdminDTO.FirstName,
+				LastName = createAdminDTO.LastName,
+				Roles = createAdminDTO.Roles
+			};
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+			var result = await _mediator.Send(command);
 
-				[Authorize(Policy = "create.role")]
-				[HttpPost]
-				public async Task<IActionResult> CreateRole() {
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			return Ok(result.Value);
+		}
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+		[Authorize(Policy = "create.role")]
+		[SwaggerOperation(Summary = "Get a role")]
+		[HttpPost("roles")]
+		public async Task<IActionResult> CreateRole([FromBody] CreateRoleDTO createRoleDTO) {
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+			var command = new CreateRoleCommand {
+				Name = createRoleDTO.Name,
+				Description = createRoleDTO.Description
+			};
 
-				[Authorize(Policy = "edit.role")]
-				[HttpPost]
-				public async Task<IActionResult> AssignRole() {
+			var result = await _mediator.Send(command);
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			return Ok(result.Value);
+		}
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+		[Authorize(Policy = "edit.user")]
+		[SwaggerOperation(Summary = "Assign role/s to a user")]
+		[HttpPut("users/{userId}/roles")]
+		public async Task<IActionResult> AssignRoles([FromRoute] Guid userId, [FromBody] List<Guid> roleIds) {
 
-				[Authorize(Policy = "edit.role")]
-				[HttpPost]
-				public async Task<IActionResult> AssignPermission() {
+			var adminId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			var command = new AssignRoleCommand {
+				UserId = userId,
+				AdminId = adminId,
+				RoleIds = roleIds
+			};
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			var result = await _mediator.Send(command);
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
 
-				[Authorize(Policy = "edit.auction")]
-				[HttpPost]
-				public async Task<IActionResult> ForceCloseAuction() {
+			return Ok(result.Value);
+		}
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+		[Authorize(Policy = "edit.role")]
+		[SwaggerOperation(Summary = "Assign permission/s to a role")]
+		[HttpPut("roles/{roleId}/permissions")]
+		public async Task<IActionResult> AssignPermission([FromRoute] Guid roleId, [FromBody] List<Guid> permissionIds) {
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			var adminId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+			var command = new AssignPermissionCommand {
+				AdminId = adminId,
+				PermissionIds = permissionIds,
+				RoleId = roleId
+			};
 
-				[Authorize(Policy = "edit.auction")]
-				[HttpPost]
-				public async Task<IActionResult> DeleteAuction() {
+			var result = await _mediator.Send(command);
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			return Ok(result.Value);
+		}
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+		[Authorize(Policy = "edit.auction")]
+		[SwaggerOperation(Summary = "Force-End an auction no restrictions")]
+		[HttpPut("auctions/{auctionId}/end")]
+		public async Task<IActionResult> ForceCloseAuction([FromRoute] Guid auctionId, [FromBody] string reason) {
 
-				[Authorize(Policy = "view.auction")]
-				[HttpPost]
-				public async Task<IActionResult> ViewAuction() {
+			var adminId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			var command = new ForceCloseAuctionCommand {
+				AdminId = adminId,
+				AuctionId = auctionId,
+				Reason = reason
+			};
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			var result = await _mediator.Send(command);
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
 
-				[Authorize(Policy = "view.role")]
-				[HttpPost]
-				public async Task<IActionResult> ViewRoles() {
+			return Ok(result.Value);
+		}
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+		[Authorize(Policy = "delete.auction")]
+		[SwaggerOperation(Summary = "Delete a Force-Ended auction")]
+		[HttpDelete("auctions/{auctionId}")]
+		public async Task<IActionResult> DeleteAuction([FromRoute] Guid auctionId) {
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			var command = new ForceDeleteAuctionCommand {
+				AuctionId = auctionId
+			};
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+			var result = await _mediator.Send(command);
 
-				[Authorize(Policy = "view.role")]
-				[HttpPost]
-				public async Task<IActionResult> ViewRole() {
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			return Ok(result.Value);
+		}
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+		[Authorize(Policy = "view.auction")]
+		[SwaggerOperation(Summary = "Get all auction details")]
+		[HttpGet("auctions/{auctionId}")]
+		public async Task<IActionResult> ViewAuction([FromRoute] Guid auctionId) {
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+			var query = new ViewAuctionAdminQuery {
+				AuctionId = auctionId
+			};
 
-				[Authorize(Policy = "view.role")]
-				[HttpPost]
-				public async Task<IActionResult> ViewPermissions() {
+			var result = await _mediator.Send(query);
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			return Ok(result.Value);
+		}
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}
+		[Authorize(Policy = "view.role")]
+		[SwaggerOperation(Summary = "Get all roles")]
+		[HttpGet("roles")]
+		public async Task<IActionResult> ViewRoles([FromQuery] PagedParamsDTO pagedParams) {
 
-				[Authorize(Policy = "view.role")]
-				[HttpPost]
-				public async Task<IActionResult> ViewPermission() {
+			var query = new ViewRolesQuery {
+				Filter = pagedParams.Filter,
+				PageNumber = pagedParams.PageNumber,
+				PageSize = pagedParams.PageSize,
+				SortBy = pagedParams.SortBy,
+				SortDesc = pagedParams.SortDesc
+			};
 
-					var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+			var result = await _mediator.Send(query);
 
-					var query = new GetUserQuery { UserId = Guid.Parse(userId) };
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
 
-					var result = await _mediator.Send(query);
-					if (result.IsFailure) {
-						return StatusCode(result.Error.Code, result.Error.Message);
-					}
-					return Ok(result.Value);
-				}*/
+			return Ok(result.Value);
+		}
+
+		[Authorize(Policy = "view.role")]
+		[SwaggerOperation(Summary = "Get role by ID")]
+		[HttpGet("roles/{roleId}")]
+		public async Task<IActionResult> ViewRole([FromRoute] Guid roleId) {
+
+			var query = new ViewRoleQuery {
+				RoleId = roleId
+			};
+
+			var result = await _mediator.Send(query);
+
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
+
+			return Ok(result.Value);
+		}
+
+		[Authorize(Policy = "view.role")]
+		[SwaggerOperation(Summary = "Get all permissions")]
+		[HttpGet("permissions")]
+		public async Task<IActionResult> ViewPermissions([FromQuery] PagedParamsDTO pagedParams) {
+
+			var query = new ViewPermissionsQuery {
+				Filter = pagedParams.Filter,
+				PageNumber = pagedParams.PageNumber,
+				PageSize = pagedParams.PageSize,
+				SortBy = pagedParams.SortBy,
+				SortDesc = pagedParams.SortDesc
+			};
+
+			var result = await _mediator.Send(query);
+
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
+
+			return Ok(result.Value);
+		}
+
+		[Authorize(Policy = "view.role")]
+		[SwaggerOperation(Summary = "Get permission by ID")]
+		[HttpGet("permissions/{permissionId}")]
+		public async Task<IActionResult> ViewPermission([FromRoute] Guid permissionId) {
+
+			var query = new ViewPermissionQuery {
+				PermissionId = permissionId
+			};
+
+			var result = await _mediator.Send(query);
+
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
+
+			return Ok(result.Value);
+		}
+
+		[Authorize(Policy = "view.wallet")]
+		[SwaggerOperation(Summary = "Get wallet & transactions")]
+		[HttpGet("wallets/{walletId}/transactions")]
+		public async Task<IActionResult> ViewTransactions([FromRoute] Guid walletId) {
+
+			var query = new ViewWalletQuery {
+				WalletId = walletId
+			};
+
+			var result = await _mediator.Send(query);
+
+			if (result.IsFailure)
+				return StatusCode(result.Error.Code, result.Error.Message);
+
+			return Ok(result.Value);
+		}
 	}
 }

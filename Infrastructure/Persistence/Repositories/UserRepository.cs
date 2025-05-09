@@ -93,6 +93,7 @@ namespace Infrastructure.Persistence.Repositories {
 		}
 
 		public async Task<User> GetUserWithWalletAndTransactionsAsync(Guid id, CancellationToken cancellationToken = default) {
+
 			var user = await SetTracking().Include(x => x.Wallet)
 										  .ThenInclude(x => x.Transactions)
 										  .Where(x => x.Id == id)
@@ -107,6 +108,16 @@ namespace Infrastructure.Persistence.Repositories {
 											.FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
 			return user;
+		}
+
+		public Task<User> GetUserWithUserRoles(Guid id, CancellationToken cancellationToken = default) {
+
+			var user = SetTracking().Include(x => x.UserRoles)
+									.Where(x => x.Id == id)
+									.FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+			return user;
+
 		}
 	}
 }

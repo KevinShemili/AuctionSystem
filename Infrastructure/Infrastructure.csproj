@@ -9,11 +9,17 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="Email\HTMLTemplates\AuctionClosedByAdmin.html" />
+    <None Remove="Email\HTMLTemplates\BidRemovedByAdmin.html" />
     <None Remove="Email\HTMLTemplates\ConfirmEmail.html" />
+    <None Remove="Email\HTMLTemplates\CreateAdmin.html" />
   </ItemGroup>
 
   <ItemGroup>
+    <EmbeddedResource Include="Email\HTMLTemplates\AuctionClosedByAdmin.html" />
+    <EmbeddedResource Include="Email\HTMLTemplates\BidRemovedByAdmin.html" />
     <EmbeddedResource Include="Email\HTMLTemplates\ConfirmEmail.html" />
+    <EmbeddedResource Include="Email\HTMLTemplates\CreateAdmin.html" />
   </ItemGroup>
 
   <ItemGroup>

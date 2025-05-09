@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace WebAPI.DTOs.AuctionDTOs {
+namespace WebAPI.DTOs {
 	public class CreateAuctionDTO {
 		[Required]
 		public string Name { get; set; }

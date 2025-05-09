@@ -44,11 +44,11 @@ namespace Application.UseCases.Bidding.Commands {
 
 		public async Task<Result<Guid>> Handle(PlaceBidCommand request, CancellationToken cancellationToken) {
 
-			var auction = await _auctionRepository.GetAuctionWithBidsAndSellerNoTrackingAsync(request.AuctionId, cancellationToken);
+			var auction = await _auctionRepository.GetAuctionWithBidsSellerWalletTransactionsNoTrackingAsync(request.AuctionId, cancellationToken);
 
 			if (auction is null) {
 				_logger.LogWarning("Place Bid failed: auction not found. AuctionId: {AuctionId}.", request.AuctionId);
-				return Result<Guid>.Failure(Errors.AuctionNotFound);
+				return Result<Guid>.Failure(Errors.AuctionNotFound(request.AuctionId));
 			}
 
 			if (auction.Seller.Id == request.BidderId) {

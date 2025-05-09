@@ -1,4 +1,4 @@
-﻿using Application.Common.Tools.Hasher;
+﻿using Application.Common.Tools.Passwords;
 using Domain.Entities;
 
 // Static Time (DateTime) and static UUIDs (Guid) have been 

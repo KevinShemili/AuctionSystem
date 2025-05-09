@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using System.Security.Claims;
 using WebAPI.Controllers.Common;
-using WebAPI.DTOs.BidDTOs;
+using WebAPI.DTOs;
 
 namespace WebAPI.Controllers {
 

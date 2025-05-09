@@ -9,6 +9,8 @@ namespace Domain.Entities {
 		public DateTime StartTime { get; set; }
 		public DateTime EndTime { get; set; }
 		public int Status { get; set; }
+		public Guid? ForceClosedBy { get; set; }
+		public string ForceClosedReason { get; set; }
 
 		// Foreign Keys
 		public Guid SellerId { get; set; }

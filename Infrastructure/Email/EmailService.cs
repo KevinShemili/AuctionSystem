@@ -30,6 +30,53 @@ namespace Infrastructure.Email {
 			ReadAppSettings();
 		}
 
+		public async Task SendAdminRegistrationEmailAsync(string email, string password, CancellationToken cancellationToken = default) {
+
+			var body = await BodyTemplate.CreateAdminBody(password, cancellationToken);
+
+			_ = await SendAsync(new EmailData {
+				To = email,
+				Subject = "Admin Account Created.",
+				Body = body
+			}, cancellationToken);
+		}
+
+		public async Task SendConfirmationEmailAsync(string token, string email, CancellationToken cancellationToken) {
+
+			var encodedToken = Transcode.EncodeURL(token);
+
+			var body = await BodyTemplate.VerifyEmailBody(GetUrl(), email, encodedToken, cancellationToken);
+
+			_ = await SendAsync(new EmailData {
+				To = email,
+				Subject = "Confirm Your Email.",
+				Body = body
+			}, cancellationToken);
+		}
+
+		public async Task SendBidRemovedEmailAsync(string email, string auctionName, CancellationToken cancellationToken = default) {
+
+			var body = await BodyTemplate.CreateBidRemovedBody(auctionName, cancellationToken);
+
+			_ = await SendAsync(new EmailData {
+				To = email,
+				Subject = "Your Bid has been Removed.",
+				Body = body
+			}, cancellationToken);
+		}
+
+		public async Task SendAuctionClosedEmailAsync(string email, string auctionName, string sellerName, string reason,
+			CancellationToken cancellationToken) {
+
+			var body = await BodyTemplate.CreateAuctionRemovedBody(auctionName, sellerName, reason, cancellationToken);
+
+			_ = await SendAsync(new EmailData {
+				To = email,
+				Subject = "Your Auction has been Closed.",
+				Body = body
+			}, cancellationToken);
+		}
+
 		private void ReadAppSettings() {
 			_displayName = _config["MailSettings:DisplayName"]!;
 			_from = _config["MailSettings:From"]!;
@@ -80,17 +127,6 @@ namespace Infrastructure.Email {
 			}
 		}
 
-		public async Task SendConfirmationEmailAsync(string token, string email, CancellationToken cancellationToken) {
-			var encodedToken = Transcode.EncodeURL(token);
-
-			var body = await BodyTemplate.VerifyEmailBody(GetUrl(), email, encodedToken, cancellationToken);
-
-			_ = await SendAsync(new EmailData {
-				To = email,
-				Subject = "Confirm Your Email",
-				Body = body
-			}, cancellationToken);
-		}
 
 		private string GetUrl() {
 			var url = _httpContext.HttpContext?.Request?.Host.ToString();

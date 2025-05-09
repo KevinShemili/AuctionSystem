@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.Annotations;
 using WebAPI.Controllers.Common;
-using WebAPI.DTOs.AuthenticationDTOs;
+using WebAPI.DTOs;
 
 namespace WebAPI.Controllers {
 

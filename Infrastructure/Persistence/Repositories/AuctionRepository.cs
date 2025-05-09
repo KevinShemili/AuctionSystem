@@ -34,13 +34,30 @@ namespace Infrastructure.Persistence.Repositories {
 			return auctions;
 		}
 
-		public async Task<Auction> GetAuctionWithBidsAndSellerNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+		public async Task<Auction> GetAuctionWithBidsSellerWalletTransactionsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
 
 			if (id == Guid.Empty)
 				throw new ArgumentNullException(nameof(id));
 
 			var auction = await SetNoTracking().Include(x => x.Bids)
+													.ThenInclude(x => x.Bidder)
+													.ThenInclude(x => x.Wallet)
+													.ThenInclude(x => x.Transactions)
 											   .Include(x => x.Seller)
+											   .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+			return auction;
+		}
+
+		public async Task<Auction> GetAuctionWithBidsSellerNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+
+			if (id == Guid.Empty)
+				throw new ArgumentNullException(nameof(id));
+
+			var auction = await SetNoTracking().Include(x => x.Bids)
+													.ThenInclude(x => x.Bidder)
+											   .Include(x => x.Seller)
+											   .Include(x => x.Images)
 											   .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
 
 			return auction;

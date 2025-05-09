@@ -1,7 +1,7 @@
 ﻿using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Common.TokenService;
-using Application.Common.Tools.Hasher;
+using Application.Common.Tools.Passwords;
 using Application.Common.Tools.Transcode;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
@@ -67,10 +67,11 @@ namespace Application.UseCases.Authentication.Commands {
 
 				if (user.FailedLoginTries >= maxTries) {
 					user.IsBlocked = true;
+					user.BlockReason = "Max login attempts reached.";
 
 					_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 					_logger.LogWarning("User {FirstName} {LastName} reached max tries: Blocked.", user.FirstName, user.LastName);
-					return Result<SignInDTO>.Failure(Errors.LockedOut);
+					return Result<SignInDTO>.Failure(Errors.BlockReason(user.BlockReason));
 				}
 
 				user.FailedLoginTries += 1;

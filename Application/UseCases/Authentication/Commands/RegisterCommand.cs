@@ -2,7 +2,7 @@
 using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Common.TokenService;
-using Application.Common.Tools.Hasher;
+using Application.Common.Tools.Passwords;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
 using Domain.Entities;

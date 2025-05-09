@@ -1,4 +1,4 @@
-﻿namespace WebAPI.DTOs.AuthenticationDTOs {
+﻿namespace WebAPI.DTOs {
 	public class RegisterDTO {
 		public string FirstName { get; set; }
 		public string LastName { get; set; }
