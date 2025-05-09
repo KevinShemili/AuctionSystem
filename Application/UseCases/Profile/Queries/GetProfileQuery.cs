@@ -23,11 +23,16 @@ namespace Application.UseCases.Profile.Queries {
 
 		public async Task<Result<ProfileDTO>> Handle(GetProfileQuery request, CancellationToken cancellationToken) {
 
-			var user = await _userRepository.GetUserWithWalletNoTrackingAsync(request.UserId, cancellationToken);
+			var user = await _userRepository.GetUserWithAuctionWalletNoTrackingAsync(request.UserId, cancellationToken);
 
 			if (user is null) {
 				_logger.LogCritical("User bypassed authorization. {UserId} not found", request.UserId);
 				return Result<ProfileDTO>.Failure(Errors.Unauthorized);
+			}
+
+			if (user.IsAdministrator is true) {
+				_logger.LogWarning("User is an administrator. {UserId} is not allowed to access this endpoint", request.UserId);
+				return Result<ProfileDTO>.Failure(Errors.NotAccessibleByAdmins);
 			}
 
 			return Result<ProfileDTO>.Success(MapResponse(user));
@@ -42,7 +47,15 @@ namespace Application.UseCases.Profile.Queries {
 				Email = user.Email,
 				WalletId = user.Wallet.Id,
 				Balance = user.Wallet.Balance,
-				FrozenBalance = user.Wallet.FrozenBalance
+				FrozenBalance = user.Wallet.FrozenBalance,
+				OwnAuctions = user.Auctions.Select(a => new OwnAuctionsDTO {
+					Id = a.Id,
+					Name = a.Name,
+					BaselinePrice = a.BaselinePrice,
+					StartTime = a.StartTime,
+					EndTime = a.EndTime,
+					Status = a.Status
+				}).ToList()
 			};
 
 			return profile;

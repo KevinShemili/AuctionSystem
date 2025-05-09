@@ -39,6 +39,12 @@ namespace Application.UseCases.Administrator.Commands {
 
 		public async Task<Result<bool>> Handle(CreateAdminCommand request, CancellationToken cancellationToken) {
 
+			var doesEmailExist = await _userRepository.DoesEmailExistAsync(request.Email, cancellationToken);
+			if (doesEmailExist) {
+				_logger.LogWarning("Email already exists. Email: {Email}", request.Email);
+				return Result<bool>.Failure(Errors.EmailAlreadyExists);
+			}
+
 			if (request.Roles.Any() is false) {
 				_logger.LogWarning("No roles provided for the new admin. Request: {Request}", request);
 				return Result<bool>.Failure(Errors.EmptyRoles);
@@ -61,6 +67,7 @@ namespace Application.UseCases.Administrator.Commands {
 				PasswordHash = passwordHash,
 				PasswordSalt = passwordSalt,
 				IsAdministrator = true,
+				IsEmailVerified = true,
 				UserRoles = new List<UserRole>()
 			};
 

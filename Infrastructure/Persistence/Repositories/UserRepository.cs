@@ -63,6 +63,7 @@ namespace Infrastructure.Persistence.Repositories {
 			var user = await SetNoTracking().Include(x => x.Roles)
 												.ThenInclude(x => x.Permissions)
 											.Include(x => x.Auctions)
+												.ThenInclude(x => x.Bids)
 											.Include(x => x.Wallet)
 												.ThenInclude(x => x.Transactions)
 											.Include(x => x.Auctions)
@@ -102,17 +103,43 @@ namespace Infrastructure.Persistence.Repositories {
 			return user;
 		}
 
-		public async Task<User> GetUserWithWalletNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+		public async Task<User> GetUserWithWalletAndTransactionsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+
 			var user = await SetNoTracking().Include(x => x.Wallet)
+											.ThenInclude(x => x.Transactions)
 											.Where(x => x.Id == id)
 											.FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
 			return user;
 		}
 
-		public Task<User> GetUserWithUserRoles(Guid id, CancellationToken cancellationToken = default) {
+		public async Task<User> GetUserWithAuctionWalletNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+			var user = await SetNoTracking().Include(x => x.Wallet)
+											.Include(x => x.Auctions)
+											.Where(x => x.Id == id)
+											.FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+			return user;
+		}
+
+		public Task<User> GetUserWithUserRolesAsync(Guid id, CancellationToken cancellationToken = default) {
 
 			var user = SetTracking().Include(x => x.UserRoles)
+									.Where(x => x.Id == id)
+									.FirstOrDefaultAsync(cancellationToken: cancellationToken);
+
+			return user;
+
+		}
+
+		public Task<User> GetUserWithAuctionsBidsAsync(Guid id, CancellationToken cancellationToken = default) {
+
+			var user = SetTracking().Include(x => x.Auctions)
+										.ThenInclude(x => x.Bids)
+										.ThenInclude(x => x.Bidder)
+										.ThenInclude(x => x.Wallet)
+										.ThenInclude(x => x.Transactions)
+									.Include(x => x.Bids)
 									.Where(x => x.Id == id)
 									.FirstOrDefaultAsync(cancellationToken: cancellationToken);
 

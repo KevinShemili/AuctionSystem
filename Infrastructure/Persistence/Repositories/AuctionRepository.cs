@@ -34,12 +34,12 @@ namespace Infrastructure.Persistence.Repositories {
 			return auctions;
 		}
 
-		public async Task<Auction> GetAuctionWithBidsSellerWalletTransactionsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+		public async Task<Auction> GetAuctionWithBidsSellerWalletTransactionsAsync(Guid id, CancellationToken cancellationToken = default) {
 
 			if (id == Guid.Empty)
 				throw new ArgumentNullException(nameof(id));
 
-			var auction = await SetNoTracking().Include(x => x.Bids)
+			var auction = await SetTracking().Include(x => x.Bids)
 													.ThenInclude(x => x.Bidder)
 													.ThenInclude(x => x.Wallet)
 													.ThenInclude(x => x.Transactions)
@@ -75,6 +75,32 @@ namespace Infrastructure.Persistence.Repositories {
 											  .ToListAsync(cancellationToken);
 
 			return auctions;
+		}
+
+		public IQueryable<Auction> GetAllNoTracking(bool activeOnly) {
+
+			var auctions = activeOnly ? SetNoTracking().Include(x => x.Images)
+													   .Include(x => x.Bids)
+													   .Where(x => x.Status == (int)AuctionStatusEnum.Active) :
+
+										SetNoTracking().Include(x => x.Images)
+													   .Include(x => x.Bids)
+													   .Where(x => x.Status == (int)AuctionStatusEnum.Active ||
+																   x.Status == (int)AuctionStatusEnum.Ended);
+
+			return auctions;
+		}
+
+		public async Task<Auction> GetAuctionWithBidsAsync(Guid id, CancellationToken cancellationToken = default) {
+
+			if (id == Guid.Empty)
+				throw new ArgumentNullException(nameof(id));
+
+			var auction = await SetTracking().Include(x => x.Bids)
+											 .Include(x => x.Images)
+											 .FirstOrDefaultAsync(x => x.Id == id, cancellationToken);
+
+			return auction;
 		}
 	}
 }

@@ -1,5 +1,6 @@
 ﻿using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
+using Application.Common.Tools.Time;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
 using Application.UseCases.Auctions.Commands;
@@ -52,8 +53,8 @@ namespace Application.UseCases.Auctions.Commands {
 			}
 
 			// Normalize to minute precision
-			request.StartTime = TruncateToMinute(request.StartTime);
-			request.EndTime = TruncateToMinute(request.EndTime);
+			request.StartTime = TruncateTime.ToMinute(request.StartTime);
+			request.EndTime = TruncateTime.ToMinute(request.EndTime);
 
 			if (request.StartTime < DateTime.UtcNow) {
 				_logger.LogWarning("Create Auction attempt failed, past start time. TimeNow: {TimeNow} StartTime: {StartTime}", DateTime.UtcNow, request.StartTime);
@@ -84,13 +85,6 @@ namespace Application.UseCases.Auctions.Commands {
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 			return Result<Guid>.Success(auction.Id);
-		}
-
-		private static DateTime TruncateToMinute(DateTime dt) {
-			return new DateTime(
-					dt.Year, dt.Month, dt.Day,
-					dt.Hour, dt.Minute, 0,
-					dt.Kind);
 		}
 
 		private static Auction Map(CreateAuctionCommand request) {

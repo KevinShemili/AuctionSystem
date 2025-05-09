@@ -2,8 +2,6 @@
 using Application.Common.Tools.Pagination;
 using Application.Contracts.Repositories;
 using Application.UseCases.Administrator.DTOs;
-using Application.UseCases.Auctions.DTOs;
-using Application.UseCases.Bidding.DTOs;
 using Domain.Entities;
 using MediatR;
 
@@ -26,7 +24,7 @@ namespace Application.UseCases.Administrator.Queries {
 
 		public async Task<Result<PagedResponse<UserDTO>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken) {
 
-			var pagedUsers = await _userRepository.GetAllWithRolesPermissionsWalletAuctionsBidsNoTrackingAsync()
+			var pagedUsers = await _userRepository.SetNoTracking()
 												  .ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize,
 																		request.SortBy, request.SortDesc);
 
@@ -51,44 +49,8 @@ namespace Application.UseCases.Administrator.Queries {
 					FirstName = user.FirstName,
 					LastName = user.LastName,
 					Email = user.Email,
-					WalletId = user.IsAdministrator ? null : user.Wallet.Id,
-					Balance = user.IsAdministrator ? null : user.Wallet.Balance,
-					FrozenBalance = user.IsAdministrator ? null : user.Wallet.FrozenBalance,
-					Roles = user.IsAdministrator ? user.Roles.Select(x => new RoleDTO {
-						Id = x.Id,
-						Name = x.Name,
-						Description = x.Description,
-						Permissions = x.Permissions.Select(x => new PermissionDTO {
-							Id = x.Id,
-							Name = x.Name,
-							Description = x.Description
-						})
-					}) : null,
-					CreatedAuctions = user.IsAdministrator ? null : user.Auctions.Select(x => new AuctionDTO {
-						Id = x.Id,
-						Name = x.Name,
-						BaselinePrice = x.BaselinePrice,
-						StartTime = x.StartTime,
-						Description = x.Description,
-						EndTime = x.EndTime,
-						Status = x.Status,
-						Images = x.Images.Select(x => x.FilePath)
-					}),
-					ParticipatedAuctions = user.IsAdministrator ? null : user.Bids.Select(x => x.Auction).Select(x => new AuctionDTO {
-						Id = x.Id,
-						Name = x.Name,
-						BaselinePrice = x.BaselinePrice,
-						StartTime = x.StartTime,
-						Description = x.Description,
-						EndTime = x.EndTime,
-						Status = x.Status,
-						Images = x.Images.Select(x => x.FilePath),
-						Bids = x.Bids.Select(x => new BidDTO {
-							Id = x.Id,
-							Amount = x.Amount,
-							IsWinningBid = x.IsWinningBid
-						})
-					})
+					IsAdministrator = user.IsAdministrator,
+					IsBlocked = user.IsBlocked
 				};
 
 				pagedDTO.Items.Add(profile);

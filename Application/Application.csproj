@@ -24,8 +24,6 @@
 
   <ItemGroup>
     <Folder Include="Common\BaseDTOs\" />
-    <Folder Include="UseCases\Auctions\Queries\" />
-    <Folder Include="UseCases\Bidding\Queries\" />
   </ItemGroup>
 
 </Project>

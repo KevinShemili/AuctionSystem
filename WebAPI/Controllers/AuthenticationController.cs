@@ -9,14 +9,14 @@ using WebAPI.DTOs;
 namespace WebAPI.Controllers {
 
 	[ApiController]
-	[Route("api/[controller]")]
+	[Route("api/auth")]
 	public class AuthenticationController : AbstractController {
 
 		public AuthenticationController(IMediator mediator) : base(mediator) {
 		}
 
 		[AllowAnonymous]
-		[SwaggerOperation(Summary = "Register Account")]
+		[SwaggerOperation(Summary = "Register new account")]
 		[HttpPost("register")]
 		public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO) {
 
@@ -37,7 +37,7 @@ namespace WebAPI.Controllers {
 
 		[AllowAnonymous]
 		[SwaggerOperation(Summary = "Sign In")]
-		[HttpPost("sign-in")]
+		[HttpPost("login")]
 		public async Task<IActionResult> SignIn([FromBody] SignInDTO signInDTO) {
 
 			var command = new SignInCommand {
@@ -54,8 +54,8 @@ namespace WebAPI.Controllers {
 		}
 
 		[AllowAnonymous]
-		[SwaggerOperation(Summary = "Refresh Token")]
-		[HttpPost("refresh")]
+		[SwaggerOperation(Summary = "Refresh Token & JWT")]
+		[HttpPost("refresh-token")]
 		public async Task<IActionResult> Refresh([FromBody] TokensDTO tokensDTO) {
 
 			var command = new RefreshTokenCommand {

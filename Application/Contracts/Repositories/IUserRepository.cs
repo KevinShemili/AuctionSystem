@@ -10,9 +10,11 @@ namespace Application.Contracts.Repositories {
 		Task<User> GetUserWithTokensAsync(string email, CancellationToken cancellationToken = default);
 		Task<User> GetUserWithRolesAndPermissionsNoTrackingAsync(string email, CancellationToken cancellationToken = default);
 		Task<User> GetUserWithWalletAndTransactionsAsync(Guid id, CancellationToken cancellationToken = default);
-		Task<User> GetUserWithWalletNoTrackingAsync(Guid id, CancellationToken cancellationToken = default);
+		Task<User> GetUserWithAuctionWalletNoTrackingAsync(Guid id, CancellationToken cancellationToken = default);
 		IQueryable<User> GetAllWithRolesPermissionsWalletAuctionsBidsNoTrackingAsync();
 		Task<User> GetUserWithRolesPermissionsWalletAuctionsBidsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default);
-		Task<User> GetUserWithUserRoles(Guid id, CancellationToken cancellationToken = default);
+		Task<User> GetUserWithUserRolesAsync(Guid id, CancellationToken cancellationToken = default);
+		Task<User> GetUserWithWalletAndTransactionsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default);
+		Task<User> GetUserWithAuctionsBidsAsync(Guid id, CancellationToken cancellationToken = default);
 	}
 }

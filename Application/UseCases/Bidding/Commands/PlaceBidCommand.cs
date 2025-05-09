@@ -44,7 +44,7 @@ namespace Application.UseCases.Bidding.Commands {
 
 		public async Task<Result<Guid>> Handle(PlaceBidCommand request, CancellationToken cancellationToken) {
 
-			var auction = await _auctionRepository.GetAuctionWithBidsSellerWalletTransactionsNoTrackingAsync(request.AuctionId, cancellationToken);
+			var auction = await _auctionRepository.GetAuctionWithBidsSellerWalletTransactionsAsync(request.AuctionId, cancellationToken);
 
 			if (auction is null) {
 				_logger.LogWarning("Place Bid failed: auction not found. AuctionId: {AuctionId}.", request.AuctionId);
@@ -61,6 +61,11 @@ namespace Application.UseCases.Bidding.Commands {
 			if (bidder is null) {
 				_logger.LogWarning("Place Bid failed: bidder not found. UserId: {UserId}.", request.BidderId);
 				return Result<Guid>.Failure(Errors.Unauthorized);
+			}
+
+			if (bidder.IsAdministrator is true) {
+				_logger.LogWarning("Place Bid failed: bidder is admin. UserId: {UserId}.", request.BidderId);
+				return Result<Guid>.Failure(Errors.AdminsCannotPlaceBids);
 			}
 
 			if (auction.Status != (int)AuctionStatusEnum.Active) {

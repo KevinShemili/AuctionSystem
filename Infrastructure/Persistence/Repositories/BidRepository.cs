@@ -6,5 +6,14 @@ namespace Infrastructure.Persistence.Repositories {
 	public class BidRepository : BaseRepository<Bid>, IBidRepository {
 		public BidRepository(DatabaseContext context) : base(context) {
 		}
+
+		public IQueryable<Bid> GetAllByBidderNoTracking(Guid userId) {
+
+			if (userId == Guid.Empty)
+				throw new ArgumentNullException(nameof(userId));
+
+			var bids = SetNoTracking().Where(x => x.BidderId == userId);
+			return bids;
+		}
 	}
 }

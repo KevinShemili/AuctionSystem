@@ -16,19 +16,28 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error OneOrMoreImages = new(StatusCodes.Status400BadRequest,
 			"Please upload one or more images.");
 
+		public static readonly Error NotAccessibleByAdmins = new(StatusCodes.Status403Forbidden,
+			"Not accessible by administrators.");
+
 		public static Error AuctionNotFound(Guid id) => new(StatusCodes.Status404NotFound,
 			$"Auction with ID: {id} does not exist in the system");
 
-		public static readonly Error OnlyAssignRolesToAdmin = new(StatusCodes.Status404NotFound,
+		public static readonly Error OnlyAssignRolesToAdmin = new(StatusCodes.Status403Forbidden,
 			"Can only assign roles to admin.");
 
-		public static readonly Error AuctionNotActive = new(StatusCodes.Status400BadRequest,
+		public static readonly Error AuctionNotActive = new(StatusCodes.Status409Conflict,
 			"Auction is not active.");
 
-		public static readonly Error BidTooLow = new(StatusCodes.Status400BadRequest,
-			"Bid must be at least the baseline or exceed the current highest bid.");
+		public static readonly Error AuctionNotPaused = new(StatusCodes.Status409Conflict,
+			"Auction is not in state paused.");
 
-		public static readonly Error InsufficientFunds = new(StatusCodes.Status400BadRequest,
+		public static readonly Error AuctionHasBids = new(StatusCodes.Status409Conflict,
+			"Cannot pause an auction with current active bids.");
+
+		public static readonly Error BidTooLow = new(StatusCodes.Status409Conflict,
+			"Bid must be at least equal to the baseline price.");
+
+		public static readonly Error InsufficientFunds = new(StatusCodes.Status409Conflict,
 			"Insufficient available funds to place this bid.");
 
 		public static readonly Error EmptyRoles = new(StatusCodes.Status400BadRequest,
@@ -37,7 +46,7 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error InvalidRoles = new(StatusCodes.Status400BadRequest,
 			"Provided role list contains invalid entries.");
 
-		public static readonly Error IncreaseBidInsufficientFunds = new(StatusCodes.Status400BadRequest,
+		public static readonly Error IncreaseBidInsufficientFunds = new(StatusCodes.Status409Conflict,
 			"Insufficient available funds to increase this bid.");
 
 		public static readonly Error InvalidBidAmount = new(StatusCodes.Status400BadRequest,
@@ -46,13 +55,13 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error EmailAlreadyExists = new(StatusCodes.Status409Conflict,
 			"Email already exists.");
 
-		public static readonly Error InvalidPermissions = new(StatusCodes.Status409Conflict,
+		public static readonly Error InvalidPermissions = new(StatusCodes.Status400BadRequest,
 			"Provided permission list contains invalid entries.");
 
-		public static readonly Error CannotBlockAnotherAdmin = new(StatusCodes.Status400BadRequest,
+		public static readonly Error CannotBlockAnotherAdmin = new(StatusCodes.Status403Forbidden,
 			"Cannot block another Administrator.");
 
-		public static readonly Error EndBeforeDelete = new(StatusCodes.Status400BadRequest,
+		public static readonly Error EndBeforeDelete = new(StatusCodes.Status409Conflict,
 			"Action should be ended before being deleted.");
 
 		public static readonly Error SignInFailure = new(StatusCodes.Status401Unauthorized,
@@ -61,16 +70,16 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error LockedOut = new(StatusCodes.Status429TooManyRequests,
 			"Account locked. Please try again later.");
 
-		public static readonly Error InvalidToken = new(StatusCodes.Status400BadRequest,
+		public static readonly Error InvalidToken = new(StatusCodes.Status401Unauthorized,
 			"Invalid token.");
 
-		public static readonly Error ExpiredEmailToken = new(StatusCodes.Status400BadRequest,
+		public static readonly Error ExpiredEmailToken = new(StatusCodes.Status401Unauthorized,
 			"Token expired. New email has been sent.");
 
-		public static readonly Error AccountAlreadyVerified = new(StatusCodes.Status400BadRequest,
+		public static readonly Error AccountAlreadyVerified = new(StatusCodes.Status409Conflict,
 			"Account already verified.");
 
-		public static readonly Error AccountNotVerified = new(StatusCodes.Status400BadRequest,
+		public static readonly Error AccountNotVerified = new(StatusCodes.Status403Forbidden,
 			"Account not verified. Please check email.");
 
 		public static readonly Error ServerError = new(StatusCodes.Status500InternalServerError,
@@ -79,8 +88,14 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error Unauthorized = new(StatusCodes.Status401Unauthorized,
 			"Unauthorized. Please login.");
 
-		public static readonly Error BidderIsSeller = new(StatusCodes.Status400BadRequest,
+		public static readonly Error BidderIsSeller = new(StatusCodes.Status403Forbidden,
 			"Seller cannot bid on his auction.");
+
+		public static readonly Error AdminsCannotPlaceBids = new(StatusCodes.Status403Forbidden,
+			"Administrators cannot place bids.");
+
+		public static readonly Error ChangeOnlyOwnAuctions = new(StatusCodes.Status403Forbidden,
+			"You cannot alter auctions of others.");
 
 		public static Error UserNotFound(string email) => new(StatusCodes.Status404NotFound,
 			$"User with email: {email} does not exist in the system");

@@ -5,7 +5,7 @@ using System.Text.Json;
 namespace WebAPI.Controllers {
 
 	[ApiController]
-	[Route("api/[controller]")]
+	[Route("api/broadcast")]
 	public class BroadcastController : ControllerBase {
 
 		private readonly IBroadcastService _broadcastService;

@@ -33,7 +33,7 @@ namespace Application.UseCases.Administrator.Commands {
 
 		public async Task<Result<bool>> Handle(AssignRoleCommand request, CancellationToken cancellationToken) {
 
-			var user = await _userRepository.GetUserWithUserRoles(request.UserId, cancellationToken: cancellationToken);
+			var user = await _userRepository.GetUserWithUserRolesAsync(request.UserId, cancellationToken: cancellationToken);
 
 			if (user is null) {
 				_logger.LogWarning("User with ID {UserId} not found.", request.UserId);

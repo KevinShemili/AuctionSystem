@@ -42,7 +42,7 @@ namespace Application.UseCases.Administrator.Commands {
 
 		public async Task<Result<bool>> Handle(ForceCloseAuctionCommand request, CancellationToken cancellationToken) {
 
-			var auction = await _auctionRepository.GetAuctionWithBidsSellerWalletTransactionsNoTrackingAsync(request.AuctionId, cancellationToken);
+			var auction = await _auctionRepository.GetAuctionWithBidsSellerWalletTransactionsAsync(request.AuctionId, cancellationToken);
 
 			if (auction == null) {
 				_logger.LogWarning("Auction with ID {AuctionId} not found.", request.AuctionId);
@@ -64,7 +64,6 @@ namespace Application.UseCases.Administrator.Commands {
 						Amount = bid.Amount,
 						TransactionType = (int)WalletTransactionEnum.Credit,
 						DateCreated = DateTime.UtcNow,
-						BidId = bid.Id
 					});
 
 					_ = await _bidRepository.DeleteAsync(bid, cancellationToken: cancellationToken);

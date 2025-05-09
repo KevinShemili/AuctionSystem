@@ -1,4 +1,5 @@
-﻿using Application.UseCases.Administrator.Commands;
+﻿using Application.PermissionKeys;
+using Application.UseCases.Administrator.Commands;
 using Application.UseCases.Administrator.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -15,7 +16,7 @@ namespace WebAPI.Controllers {
 		public AdminController(IMediator mediator) : base(mediator) {
 		}
 
-		[Authorize(Policy = "view.user")]
+		[Authorize(Policy = PermissionKeys.ViewUser)]
 		[SwaggerOperation(Summary = "Get all users")]
 		[HttpGet("users")]
 		public async Task<IActionResult> ViewUsers([FromQuery] PagedParamsDTO pagedParams) {
@@ -36,7 +37,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "view.user")]
+		[Authorize(Policy = PermissionKeys.ViewUser)]
 		[SwaggerOperation(Summary = "Get user by ID")]
 		[HttpGet("users/{id}")]
 		public async Task<IActionResult> ViewUser([FromRoute] Guid id) {
@@ -53,7 +54,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "edit.user")]
+		[Authorize(Policy = PermissionKeys.EditUser)]
 		[SwaggerOperation(Summary = "Ban a user")]
 		[HttpPatch("users/{id}/ban")]
 		public async Task<IActionResult> BanUser([FromRoute] Guid id, [FromBody] string reason) {
@@ -71,7 +72,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "create.user")]
+		[Authorize(Policy = PermissionKeys.CreateUser)]
 		[SwaggerOperation(Summary = "Create an admin")]
 		[HttpPost("admins")]
 		public async Task<IActionResult> CreateAdministrator([FromBody] CreateAdminDTO createAdminDTO) {
@@ -91,8 +92,8 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "create.role")]
-		[SwaggerOperation(Summary = "Get a role")]
+		[Authorize(Policy = PermissionKeys.CreateRole)]
+		[SwaggerOperation(Summary = "Create a new role")]
 		[HttpPost("roles")]
 		public async Task<IActionResult> CreateRole([FromBody] CreateRoleDTO createRoleDTO) {
 
@@ -109,7 +110,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "edit.user")]
+		[Authorize(Policy = PermissionKeys.EditUser)]
 		[SwaggerOperation(Summary = "Assign role/s to a user")]
 		[HttpPut("users/{userId}/roles")]
 		public async Task<IActionResult> AssignRoles([FromRoute] Guid userId, [FromBody] List<Guid> roleIds) {
@@ -130,7 +131,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "edit.role")]
+		[Authorize(Policy = PermissionKeys.EditRole)]
 		[SwaggerOperation(Summary = "Assign permission/s to a role")]
 		[HttpPut("roles/{roleId}/permissions")]
 		public async Task<IActionResult> AssignPermission([FromRoute] Guid roleId, [FromBody] List<Guid> permissionIds) {
@@ -151,7 +152,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "edit.auction")]
+		[Authorize(Policy = PermissionKeys.EditAuction)]
 		[SwaggerOperation(Summary = "Force-End an auction no restrictions")]
 		[HttpPut("auctions/{auctionId}/end")]
 		public async Task<IActionResult> ForceCloseAuction([FromRoute] Guid auctionId, [FromBody] string reason) {
@@ -172,7 +173,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "delete.auction")]
+		[Authorize(Policy = PermissionKeys.DeleteAuction)]
 		[SwaggerOperation(Summary = "Delete a Force-Ended auction")]
 		[HttpDelete("auctions/{auctionId}")]
 		public async Task<IActionResult> DeleteAuction([FromRoute] Guid auctionId) {
@@ -189,7 +190,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "view.auction")]
+		[Authorize(Policy = PermissionKeys.ViewAuction)]
 		[SwaggerOperation(Summary = "Get all auction details")]
 		[HttpGet("auctions/{auctionId}")]
 		public async Task<IActionResult> ViewAuction([FromRoute] Guid auctionId) {
@@ -206,7 +207,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "view.role")]
+		[Authorize(Policy = PermissionKeys.ViewRole)]
 		[SwaggerOperation(Summary = "Get all roles")]
 		[HttpGet("roles")]
 		public async Task<IActionResult> ViewRoles([FromQuery] PagedParamsDTO pagedParams) {
@@ -227,7 +228,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "view.role")]
+		[Authorize(Policy = PermissionKeys.ViewRole)]
 		[SwaggerOperation(Summary = "Get role by ID")]
 		[HttpGet("roles/{roleId}")]
 		public async Task<IActionResult> ViewRole([FromRoute] Guid roleId) {
@@ -244,7 +245,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "view.role")]
+		[Authorize(Policy = PermissionKeys.ViewRole)]
 		[SwaggerOperation(Summary = "Get all permissions")]
 		[HttpGet("permissions")]
 		public async Task<IActionResult> ViewPermissions([FromQuery] PagedParamsDTO pagedParams) {
@@ -265,7 +266,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "view.role")]
+		[Authorize(Policy = PermissionKeys.ViewRole)]
 		[SwaggerOperation(Summary = "Get permission by ID")]
 		[HttpGet("permissions/{permissionId}")]
 		public async Task<IActionResult> ViewPermission([FromRoute] Guid permissionId) {
@@ -282,7 +283,7 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
-		[Authorize(Policy = "view.wallet")]
+		[Authorize(Policy = PermissionKeys.ViewWallet)]
 		[SwaggerOperation(Summary = "Get wallet & transactions")]
 		[HttpGet("wallets/{walletId}/transactions")]
 		public async Task<IActionResult> ViewTransactions([FromRoute] Guid walletId) {

@@ -31,7 +31,8 @@ namespace Application.UseCases.Administrator.Queries {
 				Description = role.Description,
 				Permissions = role.Permissions.Select(p => new PermissionDTO {
 					Id = p.Id,
-					Name = p.Name
+					Name = p.Name,
+					Description = p.Description
 				})
 			};
 
