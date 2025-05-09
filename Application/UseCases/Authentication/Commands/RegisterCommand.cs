@@ -48,6 +48,11 @@ namespace Application.UseCases.Authentication.Commands {
 
 		public async Task<Result<bool>> Handle(RegisterCommand request, CancellationToken cancellationToken) {
 
+			if (IsValidPassword(request.Password) is false) {
+				_logger.LogWarning("Registration attempt failed: invalid password provided.");
+				return Result<bool>.Failure(Errors.InvalidPasswordFormat);
+			}
+
 			// Check if email already exists
 			var isExistingEmail = await _userRepository.DoesEmailExistAsync(request.Email, cancellationToken);
 
@@ -96,32 +101,27 @@ namespace Application.UseCases.Authentication.Commands {
 
 			return Result<bool>.Success(true);
 		}
+
+		private static bool IsValidPassword(string password) {
+			if (string.IsNullOrEmpty(password)) return false;
+			if (password.Length < 8 || password.Length > 50) return false;
+			if (!password.Any(char.IsDigit)) return false;
+			if (!password.Any(char.IsUpper)) return false;
+			if (!password.Any(char.IsLower)) return false;
+			return true;
+		}
 	}
 
 	public class RegisterCommandValidator : AbstractValidator<RegisterCommand> {
 		public RegisterCommandValidator() {
-
 			RuleFor(x => x.Email)
-				.NotEmpty().WithMessage("Email is required.")
-				.EmailAddress().WithMessage("Email format is invalid.");
-
+				.NotEmpty().WithMessage("Email is required.");
 			RuleFor(x => x.FirstName)
-				.NotEmpty().WithMessage("First name is required.")
-				.MinimumLength(2).WithMessage("First name must be at least 2 characters.")
-				.MaximumLength(50).WithMessage("First name must not exceed 50 characters.");
-
+				.NotEmpty().WithMessage("First name is required.");
 			RuleFor(x => x.LastName)
-				.NotEmpty().WithMessage("Last name is required.")
-				.MinimumLength(2).WithMessage("Last name must be at least 2 characters.")
-				.MaximumLength(50).WithMessage("Last name must not exceed 50 characters.");
-
+				.NotEmpty().WithMessage("Last name is required.");
 			RuleFor(x => x.Password)
-				.NotEmpty().WithMessage("Password is required.")
-				.MinimumLength(8).WithMessage("Password must be at least 8 characters.")
-				.MaximumLength(50).WithMessage("Password must not exceed 50 characters.")
-				.Must(x => x.Any(char.IsDigit)).WithMessage("Password must contain at least one digit.")
-				.Must(x => x.Any(char.IsUpper)).WithMessage("Password must contain at least one uppercase letter.")
-				.Must(x => x.Any(char.IsLower)).WithMessage("Password must contain at least one lowercase letter.");
+				.NotEmpty().WithMessage("Password is required.");
 		}
 	}
 }

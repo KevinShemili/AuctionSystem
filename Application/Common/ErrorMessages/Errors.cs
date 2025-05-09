@@ -94,6 +94,9 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error ChangeOnlyOwnAuctions = new(StatusCodes.Status403Forbidden,
 			"You cannot alter auctions of others.");
 
+		public static readonly Error InvalidPasswordFormat = new(StatusCodes.Status400BadRequest,
+			"The password format is invalid. It must be 8-50 characters long, contain at least one digit, one uppercase letter, and one lowercase letter.");
+
 		public static Error UserNotFound(string email) => new(StatusCodes.Status404NotFound,
 			$"User with email: {email} does not exist in the system");
 
