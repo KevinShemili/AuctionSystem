@@ -12,9 +12,8 @@
 	<PropertyGroup>
 		<CollectCoverage>true</CollectCoverage>
 		<CoverletOutputFormat>opencover</CoverletOutputFormat>
-		<CoverletOutput>$(MSBuildThisFileDirectory)../coverage/</CoverletOutput>
-		<Include>[Application]*,[Infrastructure]*.Repositories.*</Include>
-		<Exclude>[*]*.Migrations.*,[*]*.EntityConfigurations.*,[*]*.DependencyConfigurations.*,[*]*.Email.*,[Application]*.Common.*,[*]*.*.Mappings.*</Exclude>
+		<CoverletOutput>$(MSBuildThisFileDirectory)../coverage/unit.opencover.xml</CoverletOutput>
+		<Include>[Application]*.Commands.*,[Application]*.Queries.*,[Application]*.AutomaticExpiry.*,[Infrastructure]*.Repositories.*</Include>
 	</PropertyGroup>
 	
    <ItemGroup>
