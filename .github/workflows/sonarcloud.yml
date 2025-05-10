@@ -48,7 +48,10 @@ jobs:
         run: |
           New-Item -Path .\.sonar\scanner -ItemType Directory
           dotnet tool install dotnet-sonarscanner --tool-path .\.sonar\scanner
-
+      
+      - name: Install ReportGenerator
+        run: dotnet tool install -g dotnet-reportgenerator-globaltool
+      
       - name: Restore dependencies
         run: dotnet restore AuctionSystem.sln
 
@@ -58,24 +61,35 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
         run: |
-          .\.sonar\scanner\dotnet-sonarscanner begin /k:"KevinShemili_AuctionSystem" /o:"kevinshemili" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/coverage.opencover.xml" /d:sonar.coverage.exclusions="**/*Tests*.cs,**/obj/**,**/bin/**,**/Migrations/**,**/EntityConfigurations/**,**/Domain/**,**/WebAPI/**,**/Email/**,**/Application/Common/**,**/DependencyConfigurations/**,**/Mappings/**,**/DatabaseContext.*,**/ModelBuilderExtension.*" /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests*.cs,**/Migrations/**"
+          .\.sonar\scanner\dotnet-sonarscanner begin /k:"KevinShemili_AuctionSystem" /o:"kevinshemili" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/merged-coverage.opencover.xml" /d:sonar.coverage.exclusions="**/*Tests*.cs,**/obj/**,**/bin/**,**/Migrations/**,**/EntityConfigurations/**,**/Domain/**,**/WebAPI/**,**/Email/**,**/Application/Common/**,**/DependencyConfigurations/**,**/Mappings/**,**/DatabaseContext.*,**/ModelBuilderExtension.*" /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests*.cs,**/Migrations/**"
 
       - name: Build solution
         run: dotnet build AuctionSystem.sln --configuration Release --no-restore
 
-      - name: Run tests with coverage
+      - name: Run Unit Tests with Coverage
         shell: powershell
         run: |
-          dotnet test UnitTests/UnitTests.csproj --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${{ github.workspace }}/coverage.opencover.xml"
+          dotnet test UnitTests/UnitTests.csproj --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${{ github.workspace }}/unit-coverage.opencover.xml"
 
+      - name: Run Integration Tests with Coverage
+        shell: powershell
+        run: |
+          dotnet test IntegrationTests/IntegrationTests.csproj --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${{ github.workspace }}/integration-coverage.opencover.xml"
+      
+      - name: Merge Coverage Reports
+        shell: powershell
+        run: |
+          reportgenerator "-reports:${{ github.workspace }}/unit-coverage.opencover.xml;${{ github.workspace }}/integration-coverage.opencover.xml" "-targetdir:coverage-report" "-reporttypes:opencover" "-assemblyfilters:+Application.Commands.*;+Application.Queries.*;+Application.AutomaticExpiry.*;+Infrastructure.Repositories.*"
+          Copy-Item coverage-report/opencover.xml ${{ github.workspace }}/merged-coverage.opencover.xml
+    
       - name: Check for coverage file
         shell: powershell
         run: |
-          if (Test-Path "${{ github.workspace }}/coverage.opencover.xml") {
-            Write-Host "Coverage file found at ${{ github.workspace }}/coverage.opencover.xml"
-            Get-Content "${{ github.workspace }}/coverage.opencover.xml" -Head 5
+          if (Test-Path "${{ github.workspace }}/merged-coverage.opencover.xml") {
+            Write-Host "Merged coverage file found at ${{ github.workspace }}/merged-coverage.opencover.xml"
+            Get-Content "${{ github.workspace }}/merged-coverage.opencover.xml" -Head 5
           } else {
-            Write-Error "Coverage file not found at ${{ github.workspace }}/coverage.opencover.xml"
+            Write-Error "Merged coverage file not found at ${{ github.workspace }}/merged-coverage.opencover.xml"
             Get-ChildItem -Path ${{ github.workspace }} -Recurse -Filter "*.opencover.xml" | ForEach-Object { Write-Host "Found coverage file at: $($_.FullName)" }
           }
 
