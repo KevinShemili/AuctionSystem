@@ -3,7 +3,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace IntegrationTests.Environment {
-	public class BaseIntegrationTest : IClassFixture<ContainerFactory<Program>> {
+	public abstract class BaseIntegrationTest : IClassFixture<ContainerFactory<Program>> {
 
 		protected readonly IServiceScope _serviceScope;
 		protected readonly IMediator _mediator;

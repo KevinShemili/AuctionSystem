@@ -28,7 +28,7 @@ namespace WebAPI.Controllers {
 
 			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
-			(var error, var imageDirectories) = await StoreInDisk(createAuctionDTO.Images);
+			(var error, var paths) = await StoreInDisk(createAuctionDTO.Images);
 
 			if (error != null)
 				return error;
@@ -39,7 +39,7 @@ namespace WebAPI.Controllers {
 				Description = createAuctionDTO.Description,
 				Name = createAuctionDTO.Name,
 				SellerId = userId,
-				Images = imageDirectories
+				Images = paths
 			};
 
 			var result = await _mediator.Send(command);
@@ -54,29 +54,31 @@ namespace WebAPI.Controllers {
 		[SwaggerOperation(Summary = "Update an auction")]
 		[HttpPut("auctions/{auctionId}")]
 		[Consumes("multipart/form-data")]
-		public async Task<IActionResult> UpdateAuction([FromRoute] Guid auctionId, [FromForm] UpdateAuctionDTO dto) {
+		public async Task<IActionResult> UpdateAuction([FromRoute] Guid auctionId, [FromForm] UpdateAuctionDTO updateAuctionDTO) {
 
 			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
 			var imageDirectories = new List<string>();
-			if (dto.Images != null) {
 
-				(var error, var path) = await StoreInDisk(dto.Images);
+			if (updateAuctionDTO.NewImages != null && updateAuctionDTO.NewImages.Any()) {
+
+				(var error, var paths) = await StoreInDisk(updateAuctionDTO.NewImages);
 
 				if (error != null)
 					return error;
 
-				imageDirectories = path;
+				imageDirectories.AddRange(paths);
 			}
 
 			var cmd = new UpdateAuctionCommand {
 				AuctionId = auctionId,
 				UserId = userId,
-				Name = dto.Name,
-				Description = dto.Description,
-				BaselinePrice = dto.BaselinePrice,
-				EndTime = dto.EndTime,
-				NewImages = imageDirectories
+				Name = updateAuctionDTO.Name,
+				Description = updateAuctionDTO.Description,
+				BaselinePrice = updateAuctionDTO.BaselinePrice,
+				EndTime = updateAuctionDTO.EndTime,
+				NewImages = imageDirectories,
+				RemoveImages = updateAuctionDTO.RemoveImages
 			};
 
 			var result = await _mediator.Send(cmd);

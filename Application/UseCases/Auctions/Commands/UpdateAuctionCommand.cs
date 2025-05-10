@@ -18,6 +18,7 @@ namespace Application.UseCases.Auctions.Commands {
 		public decimal BaselinePrice { get; set; }
 		public DateTime EndTime { get; set; }
 		public IEnumerable<string> NewImages { get; set; }
+		public IEnumerable<string> RemoveImages { get; set; }
 	}
 
 	public class UpdateAuctionCommandHandler : IRequestHandler<UpdateAuctionCommand, Result<bool>> {
@@ -25,15 +26,18 @@ namespace Application.UseCases.Auctions.Commands {
 		private readonly IAuctionRepository _auctionRepository;
 		private readonly ILogger<UpdateAuctionCommandHandler> _logger;
 		private readonly IWebHostEnvironment _webHostEnvironment;
+		private readonly IAuctionImageRepostiory _auctionImageRepostiory;
 
 		public UpdateAuctionCommandHandler(IUnitOfWork unitOfWork,
 									 IAuctionRepository auctionRepository,
 									 ILogger<UpdateAuctionCommandHandler> logger,
-									 IWebHostEnvironment webHostEnvironment) {
+									 IWebHostEnvironment webHostEnvironment,
+									 IAuctionImageRepostiory auctionImageRepostiory) {
 			_unitOfWork = unitOfWork;
 			_auctionRepository = auctionRepository;
 			_logger = logger;
 			_webHostEnvironment = webHostEnvironment;
+			_auctionImageRepostiory = auctionImageRepostiory;
 		}
 
 		public async Task<Result<bool>> Handle(UpdateAuctionCommand request, CancellationToken cancellationToken) {
@@ -59,18 +63,30 @@ namespace Application.UseCases.Auctions.Commands {
 				return Result<bool>.Failure(Errors.EndSmallerEqualStart);
 			}
 
-			var uploadRoot = Path.Combine(_webHostEnvironment.WebRootPath, "uploads", "auctions");
+			if (request.RemoveImages != null && request.RemoveImages.Any()) {
 
-			var oldImages = auction.Images.ToList();
-			foreach (var img in oldImages) {
-				try {
-					var diskPath = Path.Combine(_webHostEnvironment.WebRootPath, img.FilePath.Replace("/", Path.DirectorySeparatorChar.ToString()));
+				var existingImages = auction.Images.Count;
+				var imagesToRemove = request.RemoveImages?.Count() ?? 0;
+				var imagesToAdd = request.NewImages?.Count() ?? 0;
 
-					if (File.Exists(diskPath))
-						File.Delete(diskPath);
-				}
-				catch (Exception ex) {
-					_logger.LogWarning(ex, "Failed deleting old image file {FilePath}", img.FilePath);
+				if ((imagesToRemove > 0) &&
+					(existingImages - imagesToRemove + imagesToAdd < 1))
+					return Result<bool>.Failure(Errors.AtLeastOneImage);
+
+				foreach (var img in request.RemoveImages) {
+					try {
+						var diskPath = Path.Combine(_webHostEnvironment.WebRootPath, img.Replace("/", Path.DirectorySeparatorChar.ToString()));
+
+						if (File.Exists(diskPath))
+							File.Delete(diskPath);
+
+						var auctionImage = await _auctionImageRepostiory.GetByFilePathAsync(img, cancellationToken: cancellationToken);
+						if (auctionImage is not null)
+							_ = await _auctionImageRepostiory.DeleteAsync(auctionImage, cancellationToken: cancellationToken);
+					}
+					catch (Exception ex) {
+						_logger.LogWarning(ex, "Failed deleting old image file {FilePath}", img);
+					}
 				}
 			}
 
@@ -81,7 +97,6 @@ namespace Application.UseCases.Auctions.Commands {
 			auction.EndTime = request.EndTime;
 
 			if (request.NewImages != null && request.NewImages.Any()) {
-				auction.Images.Clear();
 				foreach (var img in request.NewImages) {
 					auction.Images.Add(new AuctionImage {
 						FilePath = img,

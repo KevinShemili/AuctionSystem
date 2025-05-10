@@ -1,4 +1,8 @@
-﻿using Infrastructure.Persistence;
+﻿using Application.Common.Broadcast;
+using Application.Common.EmailService;
+using Application.UseCases.AutomaticExpiry;
+using Infrastructure.Persistence;
+using IntegrationTests.Environment.FakeServices;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.AspNetCore.TestHost;
@@ -8,8 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 
 namespace IntegrationTests.Environment {
-	public class ContainerFactory<T> : WebApplicationFactory<T>, IAsyncLifetime
-		where T : class {
+	public sealed class ContainerFactory<T> : WebApplicationFactory<T>, IAsyncLifetime where T : class {
 
 		private PostgreSqlContainer _dbContainer;
 		public string ConnectionString => _dbContainer.GetConnectionString();
@@ -59,6 +62,21 @@ namespace IntegrationTests.Environment {
 					opts.UseNpgsql(ConnectionString,
 						sql => sql.MigrationsAssembly(typeof(DatabaseContext).Assembly.FullName))
 				);
+
+				// Replace real email service with fake
+				var emailService = services.SingleOrDefault(x => x.ServiceType == typeof(IEmailService));
+				if (emailService != null)
+					services.Remove(emailService);
+
+				services.AddSingleton<IEmailService, FakeEmailService>();
+
+				// Replace real broadcast service with fake
+				var broadcastService = services.SingleOrDefault(x => x.ServiceType == typeof(IBroadcastService));
+				if (broadcastService != null)
+					services.Remove(broadcastService);
+
+				services.AddSingleton<IBroadcastService, FakeBroadcastService>();
+				services.AddTransient<IAuctionCloser, AuctionCloser>();
 
 				// Apply schema to container
 				var serviceProvider = services.BuildServiceProvider();

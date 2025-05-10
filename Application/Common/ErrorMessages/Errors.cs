@@ -13,6 +13,9 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error OneOrMoreImages = new(StatusCodes.Status400BadRequest,
 			"Please upload one or more images.");
 
+		public static readonly Error AtLeastOneImage = new(StatusCodes.Status409Conflict,
+			"Auction must have at least one image.");
+
 		public static readonly Error NotAccessibleByAdmins = new(StatusCodes.Status403Forbidden,
 			"Not accessible by administrators.");
 

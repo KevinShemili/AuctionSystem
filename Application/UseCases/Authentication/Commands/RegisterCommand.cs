@@ -87,8 +87,7 @@ namespace Application.UseCases.Authentication.Commands {
 			// Persist email verification token
 			_ = await _userTokenRepository.CreateAsync(new UserToken {
 				Token = emailToken,
-				Expiry = DateTime.UtcNow.AddHours(
-						Convert.ToDouble(_configuration["VerificationTokenExpiries:ExpiryHours"])),
+				Expiry = DateTime.UtcNow.AddHours(Convert.ToDouble(_configuration["VerificationTokenExpiries:ExpiryHours"])),
 				UserId = user.Id,
 				TokenTypeId = (int)TokenTypeEnum.EmailVerificationToken
 			}, cancellationToken: cancellationToken);

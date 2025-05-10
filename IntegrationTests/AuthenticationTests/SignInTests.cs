@@ -4,7 +4,7 @@ using Application.UseCases.Authentication.Commands;
 using Domain.Entities;
 using IntegrationTests.Environment;
 
-namespace IntegrationTests.Authentication {
+namespace IntegrationTests.AuthenticationTests {
 	public class SignInTests : BaseIntegrationTest {
 		public SignInTests(ContainerFactory<Program> factory) : base(factory) {
 		}
@@ -13,15 +13,15 @@ namespace IntegrationTests.Authentication {
 		public async Task SignIn_HappyPath_ReturnsTokens() {
 
 			// Arrange
-			const string email = "testmail@mail.com";
-			const string password = "testpassword";
+			var email = $"{Guid.NewGuid()}@mail.com";
+			var password = "x";
 
 			(var passwordHash, var passwordSalt) = Hasher.HashPasword(password);
 
 			_databaseContext.Users.Add(new User {
 				Email = email,
-				FirstName = "TestName",
-				LastName = "TestSurname",
+				FirstName = "X",
+				LastName = "X",
 				PasswordSalt = passwordSalt,
 				PasswordHash = passwordHash,
 				IsEmailVerified = true
@@ -44,7 +44,7 @@ namespace IntegrationTests.Authentication {
 		public async Task SignIn_UserDoesNotExist_Fails() {
 
 			// Act
-			var command = new SignInCommand { Email = "doesntexist@mail.com", Password = "x" };
+			var command = new SignInCommand { Email = $"{Guid.NewGuid}@mail.com", Password = "x" };
 			var result = await _mediator.Send(command, CancellationToken.None);
 
 			// Assert

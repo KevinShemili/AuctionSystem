@@ -3,7 +3,6 @@ using Application.Common.ResultPattern;
 using Application.Common.Tools.Time;
 using Application.Contracts.Repositories;
 using Application.Contracts.Repositories.UnitOfWork;
-using Application.UseCases.Auctions.Commands;
 using Domain.Entities;
 using Domain.Enumerations;
 using FluentValidation;
@@ -108,15 +107,15 @@ namespace Application.UseCases.Auctions.Commands {
 			return auction;
 		}
 	}
-}
 
-public class CreateAuctionCommandValidator : AbstractValidator<CreateAuctionCommand> {
-	public CreateAuctionCommandValidator() {
-		RuleFor(x => x.Name)
-			.NotEmpty().WithMessage("Auction title is required.");
-		RuleFor(x => x.BaselinePrice)
-			.NotEmpty().WithMessage("Baseline price is required.");
-		RuleFor(x => x.EndTime)
-			.NotEmpty().WithMessage("End time is required.");
+	public class CreateAuctionCommandValidator : AbstractValidator<CreateAuctionCommand> {
+		public CreateAuctionCommandValidator() {
+			RuleFor(x => x.Name)
+				.NotEmpty().WithMessage("Auction title is required.");
+			RuleFor(x => x.BaselinePrice)
+				.NotEmpty().WithMessage("Baseline price is required.");
+			RuleFor(x => x.EndTime)
+				.NotEmpty().WithMessage("End time is required.");
+		}
 	}
 }
