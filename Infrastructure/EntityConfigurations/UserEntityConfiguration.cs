@@ -21,7 +21,8 @@ namespace Infrastructure.EntityConfigurations {
 
 			builder.HasOne(x => x.Wallet)
 				   .WithOne(x => x.User)
-				   .HasForeignKey<Wallet>(x => x.UserId);
+				   .HasForeignKey<Wallet>(x => x.UserId)
+				   .IsRequired(false); // Admins dont have wallet
 
 			builder.HasMany(x => x.Auctions)
 				   .WithOne(x => x.Seller)

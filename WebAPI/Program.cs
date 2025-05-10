@@ -147,3 +147,5 @@ static void ConfigureLogging() {
 			.CreateLogger();
 	}
 }
+
+public partial class Program { }
