@@ -17,7 +17,7 @@ using WebAPI.Middleware;
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Configuration
-	.AddJsonFile("appsettings.json")
+	.AddJsonFile("appsettings.json", optional: true)
 	.AddJsonFile($"appsettings.{builder.Environment.EnvironmentName}.json", optional: true)
 	.AddEnvironmentVariables();
 
