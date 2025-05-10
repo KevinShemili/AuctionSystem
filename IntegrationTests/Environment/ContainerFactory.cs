@@ -39,6 +39,10 @@ namespace IntegrationTests.Environment {
 
 			builder.UseEnvironment("Testing");
 
+			builder.UseContentRoot(Directory.GetCurrentDirectory());
+			builder.UseWebRoot(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
+			Directory.CreateDirectory(Path.Combine(Directory.GetCurrentDirectory(), "wwwroot"));
+
 			builder.ConfigureAppConfiguration((context, config) => {
 
 				var flag = context.HostingEnvironment.EnvironmentName;

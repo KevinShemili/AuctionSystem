@@ -17,9 +17,7 @@ namespace IntegrationTests.AuctionTests {
 		public async Task UpdateAuction_HappyPath() {
 
 			// Arrange
-			var environment = _serviceScope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
-			var uploadRoot = Path.Combine(environment.WebRootPath, "uploads", "auctions");
-			Directory.CreateDirectory(uploadRoot);
+			var uploadRoot = GetUploadRoot();
 
 			var existingImagePath1 = Path.Combine(uploadRoot, "existing1.jpg");
 			var existingImagePath2 = Path.Combine(uploadRoot, "existing2.jpg");
@@ -100,6 +98,17 @@ namespace IntegrationTests.AuctionTests {
 			Assert.Equal(2000m, updatedAuction.BaselinePrice);
 			Assert.Contains(newImage1, updatedAuction.Images.Select(x => x.FilePath));
 			Assert.Contains(newImage2, updatedAuction.Images.Select(x => x.FilePath));
+		}
+
+		private string GetUploadRoot() {
+			var environment = _serviceScope.ServiceProvider.GetRequiredService<IWebHostEnvironment>();
+
+			string basePath = environment.WebRootPath ?? Directory.GetCurrentDirectory();
+			string uploadRoot = Path.Combine(basePath, "uploads", "auctions");
+
+			Directory.CreateDirectory(uploadRoot);
+
+			return uploadRoot;
 		}
 	}
 }
