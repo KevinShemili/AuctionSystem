@@ -43,7 +43,7 @@ namespace IntegrationTests.Environment {
 
 				var flag = context.HostingEnvironment.EnvironmentName;
 
-				config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
+				config.AddJsonFile("appsettings.json", optional: true, reloadOnChange: false);
 				config.AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true
 				);
 				config.AddEnvironmentVariables();
