@@ -13,5 +13,6 @@ artifacts/
 secrets.json
 appsettings.Docker.json
 appsettings.Development.json
+appsettings.Testing.json
 appsettings.json
 !appsettings.Template.json

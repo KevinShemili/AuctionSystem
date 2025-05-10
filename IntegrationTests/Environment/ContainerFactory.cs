@@ -34,9 +34,15 @@ namespace IntegrationTests.Environment {
 
 		protected override void ConfigureWebHost(IWebHostBuilder builder) {
 
+			builder.UseEnvironment("Testing");
+
 			builder.ConfigureAppConfiguration((context, config) => {
+
+				var flag = context.HostingEnvironment.EnvironmentName;
+
 				config.AddJsonFile("appsettings.json", optional: false, reloadOnChange: false);
-				config.AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true);
+				config.AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true
+				);
 				config.AddEnvironmentVariables();
 			});
 

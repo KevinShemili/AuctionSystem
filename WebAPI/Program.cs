@@ -96,16 +96,19 @@ app.UseMiddleware<GlobalExceptionHandler>();
 
 ConfigureSwagger(app);
 
-app.UseHangfireDashboard("/hangfire", new DashboardOptions {
-	Authorization = new[] { new AllowAllDashboardAuthorizationFilter() }
-});
+if (builder.Environment.EnvironmentName != "Testing") {
 
-var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
-recurringJobManager.AddOrUpdate<IAuctionCloser>(
-	"Close Expired Auctions",
-	job => job.AutomaticClose(),
-	Cron.Monthly(1)
-);
+	app.UseHangfireDashboard("/hangfire", new DashboardOptions {
+		Authorization = new[] { new AllowAllDashboardAuthorizationFilter() }
+	});
+
+	var recurringJobManager = app.Services.GetRequiredService<IRecurringJobManager>();
+	recurringJobManager.AddOrUpdate<IAuctionCloser>(
+		"Close Expired Auctions",
+		job => job.AutomaticClose(),
+		Cron.Monthly(1)
+	);
+}
 
 app.UseRouting();
 app.UseAuthentication();

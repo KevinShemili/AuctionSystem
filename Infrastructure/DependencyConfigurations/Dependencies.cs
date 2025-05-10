@@ -68,6 +68,9 @@ namespace Infrastructure.DependencyConfigurations {
 
 		private static void ConfigureHangfire(this IServiceCollection services, IConfiguration configuration) {
 
+			if (!configuration.GetValue<bool>("EnableHangfire", true))
+				return;
+
 			var conn = configuration.GetConnectionString("DBString");
 
 			services.AddHangfire(hf => hf
@@ -85,7 +88,6 @@ namespace Infrastructure.DependencyConfigurations {
 
 			services.AddHangfireServer();
 			services.AddTransient<IAuctionCloser, AuctionCloser>();
-
 		}
 	}
 }
