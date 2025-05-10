@@ -8,14 +8,14 @@ on:
 jobs:
   sonarcloud:
     name: SonarCloud Analysis
-    runs-on: ubuntu-latest  # Changed from windows-latest to ubuntu-latest
+    runs-on: ubuntu-24.04
 
     steps:
-      - name: Checkout repository
+      - name: Checkout Repository
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-
+          
       - name: Setup .NET
         uses: actions/setup-dotnet@v4
         with:
@@ -35,58 +35,45 @@ jobs:
           restore-keys: ${{ runner.os }}-sonar
 
       - name: Install SonarCloud scanner
-        shell: bash
-        run: |
-          dotnet tool install --global dotnet-sonarscanner
-      
-      - name: Install ReportGenerator
-        run: dotnet tool install -g dotnet-reportgenerator-globaltool --version 5.1.18
-      
-      - name: Restore dependencies
+        run: dotnet tool install --global dotnet-sonarscanner
+
+      - name: Restore NuGet dependencies
         run: dotnet restore AuctionSystem.sln
 
       - name: Begin SonarCloud analysis
-        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet sonarscanner begin /k:"KevinShemili_AuctionSystem" /o:"kevinshemili" /d:sonar.host.url="https://sonarcloud.io" /d:sonar.login="${{ secrets.SONAR_TOKEN }}" /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/merged-coverage.opencover.xml" /d:sonar.coverage.exclusions="**/*Tests*.cs,**/obj/**,**/bin/**,**/Migrations/**,**/EntityConfigurations/**,**/Domain/**,**/WebAPI/**,**/Email/**,**/Application/Common/**,**/DependencyConfigurations/**,**/Mappings/**,**/DatabaseContext.*,**/ModelBuilderExtension.*" /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests*.cs,**/Migrations/**"
+          dotnet sonarscanner begin \
+            /k:"KevinShemili_AuctionSystem" \
+            /o:"kevinshemili" \
+            /d:sonar.host.url="https://sonarcloud.io" \
+            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/unit-coverage.opencover.xml,${{ github.workspace }}/integration-coverage.opencover.xml" \
+            /d:sonar.coverage.exclusions="**/*Tests*.cs,**/obj/**,**/bin/**,**/Migrations/**,**/EntityConfigurations/**,**/Domain/**,**/WebAPI/**,**/Email/**,**/Application/Common/**,**/DependencyConfigurations/**,**/Mappings/**,**/DatabaseContext.*,**/ModelBuilderExtension.*" \
+            /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests*.cs,**/Migrations/**"
 
-      - name: Build solution
+      - name: Build solution (Release)
         run: dotnet build AuctionSystem.sln --configuration Release --no-restore
 
-      - name: Run Unit Tests with Coverage
-        shell: bash
+      - name: Run Unit Tests with coverage
         run: |
-          dotnet test UnitTests/UnitTests.csproj --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${{ github.workspace }}/unit-coverage.opencover.xml"
+          dotnet test UnitTests/UnitTests.csproj --configuration Release --no-build \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=opencover \
+            /p:CoverletOutput="${{ github.workspace }}/unit-coverage.opencover.xml"
 
-      - name: Run Integration Tests with Coverage
-        shell: bash
+      - name: Run Integration Tests with coverage
         run: |
-          dotnet test IntegrationTests/IntegrationTests.csproj --configuration Release --no-build /p:CollectCoverage=true /p:CoverletOutputFormat=opencover /p:CoverletOutput="${{ github.workspace }}/integration-coverage.opencover.xml"
-      
-      - name: Merge Coverage Reports
-        shell: bash
-        run: |
-          reportgenerator "-reports:${{ github.workspace }}/unit-coverage.opencover.xml;${{ github.workspace }}/integration-coverage.opencover.xml" "-targetdir:coverage-report" "-reporttypes:opencover" "-assemblyfilters:+Application.Commands.*;+Application.Queries.*;+Application.AutomaticExpiry.*;+Infrastructure.Repositories.*"
-          cp coverage-report/opencover.xml ${{ github.workspace }}/merged-coverage.opencover.xml
-    
-      - name: Check for coverage file
-        shell: bash
-        run: |
-          if [ -f "${{ github.workspace }}/merged-coverage.opencover.xml" ]; then
-            echo "Merged coverage file found at ${{ github.workspace }}/merged-coverage.opencover.xml"
-            head -n 5 "${{ github.workspace }}/merged-coverage.opencover.xml"
-          else
-            echo "Merged coverage file not found at ${{ github.workspace }}/merged-coverage.opencover.xml"
-            find ${{ github.workspace }} -name "*.opencover.xml" -type f
-          fi
+          dotnet test IntegrationTests/IntegrationTests.csproj --configuration Release --no-build \
+            /p:CollectCoverage=true \
+            /p:CoverletOutputFormat=opencover \
+            /p:CoverletOutput="${{ github.workspace }}/integration-coverage.opencover.xml"
 
       - name: End SonarCloud analysis
-        shell: bash
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
         run: |
           dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
