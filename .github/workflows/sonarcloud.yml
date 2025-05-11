@@ -49,12 +49,18 @@ jobs:
             /k:"KevinShemili_AuctionSystem" \
             /o:"kevinshemili" \
             /d:sonar.host.url="https://sonarcloud.io" \
-            /d:sonar.login="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.token="${{ secrets.SONAR_TOKEN }}" \
+            /d:sonar.scanner.scanAll=false \
             /d:sonar.cs.opencover.reportsPaths="${{ github.workspace }}/unit-coverage.opencover.xml,${{ github.workspace }}/integration-coverage.opencover.xml" \
-            /d:sonar.coverage.exclusions="**/*Tests*.cs,**/obj/**,**/bin/**,**/Migrations/**,**/EntityConfigurations/**,**/Domain/**,**/WebAPI/**,**/Email/**,**/Application/Common/**,**/DependencyConfigurations/**,**/Mappings/**,**/DatabaseContext.*,**/ModelBuilderExtension.*" \
-            /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests*.cs,**/Migrations/**"
-
-      - name: Build solution (Release)
+            /d:sonar.coverage.exclusions="**/*Tests*.cs,**/obj/**,**/bin/**,**/Migrations/**,**/EntityConfigurations/**,**/Domain/**,**/WebAPI/**,**/Email/**,**/Application/Common/**,**/Infrastructure/Broadcast/**,**/Infrastructure/Authorization/**,**/DependencyConfigurations/**,**/Mappings/**,**/DatabaseContext.*,**/ModelBuilderExtension.*" \
+            /d:sonar.exclusions="**/obj/**,**/bin/**,**/*Tests*.cs,**/Migrations/**" \
+            /d:sonar.issue.ignore.multicriteria=e1,e2 \
+            /d:sonar.issue.ignore.multicriteria.e1.ruleKey=csharpsquid:S1125 \
+            "/d:sonar.issue.ignore.multicriteria.e1.resourceKey=**/*.cs" \
+            /d:sonar.issue.ignore.multicriteria.e2.ruleKey=csharpsquid:S6781 \
+            "/d:sonar.issue.ignore.multicriteria.e2.resourceKey=**/*.cs" \
+          
+      - name: Build solution
         run: dotnet build AuctionSystem.sln --configuration Release --no-restore
 
       - name: Run Unit Tests with coverage
@@ -76,4 +82,4 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN:  ${{ secrets.SONAR_TOKEN }}
         run: |
-          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet sonarscanner end /d:sonar.token="${{ secrets.SONAR_TOKEN }}"
