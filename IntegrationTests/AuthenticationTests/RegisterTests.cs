@@ -12,7 +12,7 @@ namespace IntegrationTests.AuthenticationTests {
 		}
 
 		[Fact]
-		public async Task Register_HappyPath_CreatesUser() {
+		public async Task Register_HappyPath() {
 
 			// Arrange
 			var email = $"{Guid.NewGuid()}@mail.com";
@@ -30,23 +30,30 @@ namespace IntegrationTests.AuthenticationTests {
 			Assert.True(result.IsSuccess);
 
 			var user = await _databaseContext.Users.Include(x => x.Wallet)
-												   .Include(x => x.UserTokens)
+												   .Include(x => x.VerificationTokens)
 												   .FirstOrDefaultAsync(u => u.Email == email, CancellationToken.None);
 
 			Assert.NotNull(user);
 			Assert.Equal(email, user.Email);
 			Assert.NotNull(user.Wallet);
 			Assert.Equal(10000m, user.Wallet.Balance);
-			Assert.NotNull(user.UserTokens);
-			Assert.NotNull(user.UserTokens.FirstOrDefault(x => x.TokenTypeId == (int)TokenTypeEnum.EmailVerificationToken));
+			Assert.NotNull(user.VerificationTokens);
+			Assert.NotNull(user.VerificationTokens.FirstOrDefault(x => x.TokenTypeId == (int)VerificationTokenType.EmailVerificationToken));
 		}
 
 		[Fact]
 		public async Task Register_EmailAlreadyExists_Fails() {
 
+			// Arrange
 			var email = $"{Guid.NewGuid()}@mail.com";
-			await _databaseContext.Users.AddAsync(new User { Email = email, FirstName = "x", LastName = "x" });
-			await _databaseContext.SaveChangesAsync();
+			_ = await _databaseContext.Users.AddAsync(new User {
+				Email = email,
+				FirstName = "X",
+				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X",
+			});
+			_ = await _databaseContext.SaveChangesAsync();
 
 			var command = new RegisterCommand {
 				FirstName = "x",

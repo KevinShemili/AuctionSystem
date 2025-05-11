@@ -43,7 +43,7 @@ namespace Infrastructure.DependencyConfigurations {
 		private static void ConfigureScopedServices(this IServiceCollection services) {
 			services.AddScoped<IUserRepository, UserRepository>();
 			services.AddScoped<IAuthenticationTokenRepository, AuthenticationTokenRepository>();
-			services.AddScoped<IUserTokenRepository, UserTokenRepository>();
+			services.AddScoped<IVerificationTokenRepository, VerificationTokenRepository>();
 			services.AddScoped<IPermissionRepository, PermissionRepository>();
 			services.AddScoped<IRolePermissionRepository, RolePermissionRepository>();
 			services.AddScoped<IRoleRepository, RoleRepository>();

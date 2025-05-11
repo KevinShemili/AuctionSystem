@@ -29,13 +29,15 @@ namespace IntegrationTests.AuthenticationTests {
 				Email = email,
 				FirstName = "X",
 				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X",
 				IsEmailVerified = false,
-				UserTokens = new List<UserToken> {
+				VerificationTokens = new List<VerificationToken> {
 					new() {
 						Id = Guid.NewGuid(),
 						Token = emailToken,
 						Expiry = expiry,
-						TokenTypeId = (int)TokenTypeEnum.EmailVerificationToken
+						TokenTypeId = (int)VerificationTokenType.EmailVerificationToken
 					}
 				}
 			};
@@ -55,7 +57,7 @@ namespace IntegrationTests.AuthenticationTests {
 			Assert.True(result.IsSuccess);
 
 			var updatedUser = await _databaseContext.Users.AsNoTracking()
-														  .Include(x => x.UserTokens)
+														  .Include(x => x.VerificationTokens)
 														  .FirstOrDefaultAsync(u => u.Id == user.Id);
 
 			Assert.NotNull(updatedUser);

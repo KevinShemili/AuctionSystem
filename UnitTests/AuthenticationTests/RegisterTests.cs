@@ -10,14 +10,14 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
 using Moq;
 
-namespace UnitTests.UseCaseTests.AuthenticationTests {
+namespace UnitTests.AuthenticationTests {
 	public class RegisterTests {
 
 		private readonly Mock<IUserRepository> _userRepositoryMock;
 		private readonly Mock<ITokenService> _tokenServiceMock;
 		private readonly Mock<IEmailService> _emailServiceMock;
 		private readonly Mock<IConfiguration> _configMock;
-		private readonly Mock<IUserTokenRepository> _userTokenRepositoryMock;
+		private readonly Mock<IVerificationTokenRepository> _userTokenRepositoryMock;
 		private readonly Mock<IUnitOfWork> _unitOfWorkMock;
 		private readonly Mock<ILogger<RegisterCommandHandler>> _loggerMock;
 		private readonly RegisterCommandHandler _handler;
@@ -25,7 +25,7 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 		public RegisterTests() {
 
 			_userRepositoryMock = new Mock<IUserRepository>();
-			_userTokenRepositoryMock = new Mock<IUserTokenRepository>();
+			_userTokenRepositoryMock = new Mock<IVerificationTokenRepository>();
 			_tokenServiceMock = new Mock<ITokenService>();
 			_emailServiceMock = new Mock<IEmailService>();
 			_configMock = new Mock<IConfiguration>();
@@ -51,18 +51,18 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 		[InlineData("UPPERCASE")]
 		[InlineData("NONumbersss")]
 		[InlineData("A1aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa")]
-		public async Task Register_InvalidPassword_ReturnsFailure(string badPwd) {
+		public async Task Register_InvalidPassword_ReturnsFailure(string password) {
 
 			// Arrange
-			var cmd = new RegisterCommand {
-				Email = "user@test.com",
-				FirstName = "John",
-				LastName = "Doe",
-				Password = badPwd
+			var command = new RegisterCommand {
+				Email = $"{Guid.NewGuid()}@mail.com",
+				FirstName = "X",
+				LastName = "X",
+				Password = password
 			};
 
 			// Act
-			var result = await _handler.Handle(cmd, CancellationToken.None);
+			var result = await _handler.Handle(command, CancellationToken.None);
 
 			// Assert
 			_userRepositoryMock.Verify(x => x.DoesEmailExistAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
@@ -92,7 +92,6 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 		public async Task Register_HappyPath() {
 
 			// Arrange
-
 			var userId = Guid.NewGuid();
 
 			var token = Guid.NewGuid().ToString();
@@ -112,16 +111,16 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 				   .Returns("5");
 
 			User capturedUser = null;
-			UserToken capturedToken = null;
+			VerificationToken capturedToken = null;
 			_userRepositoryMock
 				.Setup(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
 				.Callback<User, bool, CancellationToken>((user, flag, cancellationToken) => capturedUser = user)
 				.ReturnsAsync((User user, bool flag, CancellationToken cancellationToken) => user);
 
 			_userTokenRepositoryMock
-				.Setup(x => x.CreateAsync(It.IsAny<UserToken>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
-				.Callback<UserToken, bool, CancellationToken>((userToken, flag, cancellationToken) => { capturedToken = userToken; })
-				.ReturnsAsync((UserToken userToken, bool flag, CancellationToken cancellationToken) => userToken);
+				.Setup(x => x.CreateAsync(It.IsAny<VerificationToken>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()))
+				.Callback<VerificationToken, bool, CancellationToken>((userToken, flag, cancellationToken) => { capturedToken = userToken; })
+				.ReturnsAsync((VerificationToken userToken, bool flag, CancellationToken cancellationToken) => userToken);
 
 			_emailServiceMock.Setup(e => e.SendConfirmationEmailAsync(token, command.Email, It.IsAny<CancellationToken>()))
 						 .Returns(Task.CompletedTask);
@@ -133,11 +132,10 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 			var result = await _handler.Handle(command, CancellationToken.None);
 
 			// Assert
-
 			_userRepositoryMock.Verify(x => x.DoesEmailExistAsync(command.Email, It.IsAny<CancellationToken>()), Times.Once);
 			_tokenServiceMock.Verify(x => x.GenerateEmailVerificationToken(), Times.Once);
 			_userRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<User>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
-			_userTokenRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<UserToken>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
+			_userTokenRepositoryMock.Verify(x => x.CreateAsync(It.IsAny<VerificationToken>(), It.IsAny<bool>(), It.IsAny<CancellationToken>()), Times.Once);
 			_emailServiceMock.Verify(x => x.SendConfirmationEmailAsync(token, command.Email, It.IsAny<CancellationToken>()), Times.Once);
 			_unitOfWorkMock.Verify(x => x.SaveChangesAsync(It.IsAny<CancellationToken>()), Times.Once);
 
@@ -145,7 +143,7 @@ namespace UnitTests.UseCaseTests.AuthenticationTests {
 			Assert.NotNull(capturedToken);
 			Assert.Equal(token, capturedToken.Token);
 			Assert.Equal(command.Email, capturedUser.Email);
-			Assert.Equal((int)TokenTypeEnum.EmailVerificationToken, capturedToken.TokenTypeId);
+			Assert.Equal((int)VerificationTokenType.EmailVerificationToken, capturedToken.TokenTypeId);
 			Assert.True(result.IsSuccess);
 			Assert.True(result.Value);
 		}

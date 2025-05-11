@@ -26,7 +26,7 @@ namespace Application.UseCases.Authentication.Commands {
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<ConfirmEmailCommandHandler> _logger;
 		private readonly IUserRepository _userRepository;
-		private readonly IUserTokenRepository _userTokenRepository;
+		private readonly IVerificationTokenRepository _userTokenRepository;
 
 		public ConfirmEmailCommandHandler(IConfiguration configuration,
 									IEmailService emailService,
@@ -34,7 +34,7 @@ namespace Application.UseCases.Authentication.Commands {
 									ILogger<ConfirmEmailCommandHandler> logger,
 									IUnitOfWork unitOfWork,
 									IUserRepository userRepository,
-									IUserTokenRepository userTokenRepository) {
+									IVerificationTokenRepository userTokenRepository) {
 			_configuration = configuration;
 			_emailService = emailService;
 			_tokenService = tokenService;
@@ -60,7 +60,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 			var decodedToken = Transcode.DecodeURL(request.Token);
 
-			var token = user.UserTokens.FirstOrDefault(x => x.Token == decodedToken && x.TokenTypeId == (int)TokenTypeEnum.EmailVerificationToken);
+			var token = user.VerificationTokens.FirstOrDefault(x => x.Token == decodedToken && x.TokenTypeId == (int)VerificationTokenType.EmailVerificationToken);
 
 			if (token is null) {
 				_logger.LogWarning("Email Verification attempt failed. User: {Email}", user.Email);
@@ -75,11 +75,11 @@ namespace Application.UseCases.Authentication.Commands {
 
 				_ = await _userTokenRepository.DeleteAsync(token, cancellationToken: cancellationToken);
 
-				user.UserTokens.Add(new UserToken {
+				user.VerificationTokens.Add(new VerificationToken {
 					Token = emailToken,
 					Expiry = DateTime.UtcNow.AddHours(
 						Convert.ToDouble(_configuration["VerificationTokenExpiries:ExpiryHours"])),
-					TokenTypeId = (int)TokenTypeEnum.EmailVerificationToken,
+					TokenTypeId = (int)VerificationTokenType.EmailVerificationToken,
 				});
 
 				_ = await _unitOfWork.SaveChangesAsync(cancellationToken);

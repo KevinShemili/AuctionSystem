@@ -10,7 +10,7 @@ namespace IntegrationTests.AuctionTests {
 		}
 
 		[Fact]
-		public async Task DeleteAuction_HappyPath_DeletesAuction() {
+		public async Task DeleteAuction_HappyPath() {
 
 			// Arrange
 			var auctionId = Guid.NewGuid();
@@ -20,6 +20,8 @@ namespace IntegrationTests.AuctionTests {
 				Email = $"{Guid.NewGuid()}@mail.com",
 				FirstName = "X",
 				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X",
 				IsAdministrator = false,
 				Auctions = new List<Auction>() {
 					new() {

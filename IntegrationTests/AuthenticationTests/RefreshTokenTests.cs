@@ -32,6 +32,8 @@ namespace IntegrationTests.AuthenticationTests {
 				Email = email,
 				FirstName = "X",
 				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X",
 				AuthenticationTokens = new List<AuthenticationToken>() {
 					new () {
 						Id = Guid.NewGuid(),

@@ -14,7 +14,7 @@ namespace Infrastructure.Persistence {
 		public DbSet<RolePermission> RolePermissions { get; set; }
 		public DbSet<UserRole> UserRoles { get; set; }
 		public DbSet<AuthenticationToken> AuthenticationTokens { get; set; }
-		public DbSet<UserToken> UserTokens { get; set; }
+		public DbSet<VerificationToken> VerificationTokens { get; set; }
 		public DbSet<Auction> Auctions { get; set; }
 		public DbSet<AuctionImage> AuctionImages { get; set; }
 		public DbSet<Bid> Bids { get; set; }

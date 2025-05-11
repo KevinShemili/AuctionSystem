@@ -32,19 +32,19 @@ namespace IntegrationTests.AdministratorTests {
 			var result = await _mediator.Send(command, CancellationToken.None);
 
 			// Assert
-			Assert.True(result.IsSuccess, "Expected command to succeed");
+			Assert.True(result.IsSuccess);
 
 			var user = await _databaseContext.Users.AsNoTracking()
-												   .Include(u => u.UserRoles)
-												   .FirstOrDefaultAsync(u => u.Email == email);
+												   .Include(x => x.UserRoles)
+												   .FirstOrDefaultAsync(x => x.Email == email);
 
 			Assert.NotNull(user);
 			Assert.Equal(email, user.Email);
 			Assert.True(user.IsAdministrator);
 			Assert.True(user.IsEmailVerified);
 			Assert.Equal(2, user.UserRoles.Count);
-			Assert.Contains(user.UserRoles, ur => ur.RoleId == role1.Id);
-			Assert.Contains(user.UserRoles, ur => ur.RoleId == role2.Id);
+			Assert.Contains(user.UserRoles, x => x.RoleId == role1.Id);
+			Assert.Contains(user.UserRoles, x => x.RoleId == role2.Id);
 		}
 	}
 }

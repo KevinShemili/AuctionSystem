@@ -26,7 +26,9 @@ namespace IntegrationTests.AuctionTests {
 					Id = Guid.NewGuid(),
 					Email = $"{Guid.NewGuid()}@mail.com",
 					FirstName = "X",
-					LastName = "X"
+					LastName = "X",
+					PasswordHash = "X",
+					PasswordSalt = "X"
 				}
 			};
 
@@ -43,7 +45,7 @@ namespace IntegrationTests.AuctionTests {
 		}
 
 		[Fact]
-		public async Task AutomaticClose_HappyPath_SingleBids() {
+		public async Task AutomaticClose_HappyPath_SingleBid() {
 
 			// Arrange
 			var auctionId = Guid.NewGuid();
@@ -63,6 +65,8 @@ namespace IntegrationTests.AuctionTests {
 					Email = $"{Guid.NewGuid()}@mail.com",
 					FirstName = "X",
 					LastName = "X",
+					PasswordHash = "X",
+					PasswordSalt = "X",
 					Wallet = new Wallet {
 						Balance = 0m,
 						FrozenBalance = 0m
@@ -78,6 +82,8 @@ namespace IntegrationTests.AuctionTests {
 							Email = $"{Guid.NewGuid()}@mail.com",
 							FirstName = "Bidder",
 							LastName = "One",
+							PasswordHash = "X",
+							PasswordSalt = "X",
 							Wallet = new Wallet {
 								Balance = bidAmount,
 								FrozenBalance = bidAmount,
@@ -126,7 +132,6 @@ namespace IntegrationTests.AuctionTests {
 		public async Task AutomaticClose_HappyPath_MultipleBids() {
 
 			// Arrange
-
 			var auctionId = Guid.NewGuid();
 			var selledId = Guid.NewGuid();
 
@@ -153,6 +158,8 @@ namespace IntegrationTests.AuctionTests {
 					Email = $"{Guid.NewGuid()}@mail.com",
 					FirstName = "X",
 					LastName = "X",
+					PasswordHash = "X",
+					PasswordSalt = "X",
 					Wallet = new Wallet {
 						Balance = 0m,
 						FrozenBalance = 0m
@@ -168,6 +175,8 @@ namespace IntegrationTests.AuctionTests {
 							Email = $"{Guid.NewGuid()}@mail.com",
 							FirstName = "Bidder",
 							LastName = "One",
+							PasswordHash = "X",
+							PasswordSalt = "X",
 							Wallet = new Wallet {
 								Balance = 1000m,
 								FrozenBalance = secondHighestAmount,
@@ -183,6 +192,8 @@ namespace IntegrationTests.AuctionTests {
 							Email = $"{Guid.NewGuid()}@mail.com",
 							FirstName = "Bidder",
 							LastName = "Two",
+							PasswordHash = "X",
+							PasswordSalt = "X",
 							Wallet = new Wallet {
 								Balance = 1000m,
 								FrozenBalance = highestAmount,
@@ -198,6 +209,8 @@ namespace IntegrationTests.AuctionTests {
 							Email = $"{Guid.NewGuid()}@mail.com",
 							FirstName = "Bidder",
 							LastName = "Three",
+							PasswordHash = "X",
+							PasswordSalt = "X",
 							Wallet = new Wallet {
 								Balance = 1000m,
 								FrozenBalance = loserBidAmount,

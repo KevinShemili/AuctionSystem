@@ -10,7 +10,7 @@ namespace IntegrationTests.AuctionTests {
 		}
 
 		[Fact]
-		public async Task PauseAuction_HappyPath_PausesAuction() {
+		public async Task PauseAuction_HappyPath() {
 
 			// Arrange
 			var auctionId = Guid.NewGuid();
@@ -20,11 +20,13 @@ namespace IntegrationTests.AuctionTests {
 				Email = $"{Guid.NewGuid()}@mail.com",
 				FirstName = "X",
 				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X",
 				Auctions = new List<Auction>() {
 					new() {
 						Id = auctionId,
-						Name = "Auction Name",
-						Description = "Auction Description",
+						Name = "X",
+						Description = "X",
 						BaselinePrice = 150m,
 						StartTime = DateTime.UtcNow,
 						EndTime = DateTime.UtcNow.AddHours(2),

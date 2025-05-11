@@ -12,7 +12,7 @@ namespace IntegrationTests.AuctionTests {
 		}
 
 		[Fact]
-		public async Task CreateAuction_HappyPath_CreatesAuction() {
+		public async Task CreateAuction_HappyPath() {
 
 			// Arrange
 			var user = new User {
@@ -20,17 +20,19 @@ namespace IntegrationTests.AuctionTests {
 				Email = $"{Guid.NewGuid()}@mail.com",
 				FirstName = "X",
 				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X"
 			};
 
 			_ = await _databaseContext.Users.AddAsync(user);
 			_ = await _databaseContext.SaveChangesAsync();
 
 			var command = new CreateAuctionCommand {
-				Name = "Auction Name",
-				Description = "Auction Description",
+				Name = "X",
+				Description = "X",
 				BaselinePrice = 150m,
 				EndTime = DateTime.UtcNow.AddHours(2),
-				Images = new[] { "img1.jpg", "img2.jpg" },
+				Images = new List<string>() { "img" },
 				SellerId = user.Id
 			};
 
@@ -49,7 +51,7 @@ namespace IntegrationTests.AuctionTests {
 		}
 
 		[Fact]
-		public async Task CreateAuction_AdminUser_Fails() {
+		public async Task CreateAuction_CalledByAdmin_Fails() {
 
 			// Arrange
 			var admin = new User {
@@ -57,6 +59,8 @@ namespace IntegrationTests.AuctionTests {
 				Email = $"{Guid.NewGuid()}@mail.com",
 				FirstName = "X",
 				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X",
 				IsAdministrator = true
 			};
 
@@ -64,11 +68,11 @@ namespace IntegrationTests.AuctionTests {
 			_ = await _databaseContext.SaveChangesAsync();
 
 			var command = new CreateAuctionCommand {
-				Name = "Auction Name",
-				Description = "Auction Description",
+				Name = "X",
+				Description = "X",
 				BaselinePrice = 150m,
 				EndTime = DateTime.UtcNow.AddHours(2),
-				Images = new[] { "img1.jpg", "img2.jpg" },
+				Images = new List<string>() { "img" },
 				SellerId = admin.Id
 			};
 

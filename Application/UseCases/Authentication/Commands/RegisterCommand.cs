@@ -26,7 +26,7 @@ namespace Application.UseCases.Authentication.Commands {
 		private readonly ITokenService _tokenService;
 		private readonly IEmailService _emailService;
 		private readonly IConfiguration _configuration;
-		private readonly IUserTokenRepository _userTokenRepository;
+		private readonly IVerificationTokenRepository _userTokenRepository;
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<RegisterCommandHandler> _logger;
 
@@ -34,7 +34,7 @@ namespace Application.UseCases.Authentication.Commands {
 								ITokenService tokenService,
 								IEmailService emailService,
 								IConfiguration configuration,
-								IUserTokenRepository userTokenRepository,
+								IVerificationTokenRepository userTokenRepository,
 								IUnitOfWork unitOfWork,
 								ILogger<RegisterCommandHandler> logger) {
 			_userRepository = userRepository;
@@ -85,11 +85,11 @@ namespace Application.UseCases.Authentication.Commands {
 			_ = await _userRepository.CreateAsync(user, cancellationToken: cancellationToken);
 
 			// Persist email verification token
-			_ = await _userTokenRepository.CreateAsync(new UserToken {
+			_ = await _userTokenRepository.CreateAsync(new VerificationToken {
 				Token = emailToken,
 				Expiry = DateTime.UtcNow.AddHours(Convert.ToDouble(_configuration["VerificationTokenExpiries:ExpiryHours"])),
 				UserId = user.Id,
-				TokenTypeId = (int)TokenTypeEnum.EmailVerificationToken
+				TokenTypeId = (int)VerificationTokenType.EmailVerificationToken
 			}, cancellationToken: cancellationToken);
 
 			// Send email

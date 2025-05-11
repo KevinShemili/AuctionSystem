@@ -10,11 +10,11 @@ namespace IntegrationTests.AuthenticationTests {
 		}
 
 		[Fact]
-		public async Task SignIn_HappyPath_ReturnsTokens() {
+		public async Task SignIn_HappyPath() {
 
 			// Arrange
 			var email = $"{Guid.NewGuid()}@mail.com";
-			var password = "x";
+			var password = "X";
 
 			(var passwordHash, var passwordSalt) = Hasher.HashPasword(password);
 
@@ -43,8 +43,10 @@ namespace IntegrationTests.AuthenticationTests {
 		[Fact]
 		public async Task SignIn_UserDoesNotExist_Fails() {
 
-			// Act
+			// Arrange
 			var command = new SignInCommand { Email = $"{Guid.NewGuid}@mail.com", Password = "x" };
+
+			// Act
 			var result = await _mediator.Send(command, CancellationToken.None);
 
 			// Assert

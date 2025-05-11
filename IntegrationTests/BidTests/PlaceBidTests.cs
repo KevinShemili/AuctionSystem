@@ -20,6 +20,8 @@ namespace IntegrationTests.BidTests {
 				Email = $"{Guid.NewGuid()}@mail.com",
 				FirstName = "X",
 				LastName = "X",
+				PasswordSalt = "X",
+				PasswordHash = "X",
 				Auctions = new List<Auction>() {
 					new() {
 						Id = auctionId,
@@ -37,6 +39,8 @@ namespace IntegrationTests.BidTests {
 				Email = $"{Guid.NewGuid()}@mail.com",
 				FirstName = "X",
 				LastName = "X",
+				PasswordSalt = "X",
+				PasswordHash = "X",
 				Wallet = new Wallet {
 					Balance = 10000m,
 					FrozenBalance = 0m,
@@ -75,7 +79,7 @@ namespace IntegrationTests.BidTests {
 		}
 
 		[Fact]
-		public async Task PlaceBid_HappyPath_SecondBid() {
+		public async Task PlaceBid_HappyPath_ExstingPreviousBid() {
 
 			// Arrange
 			var auctionId = Guid.NewGuid();
@@ -87,6 +91,8 @@ namespace IntegrationTests.BidTests {
 				Email = $"{Guid.NewGuid()}@mail.com",
 				FirstName = "X",
 				LastName = "X",
+				PasswordSalt = "X",
+				PasswordHash = "X",
 				Auctions = new List<Auction>() {
 					new() {
 						Id = auctionId,
@@ -112,6 +118,8 @@ namespace IntegrationTests.BidTests {
 				Email = $"{Guid.NewGuid()}@mail.com",
 				FirstName = "X",
 				LastName = "X",
+				PasswordSalt = "X",
+				PasswordHash = "X",
 				Wallet = new Wallet {
 					Balance = 10000m,
 					FrozenBalance = 200m,

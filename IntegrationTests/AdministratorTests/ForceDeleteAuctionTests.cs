@@ -19,9 +19,14 @@ namespace IntegrationTests.AdministratorTests {
 			var auction = new Auction {
 				Id = auctionId,
 				Status = (int)AuctionStatusEnum.Ended,
+				Name = "X",
 				Seller = new User {
 					Id = Guid.NewGuid(),
-					Email = $"{Guid.NewGuid()}@mail.com"
+					Email = $"{Guid.NewGuid()}@mail.com",
+					FirstName = "X",
+					LastName = "X",
+					PasswordHash = "X",
+					PasswordSalt = "X"
 				},
 				ForceClosedBy = Guid.NewGuid(),
 			};

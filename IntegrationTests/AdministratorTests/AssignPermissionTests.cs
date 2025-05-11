@@ -13,8 +13,8 @@ namespace IntegrationTests.AdministratorTests {
 		public async Task AssignPermission_HappyPath() {
 
 			// Arrange
-			var permission1 = new Permission { Id = Guid.NewGuid(), Name = "X", Description = "X" };
-			var permission2 = new Permission { Id = Guid.NewGuid(), Name = "X", Description = "X" };
+			var permission1 = new Permission { Id = Guid.NewGuid(), Key = "X", Name = "X", Description = "X" };
+			var permission2 = new Permission { Id = Guid.NewGuid(), Key = "X", Name = "X", Description = "X" };
 			_ = await _databaseContext.Permissions.AddAsync(permission1);
 			_ = await _databaseContext.Permissions.AddAsync(permission2);
 

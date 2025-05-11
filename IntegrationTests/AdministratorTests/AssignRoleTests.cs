@@ -22,6 +22,8 @@ namespace IntegrationTests.AdministratorTests {
 				Id = Guid.NewGuid(),
 				FirstName = "X",
 				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X",
 				Email = $"{Guid.NewGuid()}@mail.com",
 				IsAdministrator = true,
 			};
@@ -30,6 +32,8 @@ namespace IntegrationTests.AdministratorTests {
 				Id = Guid.NewGuid(),
 				FirstName = "X",
 				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X",
 				Email = $"{Guid.NewGuid()}@mail.com",
 				IsAdministrator = true,
 			};

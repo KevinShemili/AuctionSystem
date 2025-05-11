@@ -86,7 +86,7 @@ namespace Infrastructure.Persistence.Repositories {
 		}
 
 		public async Task<User> GetUserWithTokensAsync(string email, CancellationToken cancellationToken = default) {
-			var user = await SetTracking().Include(x => x.UserTokens)
+			var user = await SetTracking().Include(x => x.VerificationTokens)
 										  .Where(x => x.Email == email)
 										  .FirstOrDefaultAsync(cancellationToken: cancellationToken);
 

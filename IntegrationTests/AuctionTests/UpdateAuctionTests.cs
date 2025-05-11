@@ -31,11 +31,13 @@ namespace IntegrationTests.AuctionTests {
 				Email = $"{Guid.NewGuid()}@mail.com",
 				FirstName = "X",
 				LastName = "X",
+				PasswordHash = "X",
+				PasswordSalt = "X",
 				Auctions = new List<Auction>() {
 					new() {
 						Id = auctionId,
-						Name = "Auction Name",
-						Description = "Auction Description",
+						Name = "X",
+						Description = "X",
 						BaselinePrice = 150m,
 						StartTime = DateTime.UtcNow,
 						EndTime = DateTime.UtcNow.AddHours(2),
@@ -63,8 +65,8 @@ namespace IntegrationTests.AuctionTests {
 			var command = new UpdateAuctionCommand {
 				AuctionId = auctionId,
 				UserId = user.Id,
-				Name = "updatename",
-				Description = "updatedesc",
+				Name = "updated-name",
+				Description = "updated-description",
 				BaselinePrice = 2000m,
 				EndTime = DateTime.UtcNow.AddHours(2),
 				RemoveImages = new[] { "uploads/auctions/existing1.jpg", "uploads/auctions/existing2.jpg" },
@@ -84,8 +86,8 @@ namespace IntegrationTests.AuctionTests {
 																.FirstOrDefaultAsync(x => x.Id == auctionId);
 
 			Assert.Equal(2, updatedAuction.Images.Count);
-			Assert.Equal("updatename", updatedAuction.Name);
-			Assert.Equal("updatedesc", updatedAuction.Description);
+			Assert.Equal("updated-name", updatedAuction.Name);
+			Assert.Equal("updated-description", updatedAuction.Description);
 			Assert.Equal(2000m, updatedAuction.BaselinePrice);
 			Assert.Contains(newImage1, updatedAuction.Images.Select(x => x.FilePath));
 			Assert.Contains(newImage2, updatedAuction.Images.Select(x => x.FilePath));

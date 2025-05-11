@@ -3,10 +3,10 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace Infrastructure.EntityConfigurations {
-	public class AuctionImageEntityConfiguration : IEntityTypeConfiguration<AuctionImage> {
-		public void Configure(EntityTypeBuilder<AuctionImage> builder) {
+	public class VerificationTokenEntityConfiguration : IEntityTypeConfiguration<VerificationToken> {
+		public void Configure(EntityTypeBuilder<VerificationToken> builder) {
 
-			builder.ToTable("AuctionImages");
+			builder.ToTable("VerificationTokens");
 
 			builder.HasKey(x => x.Id);
 
@@ -16,13 +16,19 @@ namespace Infrastructure.EntityConfigurations {
 			builder.Property(x => x.DateUpdated)
 				   .IsRequired(false);
 
-			builder.Property(x => x.FilePath)
+			builder.Property(x => x.Token)
 				   .IsRequired()
 				   .HasMaxLength(512);
 
-			builder.HasOne(x => x.Auction)
-				   .WithMany(x => x.Images)
-				   .HasForeignKey(x => x.AuctionId)
+			builder.Property(x => x.Expiry)
+				   .IsRequired();
+
+			builder.Property(x => x.TokenTypeId)
+				   .IsRequired();
+
+			builder.HasOne(x => x.User)
+				   .WithMany(x => x.VerificationTokens)
+				   .HasForeignKey(x => x.UserId)
 				   .IsRequired()
 				   .OnDelete(DeleteBehavior.NoAction);
 		}

@@ -11,9 +11,9 @@ namespace IntegrationTests.AdministratorTests {
 		}
 
 		[Fact]
-		public async Task ForceCloseAuction_HappyPath_WithExistingBids_RefundsAndClosesAuction() {
-			// Arrange
+		public async Task ForceCloseAuction_ExistingBids_HappyPath() {
 
+			// Arrange
 			var auctionId = Guid.NewGuid();
 			var bidAdmount1 = 350m;
 			var bidAdmount2 = 250m;
@@ -33,6 +33,8 @@ namespace IntegrationTests.AdministratorTests {
 					FirstName = "X",
 					LastName = "X",
 					Email = $"{Guid.NewGuid()}@mail.com",
+					PasswordHash = "X",
+					PasswordSalt = "X",
 					Wallet = new Wallet {
 						Balance = 0m,
 						FrozenBalance = 0m,
@@ -48,6 +50,8 @@ namespace IntegrationTests.AdministratorTests {
 							FirstName = "X",
 							LastName = "X",
 							Email = $"{Guid.NewGuid()}@mail.com",
+							PasswordHash = "X",
+							PasswordSalt = "X",
 							Wallet = new Wallet {
 								Balance = 1000m,
 								FrozenBalance = bidAdmount1,
@@ -63,6 +67,8 @@ namespace IntegrationTests.AdministratorTests {
 							FirstName = "X",
 							LastName = "X",
 							Email = $"{Guid.NewGuid()}@mail.com",
+							PasswordHash = "X",
+							PasswordSalt = "X",
 							Wallet = new Wallet {
 								Balance = 0m,
 								FrozenBalance = bidAdmount2,
@@ -79,6 +85,8 @@ namespace IntegrationTests.AdministratorTests {
 				LastName = "X",
 				Email = $"{Guid.NewGuid()}@mail.com",
 				IsAdministrator = true,
+				PasswordHash = "X",
+				PasswordSalt = "X"
 			};
 
 			_ = await _databaseContext.Auctions.AddAsync(auction);

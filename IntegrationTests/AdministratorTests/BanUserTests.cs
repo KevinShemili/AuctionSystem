@@ -28,6 +28,8 @@ namespace IntegrationTests.AdministratorTests {
 				FirstName = "X",
 				LastName = "X",
 				Email = $"{Guid.NewGuid()}@mail.com",
+				PasswordHash = "X",
+				PasswordSalt = "X",
 				Auctions = new List<Auction>() {
 					new() {
 						Id = Guid.NewGuid(),
@@ -46,6 +48,8 @@ namespace IntegrationTests.AdministratorTests {
 									FirstName = "X",
 									LastName = "X",
 									Email = $"{Guid.NewGuid()}@mail.com",
+									PasswordHash = "X",
+									PasswordSalt = "X",
 									Wallet = new Wallet {
 										Balance = 1000m,
 										FrozenBalance = bidderAmount1,
@@ -60,6 +64,8 @@ namespace IntegrationTests.AdministratorTests {
 									Id = bidderId2,
 									FirstName = "X",
 									LastName = "X",
+									PasswordHash = "X",
+									PasswordSalt = "X",
 									Email = $"{Guid.NewGuid()}@mail.com",
 									Wallet = new Wallet {
 										Balance = 1000m,
@@ -86,6 +92,8 @@ namespace IntegrationTests.AdministratorTests {
 									Id = bidderId3,
 									FirstName = "X",
 									LastName = "X",
+									PasswordHash = "X",
+									PasswordSalt = "X",
 									Email = $"{Guid.NewGuid()}@mail.com",
 									Wallet = new Wallet {
 										Balance = 1000m,
@@ -110,6 +118,10 @@ namespace IntegrationTests.AdministratorTests {
 							Seller = new User {
 								Id = Guid.NewGuid(),
 								Email = $"{Guid.NewGuid()}@mail.com",
+								FirstName = "X",
+								LastName = "X",
+								PasswordHash = "X",
+								PasswordSalt = "X"
 							}
 						}
 					},
@@ -125,6 +137,10 @@ namespace IntegrationTests.AdministratorTests {
 							Seller = new User {
 								Id = Guid.NewGuid(),
 								Email = $"{Guid.NewGuid()}@mail.com",
+								FirstName = "X",
+								LastName = "X",
+								PasswordHash = "X",
+								PasswordSalt = "X"
 							}
 						}
 					},
