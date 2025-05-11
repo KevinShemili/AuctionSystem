@@ -71,7 +71,7 @@ namespace Application.UseCases.Administrator.Commands {
 
 						bid.Bidder.Wallet.Transactions.Add(new WalletTransaction {
 							Amount = bid.Amount,
-							TransactionType = (int)WalletTransactionEnum.Credit,
+							TransactionType = (int)WalletTransactionEnum.Unfreeze,
 							DateCreated = DateTime.UtcNow,
 						});
 

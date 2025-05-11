@@ -60,10 +60,11 @@ namespace Application.UseCases.Administrator.Commands {
 
 					var bidder = bid.Bidder;
 					bidder.Wallet.FrozenBalance -= bid.Amount;
+
 					bidder.Wallet.Transactions.Add(new WalletTransaction {
 						Amount = bid.Amount,
-						TransactionType = (int)WalletTransactionEnum.Credit,
-						DateCreated = DateTime.UtcNow,
+						TransactionType = (int)WalletTransactionEnum.Unfreeze,
+						DateCreated = DateTime.UtcNow
 					});
 
 					_ = await _bidRepository.DeleteAsync(bid, cancellationToken: cancellationToken);
@@ -76,7 +77,6 @@ namespace Application.UseCases.Administrator.Commands {
 			auction.ForceClosedReason = request.Reason;
 
 			_ = await _auctionRepository.UpdateAsync(auction, cancellationToken: cancellationToken);
-
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 			await _emailService.SendAuctionClosedEmailAsync(auction.Seller.Email, auction.Name, auction.Seller.LastName, request.Reason, cancellationToken);

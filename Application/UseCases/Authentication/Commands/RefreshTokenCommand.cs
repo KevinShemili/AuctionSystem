@@ -51,7 +51,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 			var email = claims.FindFirst(ClaimTypes.Email)!.Value;
 
-			var user = await _userRepository.GetUserWithAuthenticationTokensNoTrackingAsync(email, cancellationToken);
+			var user = await _userRepository.GetUserWithAuthenticationTokensAsync(email, cancellationToken);
 
 			// Failsafe, but should never happen
 			if (user is null) {
@@ -75,7 +75,7 @@ namespace Application.UseCases.Authentication.Commands {
 				return Result<RefreshTokenDTO>.Failure(Errors.Unauthorized);
 			}
 
-			if (currentRefreshToken.Expiry >= DateTime.UtcNow) {
+			if (currentRefreshToken.Expiry <= DateTime.UtcNow) {
 				_logger.LogWarning("Refresh Token Command failed. Expired refresh. User: {User}", user.Email);
 				return Result<RefreshTokenDTO>.Failure(Errors.Unauthorized);
 			}

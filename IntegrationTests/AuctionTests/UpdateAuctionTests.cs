@@ -72,25 +72,16 @@ namespace IntegrationTests.AuctionTests {
 			};
 
 			// Act
-			var result = await _mediator.Send(command, CancellationToken.None);
+			var result = await _mediator.Send(command);
 
 			// Assert
 			Assert.True(result.IsSuccess);
 			Assert.False(File.Exists(existingImagePath1));
 			Assert.False(File.Exists(existingImagePath2));
 
-			var updatedAuction = await _databaseContext.Auctions.Where(x => x.Id == auctionId)
-				.Select(x => new Auction {
-					Id = x.Id,
-					Name = x.Name,
-					Description = x.Description,
-					BaselinePrice = x.BaselinePrice,
-					StartTime = x.StartTime,
-					EndTime = x.EndTime,
-					SellerId = x.SellerId,
-					Status = x.Status,
-					Images = x.Images.Where(img => !img.IsDeleted).ToList()
-				}).FirstOrDefaultAsync();
+			var updatedAuction = await _databaseContext.Auctions.AsNoTracking()
+																.Include(x => x.Images)
+																.FirstOrDefaultAsync(x => x.Id == auctionId);
 
 			Assert.Equal(2, updatedAuction.Images.Count);
 			Assert.Equal("updatename", updatedAuction.Name);

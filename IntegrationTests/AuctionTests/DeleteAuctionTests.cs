@@ -18,14 +18,14 @@ namespace IntegrationTests.AuctionTests {
 			var user = new User {
 				Id = Guid.NewGuid(),
 				Email = $"{Guid.NewGuid()}@mail.com",
-				FirstName = "x",
-				LastName = "x",
+				FirstName = "X",
+				LastName = "X",
 				IsAdministrator = false,
 				Auctions = new List<Auction>() {
 					new() {
 						Id = auctionId,
-						Name = "Vintage Vase",
-						Description = "A delicate porcelain vase.",
+						Name = "X",
+						Description = "X",
 						BaselinePrice = 75m,
 						StartTime = DateTime.UtcNow,
 						EndTime = DateTime.UtcNow.AddHours(2),
