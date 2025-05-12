@@ -1,4 +1,10 @@
 ﻿namespace Application.Common.ResultPattern {
+
+	// Here is were we implement the result pattern. 
+	// The idea is to explicitly represent a success or failure state of an operation,
+	// without throwing an eexception. Exceptions are expensive and should be avoided,
+	// for simple logic related error handling.
+
 	public sealed class Result<T> {
 
 		private Result(bool isSuccess, T value, Error error) {

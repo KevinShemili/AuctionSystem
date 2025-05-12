@@ -18,16 +18,19 @@ namespace Application.UseCases.Administrator.Queries {
 
 		private readonly IRoleRepository _roleRepository;
 
+		// Injecting the dependencies through the constructor.
 		public ViewRolesQueryHandler(IRoleRepository roleRepository) {
 			_roleRepository = roleRepository;
 		}
 
 		public async Task<Result<PagedResponse<RoleDTO>>> Handle(ViewRolesQuery request, CancellationToken cancellationToken) {
 
+			// Get all the roles without tracking, apply pagination based on the received parameters
 			var pagedRoles = await _roleRepository.SetNoTracking()
 												  .ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize,
 																		request.SortBy, request.SortDesc);
 
+			// Map domain entity to DTO
 			var pagedDTO = Map(pagedRoles);
 
 			return Result<PagedResponse<RoleDTO>>.Success(pagedDTO);

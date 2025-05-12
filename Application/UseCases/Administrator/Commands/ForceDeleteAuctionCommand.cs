@@ -18,6 +18,7 @@ namespace Application.UseCases.Administrator.Commands {
 		private readonly IAuctionRepository _auctionRepository;
 		private readonly ILogger<ForceDeleteAuctionCommandHandler> _logger;
 
+		// Injecting the dependencies through the constructor.
 		public ForceDeleteAuctionCommandHandler(IUnitOfWork unitOfWork,
 											   IAuctionRepository auctionRepository,
 											   ILogger<ForceDeleteAuctionCommandHandler> logger) {
@@ -28,18 +29,22 @@ namespace Application.UseCases.Administrator.Commands {
 
 		public async Task<Result<bool>> Handle(ForceDeleteAuctionCommand request, CancellationToken cancellationToken) {
 
+			// Get the auction by ID
 			var auction = await _auctionRepository.GetByIdAsync(request.AuctionId, cancellationToken);
 
+			// Check if the auction exists
 			if (auction == null) {
 				_logger.LogWarning("Auction with ID {AuctionId} not found.", request.AuctionId);
 				return Result<bool>.Failure(Errors.AuctionNotFound(request.AuctionId));
 			}
 
+			// Check if the auction is in the ended state
 			if (auction.ForceClosedBy is null || auction.Status != (int)AuctionStatusEnum.Ended) {
 				_logger.LogWarning("Auction not yet eneded. AuctionId: {AuctionId}.", request.AuctionId);
 				return Result<bool>.Failure(Errors.EndBeforeDelete);
 			}
 
+			// Delete & Persist
 			_ = await _auctionRepository.DeleteAsync(auction, cancellationToken: cancellationToken);
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 

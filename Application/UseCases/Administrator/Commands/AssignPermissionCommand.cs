@@ -8,6 +8,7 @@ using MediatR;
 using Microsoft.Extensions.Logging;
 
 namespace Application.UseCases.Administrator.Commands {
+
 	public class AssignPermissionCommand : IRequest<Result<bool>> {
 		public Guid AdminId { get; set; }
 		public Guid RoleId { get; set; }
@@ -21,6 +22,7 @@ namespace Application.UseCases.Administrator.Commands {
 		private readonly IPermissionRepository _permissionRepository;
 		private readonly ILogger<AssignPermissionCommandHandler> _logger;
 
+		// Injecting the dependencies through the constructor.
 		public AssignPermissionCommandHandler(ILogger<AssignPermissionCommandHandler> logger,
 										IPermissionRepository permissionRepository,
 										IRoleRepository roleRepository,
@@ -33,6 +35,7 @@ namespace Application.UseCases.Administrator.Commands {
 
 		public async Task<Result<bool>> Handle(AssignPermissionCommand request, CancellationToken cancellationToken) {
 
+			// Check if the role exists
 			var role = await _roleRepository.GetRoleWithRolePermissionsAsync(request.RoleId, cancellationToken: cancellationToken);
 
 			if (role is null) {
@@ -40,14 +43,17 @@ namespace Application.UseCases.Administrator.Commands {
 				return Result<bool>.Failure(Errors.RoleNotFound(request.RoleId));
 			}
 
+			// Check if the permissions exist
 			var flag = await _permissionRepository.DoPermissionsExistAsync(request.PermissionIds, cancellationToken: cancellationToken);
 			if (flag is false) {
 				_logger.LogWarning("Permission list contains invalid IDs. Permissions: {Permissions}", request.PermissionIds);
 				return Result<bool>.Failure(Errors.InvalidPermissions);
 			}
 
+			// Clear current permissions
 			role.RolePermissions.Clear();
 
+			// Assign new permissions to the role
 			foreach (var permissionId in request.PermissionIds) {
 
 				var rolePermission = new RolePermission {
@@ -60,6 +66,7 @@ namespace Application.UseCases.Administrator.Commands {
 				role.RolePermissions.Add(rolePermission);
 			}
 
+			// Persist the changes to the database
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken: cancellationToken);
 
 			return Result<bool>.Success(true);

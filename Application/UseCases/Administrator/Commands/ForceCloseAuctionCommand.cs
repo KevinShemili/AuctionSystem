@@ -26,6 +26,7 @@ namespace Application.UseCases.Administrator.Commands {
 		private readonly IBroadcastService _broadcastService;
 		private readonly IBidRepository _bidRepository;
 
+		// Injecting the dependencies through the constructor.
 		public ForceCloseAuctionCommandHandler(IAuctionRepository auctionRepository,
 										 ILogger<ForceCloseAuctionCommandHandler> logger,
 										 IUnitOfWork unitOfWork,
@@ -42,44 +43,59 @@ namespace Application.UseCases.Administrator.Commands {
 
 		public async Task<Result<bool>> Handle(ForceCloseAuctionCommand request, CancellationToken cancellationToken) {
 
+			// Get the auction with:
+			// 1. Bids -> Bidder -> Wallet -> Transactions
+			// 2. Seller 
 			var auction = await _auctionRepository.GetAuctionWithBidsSellerWalletTransactionsAsync(request.AuctionId, cancellationToken);
 
+			// Check if the auction exists
 			if (auction == null) {
 				_logger.LogWarning("Auction with ID {AuctionId} not found.", request.AuctionId);
 				return Result<bool>.Failure(Errors.AuctionNotFound(request.AuctionId));
 			}
 
+			// Check if the auction is in the active state
 			if (auction.Status != (int)AuctionStatusEnum.Active) {
 				_logger.LogWarning("Auction with ID {AuctionId} is not active.", request.AuctionId);
 				return Result<bool>.Failure(Errors.AuctionNotActive);
 			}
 
+			// We need to close the active bids if any.
 			if (auction.Bids.Count > 0) {
 
+				// Iterate through the bids.
 				foreach (var bid in auction.Bids) {
 
-					var bidder = bid.Bidder;
-					bidder.Wallet.FrozenBalance -= bid.Amount;
+					var bidder = bid.Bidder; // Get the bidder
+					bidder.Wallet.FrozenBalance -= bid.Amount; // Unfreeze his balance
 
+					// Create a new transaction to illustrate the unfreeze
 					bidder.Wallet.Transactions.Add(new WalletTransaction {
 						Amount = bid.Amount,
 						TransactionType = (int)WalletTransactionEnum.Unfreeze,
 						DateCreated = DateTime.UtcNow
 					});
 
+					// Delete the bid
 					_ = await _bidRepository.DeleteAsync(bid, cancellationToken: cancellationToken);
+					// Notify bidder that his bid has been removed
 					await _emailService.SendBidRemovedEmailAsync(bidder.Email, auction.Name, cancellationToken);
 				}
 			}
 
+			// Close the auction & state reason
 			auction.Status = (int)AuctionStatusEnum.Ended;
 			auction.ForceClosedBy = request.AdminId;
 			auction.ForceClosedReason = request.Reason;
 
+			// Update & Persist the auction
 			_ = await _auctionRepository.UpdateAsync(auction, cancellationToken: cancellationToken);
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+			// Notify seller that his auction has been closed
 			await _emailService.SendAuctionClosedEmailAsync(auction.Seller.Email, auction.Name, auction.Seller.LastName, request.Reason, cancellationToken);
+
+			// Broadcast to frontend that the auction has ended
 			await Broadcast(auction.Id, Guid.Empty, null);
 
 			return Result<bool>.Success(true);

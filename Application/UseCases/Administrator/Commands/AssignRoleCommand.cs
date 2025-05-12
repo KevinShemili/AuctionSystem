@@ -21,6 +21,7 @@ namespace Application.UseCases.Administrator.Commands {
 		private readonly IRoleRepository _roleRepository;
 		private readonly ILogger<AssignRoleCommandHandler> _logger;
 
+		// Injecting the dependencies through the constructor.
 		public AssignRoleCommandHandler(IUnitOfWork unitOfWork,
 								  IUserRepository userRepository,
 								  ILogger<AssignRoleCommandHandler> logger,
@@ -33,26 +34,32 @@ namespace Application.UseCases.Administrator.Commands {
 
 		public async Task<Result<bool>> Handle(AssignRoleCommand request, CancellationToken cancellationToken) {
 
+			// Get the user with roles based on the provided user ID
 			var user = await _userRepository.GetUserWithUserRolesAsync(request.UserId, cancellationToken: cancellationToken);
 
+			// Check if the user exists
 			if (user is null) {
 				_logger.LogWarning("User with ID {UserId} not found.", request.UserId);
 				return Result<bool>.Failure(Errors.UserNotFound(request.UserId));
 			}
 
+			// Check if the user is an administrator
 			if (user.IsAdministrator is false) {
 				_logger.LogWarning("User with ID {UserId} is not an administrator.", request.UserId);
 				return Result<bool>.Failure(Errors.OnlyAssignRolesToAdmin);
 			}
 
+			// Check whether the provided role IDs are valid
 			var flag = await _roleRepository.DoRolesExistAsync(request.RoleIds, cancellationToken: cancellationToken);
 			if (flag is false) {
 				_logger.LogWarning("Role list contains invalid IDs. Roles: {Roles}", request.RoleIds);
 				return Result<bool>.Failure(Errors.InvalidRoles);
 			}
 
+			// Clear current roles
 			user.UserRoles.Clear();
 
+			// Apply the new roles to the user
 			foreach (var roleId in request.RoleIds) {
 
 				var userRole = new UserRole {
@@ -65,6 +72,7 @@ namespace Application.UseCases.Administrator.Commands {
 				user.UserRoles.Add(userRole);
 			}
 
+			// Persist the changes to the database
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 			return Result<bool>.Success(true);

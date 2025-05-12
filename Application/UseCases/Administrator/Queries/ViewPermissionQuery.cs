@@ -18,11 +18,15 @@ namespace Application.UseCases.Administrator.Queries {
 		}
 
 		public async Task<Result<PermissionDTO>> Handle(ViewPermissionQuery request, CancellationToken cancellationToken) {
+
+			// Get permission by ID
 			var permission = await _permissionRepository.GetByIdAsync(request.PermissionId, cancellationToken);
 
+			// Check if the permission exists
 			if (permission == null)
 				return Result<PermissionDTO>.Failure(Errors.PermissionNotFound(request.PermissionId));
 
+			// Map result to DTO
 			var permissionDTO = new PermissionDTO {
 				Id = permission.Id,
 				Name = permission.Name,

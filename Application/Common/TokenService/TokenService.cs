@@ -16,6 +16,13 @@ namespace Application.Common.TokenService {
 			_userRepository = userRepository;
 		}
 
+		// Given a user email, get all of his roles and permissions
+		// and generate an appropriate JWT token.
+		// The resulting token will contain:
+		// 1. User ID
+		// 2. User permissions
+		// 3. Token ID
+		// 4. Token expiration date
 		public async Task<string> GenerateAccessTokenAsync(string email, CancellationToken cancellationToken) {
 
 			var user = await _userRepository.GetUserWithRolesAndPermissionsNoTrackingAsync(email, cancellationToken: cancellationToken);
@@ -53,6 +60,8 @@ namespace Application.Common.TokenService {
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 
+		// Given a predefined list of claims
+		// use it to generate a JWT token.
 		public string GenerateAccessToken(IEnumerable<Claim> claims) {
 			var key = new SymmetricSecurityKey(
 				Encoding.UTF8.GetBytes(_configuration["JWTSettings:Secret"]!));
@@ -73,6 +82,8 @@ namespace Application.Common.TokenService {
 			return new JwtSecurityTokenHandler().WriteToken(token);
 		}
 
+		// Generate a refresh token and its expiration date.
+		// The refresh token is simply a random string in the form of a GUID.
 		public (string, DateTime) GenerateRefreshToken() {
 			return (
 				Guid.NewGuid().ToString(),
@@ -81,11 +92,17 @@ namespace Application.Common.TokenService {
 				);
 		}
 
+		// Generate a random email verification token.
 		public string GenerateEmailVerificationToken() {
 			return Guid.NewGuid().ToString();
 		}
 
+		// Given a JWT token we use this method to extract its claims.
+		// Claims are JWT attributes that are used to store information.
 		public ClaimsPrincipal GetClaims(string accessToken) {
+
+			// We make sure to validate the token before extracting its claims.
+			// Thus ensuring the token is valid and not expired.
 			var validationParameters = new TokenValidationParameters {
 				ValidateIssuer = false,
 				ValidateAudience = false,

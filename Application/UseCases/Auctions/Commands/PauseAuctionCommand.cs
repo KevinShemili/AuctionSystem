@@ -19,6 +19,7 @@ namespace Application.UseCases.Auctions.Commands {
 		private readonly ILogger<PauseAuctionCommandHandler> _logger;
 		private readonly IUnitOfWork _unitOfWork;
 
+		// Injecting the dependencies through the constructor.
 		public PauseAuctionCommandHandler(IAuctionRepository auctionRepository,
 									IUnitOfWork unitOfWork,
 									ILogger<PauseAuctionCommandHandler> logger) {
@@ -29,26 +30,35 @@ namespace Application.UseCases.Auctions.Commands {
 
 		public async Task<Result<bool>> Handle(PauseAuctionCommand request, CancellationToken cancellationToken) {
 
+			// Get the auction with:
+			// 1. Bids
 			var auction = await _auctionRepository.GetAuctionWithBidsAsync(request.AuctionId, cancellationToken);
 
+			// Check if the auction exists
 			if (auction is null) {
 				_logger.LogWarning("Auction with id {AuctionId} not found", request.AuctionId);
 				return Result<bool>.Failure(Errors.AuctionNotFound(request.AuctionId));
 			}
 
+			// Check the action is performed by the seller
 			if (auction.SellerId != request.UserId) {
 				return Result<bool>.Failure(Errors.ChangeOnlyOwnAuctions);
 			}
 
+			// Check if the auction is in the active state
 			if (auction.Status != (int)AuctionStatusEnum.Active) {
 				return Result<bool>.Failure(Errors.AuctionNotActive);
 			}
 
+			// Check if the auction has bids
 			if (auction.Bids.Any() is true) {
 				return Result<bool>.Failure(Errors.AuctionHasBids);
 			}
 
+			// Pause the auction
 			auction.Status = (int)AuctionStatusEnum.Paused;
+
+			// Update & Persist
 			_ = await _auctionRepository.UpdateAsync(auction, cancellationToken: cancellationToken);
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 

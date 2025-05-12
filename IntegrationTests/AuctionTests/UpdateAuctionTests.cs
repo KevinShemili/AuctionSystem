@@ -1,4 +1,5 @@
-﻿using Application.UseCases.Auctions.Commands;
+﻿using Application.Common.Tools.Time;
+using Application.UseCases.Auctions.Commands;
 using Domain.Entities;
 using Domain.Enumerations;
 using IntegrationTests.Environment;
@@ -26,6 +27,7 @@ namespace IntegrationTests.AuctionTests {
 
 			var auctionId = Guid.NewGuid();
 
+			var startTime = TruncateTime.ToMinute(DateTime.UtcNow);
 			var user = new User {
 				Id = Guid.NewGuid(),
 				Email = $"{Guid.NewGuid()}@mail.com",
@@ -39,8 +41,8 @@ namespace IntegrationTests.AuctionTests {
 						Name = "X",
 						Description = "X",
 						BaselinePrice = 150m,
-						StartTime = DateTime.UtcNow,
-						EndTime = DateTime.UtcNow.AddHours(2),
+						StartTime = startTime,
+						EndTime = DateTime.UtcNow.AddMinutes(5),
 						Status = (int)AuctionStatusEnum.Active,
 						Images = new List<AuctionImage>() {
 							new() {
@@ -62,13 +64,14 @@ namespace IntegrationTests.AuctionTests {
 			var newImage1 = "uploads/auctions/new1.jpg"; // Already added by controller
 			var newImage2 = "uploads/auctions/new2.jpg"; // Already added by controller
 
+			var newEndTime = TruncateTime.ToMinute(DateTime.UtcNow.AddHours(2));
 			var command = new UpdateAuctionCommand {
 				AuctionId = auctionId,
 				UserId = user.Id,
 				Name = "updated-name",
 				Description = "updated-description",
 				BaselinePrice = 2000m,
-				EndTime = DateTime.UtcNow.AddHours(2),
+				EndTime = newEndTime,
 				RemoveImages = new[] { "uploads/auctions/existing1.jpg", "uploads/auctions/existing2.jpg" },
 				NewImages = new[] { newImage1, newImage2 }
 			};
@@ -89,6 +92,8 @@ namespace IntegrationTests.AuctionTests {
 			Assert.Equal("updated-name", updatedAuction.Name);
 			Assert.Equal("updated-description", updatedAuction.Description);
 			Assert.Equal(2000m, updatedAuction.BaselinePrice);
+			Assert.Equal(startTime, updatedAuction.StartTime);
+			Assert.Equal(newEndTime, updatedAuction.EndTime);
 			Assert.Contains(newImage1, updatedAuction.Images.Select(x => x.FilePath));
 			Assert.Contains(newImage2, updatedAuction.Images.Select(x => x.FilePath));
 		}

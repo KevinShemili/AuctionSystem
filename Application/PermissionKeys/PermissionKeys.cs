@@ -1,4 +1,8 @@
 ﻿namespace Application.PermissionKeys {
+
+	// Permission keys used to lock 
+	// down the endpoints in the application
+
 	public static class PermissionKeys {
 		public const string ViewUser = "user.view";
 		public const string EditUser = "user.edit";

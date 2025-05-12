@@ -25,6 +25,7 @@ namespace Application.UseCases.Administrator.Commands {
 		private readonly IRoleRepository _roleRepository;
 		private readonly IEmailService _emailService;
 
+		// Injecting the dependencies through the constructor.
 		public CreateAdminCommandHandler(IUserRepository userRepository,
 										IUnitOfWork unitOfWork,
 										ILogger<CreateAdminCommandHandler> logger,
@@ -39,25 +40,32 @@ namespace Application.UseCases.Administrator.Commands {
 
 		public async Task<Result<bool>> Handle(CreateAdminCommand request, CancellationToken cancellationToken) {
 
+			// Check if the user with the provided email already exists
 			var doesEmailExist = await _userRepository.DoesEmailExistAsync(request.Email, cancellationToken);
+
 			if (doesEmailExist) {
 				_logger.LogWarning("Email already exists. Email: {Email}", request.Email);
 				return Result<bool>.Failure(Errors.EmailAlreadyExists);
 			}
 
+			// Check if administrator provided roles for this new creation.
+			// A new admin must have at least one role.
 			if (request.Roles.Any() is false) {
 				_logger.LogWarning("No roles provided for the new admin. Request: {Request}", request);
 				return Result<bool>.Failure(Errors.EmptyRoles);
 			}
 
+			// Check whether the provided role IDs are valid
 			var flag = await _roleRepository.DoRolesExistAsync(request.Roles, cancellationToken);
 			if (flag is false) {
 				_logger.LogWarning("Role list contains invalid IDs. Roles: {Roles}", request.Roles);
 				return Result<bool>.Failure(Errors.InvalidRoles);
 			}
 
+			// Generate a random password for the new admin
 			var password = PasswordGenerator.Generate();
 
+			// Hash it
 			(var passwordHash, var passwordSalt) = Hasher.HashPasword(password);
 
 			var user = new User {
@@ -77,9 +85,11 @@ namespace Application.UseCases.Administrator.Commands {
 				});
 			}
 
+			// Create & Persist the new admin
 			_ = await _userRepository.CreateAsync(user, cancellationToken: cancellationToken);
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
+			// Send the new admiin an email with his password
 			await _emailService.SendAdminRegistrationEmailAsync(request.Email, password, cancellationToken);
 
 			return Result<bool>.Success(true);

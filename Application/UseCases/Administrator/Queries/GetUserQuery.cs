@@ -4,6 +4,7 @@ using Application.Contracts.Repositories;
 using Application.UseCases.Administrator.DTOs;
 using Application.UseCases.Bidding.DTOs;
 using Domain.Entities;
+using FluentValidation;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -16,26 +17,34 @@ namespace Application.UseCases.Administrator.Queries {
 
 		private readonly IUserRepository _userRepository;
 		private readonly ILogger<GetUserQueryHandler> _logger;
-		private readonly IAuctionRepository _auctionRepository;
 
-		public GetUserQueryHandler(IUserRepository userRepository, ILogger<GetUserQueryHandler> logger, IAuctionRepository auctionRepository) {
+		public GetUserQueryHandler(IUserRepository userRepository,
+							 ILogger<GetUserQueryHandler> logger) {
 			_userRepository = userRepository;
 			_logger = logger;
-			_auctionRepository = auctionRepository;
 		}
 
 		public async Task<Result<UserDetailsDTO>> Handle(GetUserQuery request, CancellationToken cancellationToken) {
 
-			if (request.UserId == Guid.Empty) {
-				_logger.LogError("UserId is empty. Request: {Request}", request);
-				return Result<UserDetailsDTO>.Failure(Errors.InvalidId);
-			}
-
+			// Get user with:
+			// 1. Roles -> Permissions
+			// 2. Auctions -> Bids & Images
+			// 3. Wallet -> Transactions
+			// 4. Bids -> Auction -> Images
 			var user = await _userRepository.GetUserWithRolesPermissionsWalletAuctionsBidsNoTrackingAsync(request.UserId, cancellationToken);
 
+			// Check if the user exists
+			if (user == null) {
+				_logger.LogWarning("User with ID {UserId} not found.", request.UserId);
+				return Result<UserDetailsDTO>.Failure(Errors.UserNotFound(request.UserId));
+			}
+
+			// Get auctions created by the user
 			var createdAuctions = user.Auctions.ToList();
+			// Get auctions participated by the user
 			var participatedAuctions = user.Bids.Select(x => x.Auction).ToList();
 
+			// Return result mapped to DTO
 			return Result<UserDetailsDTO>.Success(MapResponse(user, createdAuctions, participatedAuctions));
 		}
 
@@ -93,6 +102,13 @@ namespace Application.UseCases.Administrator.Queries {
 			};
 
 			return profile;
+		}
+	}
+
+	public class GetUserQueryValidator : AbstractValidator<GetUserQuery> {
+		public GetUserQueryValidator() {
+			RuleFor(x => x.UserId)
+				.NotEmpty().WithMessage("UserId cannot be empty.");
 		}
 	}
 }

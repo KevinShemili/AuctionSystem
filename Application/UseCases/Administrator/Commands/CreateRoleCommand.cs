@@ -16,6 +16,7 @@ namespace Application.UseCases.Administrator.Commands {
 		private readonly IRoleRepository _roleRepository;
 		private readonly IUnitOfWork _unitOfWork;
 
+		// Injecting the dependencies through the constructor.
 		public CreateRoleCommandHandler(IRoleRepository roleRepository, IUnitOfWork unitOfWork) {
 			_roleRepository = roleRepository;
 			_unitOfWork = unitOfWork;

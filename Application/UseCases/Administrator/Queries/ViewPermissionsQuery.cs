@@ -15,17 +15,22 @@ namespace Application.UseCases.Administrator.Queries {
 	}
 
 	public class ViewPermissionsQueryHandler : IRequestHandler<ViewPermissionsQuery, Result<PagedResponse<PermissionDTO>>> {
+
 		private readonly IPermissionRepository _permissionRepository;
 
+		// Injecting the dependencies through the constructor.
 		public ViewPermissionsQueryHandler(IPermissionRepository permissionRepository) {
 			_permissionRepository = permissionRepository;
 		}
 
 		public async Task<Result<PagedResponse<PermissionDTO>>> Handle(ViewPermissionsQuery request, CancellationToken cancellationToken) {
+
+			// Get all the permissions without tracking, apply pagination based on the received parameters
 			var pagedPermissions = await _permissionRepository.SetNoTracking()
 															  .ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize,
 																					request.SortBy, request.SortDesc);
 
+			// Map domain entity to DTO
 			var pagedDTO = Map(pagedPermissions);
 
 			return Result<PagedResponse<PermissionDTO>>.Success(pagedDTO);

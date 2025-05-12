@@ -17,6 +17,7 @@ namespace Application.UseCases.Administrator.Queries {
 		private readonly IAuctionRepository _auctionRepository;
 		private readonly ILogger<ViewAuctionAdminQueryHandler> _logger;
 
+		// Injecting the dependencies through the constructor.
 		public ViewAuctionAdminQueryHandler(IAuctionRepository auctionRepository, ILogger<ViewAuctionAdminQueryHandler> logger) {
 			_auctionRepository = auctionRepository;
 			_logger = logger;
@@ -24,13 +25,19 @@ namespace Application.UseCases.Administrator.Queries {
 
 		public async Task<Result<AuctionAdminDTO>> Handle(ViewAuctionAdminQuery request, CancellationToken cancellationToken) {
 
+			// Get the auction with:
+			// 1. Bids -> Bidder
+			// 2. Seller
+			// 3. Images
 			var auction = await _auctionRepository.GetAuctionWithBidsSellerNoTrackingAsync(request.AuctionId, cancellationToken);
 
+			// Check if the auction exists
 			if (auction == null) {
 				_logger.LogWarning("Auction with ID {AuctionId} not found.", request.AuctionId);
 				return Result<AuctionAdminDTO>.Failure(Errors.AuctionNotFound(request.AuctionId));
 			}
 
+			// Map result to DTO
 			return Result<AuctionAdminDTO>.Success(MapResponse(auction));
 		}
 

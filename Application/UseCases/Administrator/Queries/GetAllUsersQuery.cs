@@ -18,16 +18,19 @@ namespace Application.UseCases.Administrator.Queries {
 
 		private readonly IUserRepository _userRepository;
 
+		// Injecting the dependencies through the constructor.
 		public GetAllUsersQueryHandler(IUserRepository userRepository) {
 			_userRepository = userRepository;
 		}
 
 		public async Task<Result<PagedResponse<UserDTO>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken) {
 
+			// Get all the users without tracking, apply pagination based on the received parameters
 			var pagedUsers = await _userRepository.SetNoTracking()
 												  .ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize,
 																		request.SortBy, request.SortDesc);
 
+			// Map domain entity to DTO
 			var pagedDTO = Map(pagedUsers);
 
 			return Result<PagedResponse<UserDTO>>.Success(pagedDTO);

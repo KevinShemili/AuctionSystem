@@ -14,18 +14,23 @@ namespace Application.UseCases.Administrator.Queries {
 
 		private readonly IWalletRepository _walletRepository;
 
+		// Injecting the dependencies through the constructor.
 		public ViewWalletQueryHandler(IWalletRepository walletRepository) {
 			_walletRepository = walletRepository;
 		}
 
 		public async Task<Result<WalletDTO>> Handle(ViewWalletQuery request, CancellationToken cancellationToken) {
 
+			// Get wallet with:
+			// 1. Transactions
 			var wallet = await _walletRepository.GetWalletWithTransactionsNoTrackingAsync(request.WalletId, cancellationToken);
 
+			// Check if the wallet exists
 			if (wallet is null) {
 				return Result<WalletDTO>.Failure(Errors.WalletNotFound(request.WalletId));
 			}
 
+			// Map result to DTO
 			var walletDto = new WalletDTO {
 				Id = wallet.Id,
 				Balance = wallet.Balance,

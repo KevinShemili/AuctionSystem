@@ -10,6 +10,7 @@ using System.Reflection;
 namespace Application.DependencyConfigurations {
 	public static class Dependencies {
 
+		// Setup the application layer dependencies.
 		public static IServiceCollection AddApplicationLayer(this IServiceCollection services, IConfiguration configuration) {
 
 			services.ConfigureMediatR();
