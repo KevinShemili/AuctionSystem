@@ -46,34 +46,39 @@ namespace Application.UseCases.Authentication.Commands {
 
 		public async Task<Result<bool>> Handle(ConfirmEmailCommand request, CancellationToken cancellationToken) {
 
+			// Get the user verification token by email
 			var user = await _userRepository.GetUserWithTokensAsync(request.Email, cancellationToken);
 
+			// Check if the user exists
 			if (user is null) {
 				_logger.LogWarning("Email Verification attempt failed. Email: {Email} Token: {Token}", request.Email, request.Token);
 				return Result<bool>.Failure(Errors.InvalidToken);
 			}
 
+			// Check if the user is already verified
 			if (user.IsEmailVerified is true) {
 				_logger.LogWarning("Email Verification attempt failed. Email: {Email} Token: {Token}", request.Email, request.Token);
 				return Result<bool>.Failure(Errors.AccountAlreadyVerified);
 			}
 
+			// Decode the token
 			var decodedToken = Transcode.DecodeURL(request.Token);
 
-			var token = user.VerificationTokens.FirstOrDefault(x => x.Token == decodedToken && x.TokenTypeId == (int)VerificationTokenType.EmailVerificationToken);
+			// Check if such token has been issued for the user
+			var token = user.VerificationTokens.FirstOrDefault(x => x.Token == decodedToken &&
+																	x.TokenTypeId == (int)VerificationTokenType.EmailVerificationToken);
 
+			// If not issued, return failure
 			if (token is null) {
 				_logger.LogWarning("Email Verification attempt failed. User: {Email}", user.Email);
 				return Result<bool>.Failure(Errors.InvalidToken);
 			}
 
+			// Check if the token is expired
 			if (DateTime.UtcNow > token.Expiry) {
 
+				// If expired, delete the token and send a new one
 				var emailToken = _tokenService.GenerateEmailVerificationToken();
-
-				await _emailService.SendConfirmationEmailAsync(emailToken, request.Email, cancellationToken);
-
-				_ = await _userTokenRepository.DeleteAsync(token, cancellationToken: cancellationToken);
 
 				user.VerificationTokens.Add(new VerificationToken {
 					Token = emailToken,
@@ -82,15 +87,19 @@ namespace Application.UseCases.Authentication.Commands {
 					TokenTypeId = (int)VerificationTokenType.EmailVerificationToken,
 				});
 
+				await _emailService.SendConfirmationEmailAsync(emailToken, request.Email, cancellationToken);
+
+				_ = await _userTokenRepository.DeleteAsync(token, cancellationToken: cancellationToken);
 				_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 				_logger.LogWarning("Email Verification attempt failed, expired token. Email: {Email}", user.Email);
 				return Result<bool>.Failure(Errors.ExpiredEmailToken);
 			}
 
+			// Verify the user's email
 			user.IsEmailVerified = true;
-			_ = await _userTokenRepository.DeleteAsync(token, cancellationToken: cancellationToken);
 
+			_ = await _userTokenRepository.DeleteAsync(token, cancellationToken: cancellationToken);
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 			return Result<bool>.Success(true);

@@ -44,6 +44,7 @@ namespace Application.UseCases.AutomaticExpiry {
 					continue;
 				}
 
+				// Set auction status to ended
 				expiredAuction.Status = (int)AuctionStatusEnum.Ended;
 
 				// CASE1: No bids just close auction
@@ -101,6 +102,7 @@ namespace Application.UseCases.AutomaticExpiry {
 
 					_ = await _unitOfWork.SaveChangesAsync();
 
+					// Broadcast to client auction end
 					await Broadcast(expiredAuction.Id, bid.BidderId, bid.Amount);
 
 					continue;
@@ -108,15 +110,17 @@ namespace Application.UseCases.AutomaticExpiry {
 
 				// CASE3: Vickrey logic -> Many bidders
 
-				// Order auction bids by amount
-				// Order again by date created -> Solve ties on amount -> Earliest wins
+				// 1. Order auction bids by amount
+				// 2. Order again by date created -> Solves ties on amount -> Earliest wins
 				var orderedBids = expiredAuction.Bids.OrderByDescending(x => x.Amount)
-												.ThenBy(b => b.DateCreated)
-												.ToList();
+													 .ThenBy(b => b.DateCreated)
+													 .ToList();
 
+				// Set the winning bid
 				var winnerBid = orderedBids.FirstOrDefault();
 				winnerBid.IsWinningBid = true;
 
+				// Get the second amount to perform charge
 				var secondAmount = orderedBids.Select(x => x.Amount) // already ordered
 											  .Skip(1)
 											  .FirstOrDefault();
@@ -152,8 +156,10 @@ namespace Application.UseCases.AutomaticExpiry {
 				// Unfreeze all other bidders that did not win
 				foreach (var loserBid in expiredAuction.Bids.Where(x => x.IsWinningBid == false)) {
 
+					// Unfreeze frozen balance
 					loserBid.Bidder.Wallet.FrozenBalance -= loserBid.Amount;
 
+					// Add transaction
 					transactions.Add(new WalletTransaction {
 						WalletId = loserBid.Bidder.Wallet.Id,
 						BidId = loserBid.Id,
@@ -170,6 +176,7 @@ namespace Application.UseCases.AutomaticExpiry {
 				_ = await _auctionRepository.UpdateAsync(expiredAuction);
 				_ = await _unitOfWork.SaveChangesAsync();
 
+				// Broadcast to client auction end
 				await Broadcast(expiredAuction.Id, winnerBid.BidderId, secondAmount);
 			}
 		}

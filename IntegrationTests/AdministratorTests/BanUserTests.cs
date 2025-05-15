@@ -14,6 +14,9 @@ namespace IntegrationTests.AdministratorTests {
 		public async Task BanUser_HappyPath() {
 
 			// Arrange
+
+			// User with 2 auctions and 2 bids
+			// User's auctions with bids of themselves
 			var bidderId1 = Guid.NewGuid();
 			var bidderAmount1 = 250m;
 
@@ -188,6 +191,7 @@ namespace IntegrationTests.AdministratorTests {
 																 .Select(x => x.Bidder)
 																 .ToList();
 
+			// Bidders on banned user's auctions should have their frozen balance returned
 			foreach (var bidder in biddersOnBannedUserAuctions) {
 
 				Assert.Equal(0m, bidder.Wallet.FrozenBalance);

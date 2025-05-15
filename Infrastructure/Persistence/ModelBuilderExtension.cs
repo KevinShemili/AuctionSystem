@@ -7,7 +7,7 @@ namespace Infrastructure.Persistence {
 	// Extension methods for ModelBuilder
 	public static class ModelBuilderExtension {
 
-		// Method 1. Soft Delete Support
+		// Method implements soft delete support
 		// Get all entities inheriting from EntityBase
 		// - Add global query filter to automatically apply IsDeleted == false
 		// - Create index on the IsDeleted column to speed up queries

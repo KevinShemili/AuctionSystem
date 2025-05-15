@@ -21,12 +21,22 @@ namespace Application.UseCases.Auctions.Queries {
 
 		public async Task<Result<AuctionDetailsDTO>> Handle(GetAuctionQuery request, CancellationToken cancellationToken) {
 
+			// Get the auction with:
+			// 1. Bids -> Bidder
+			// 2. Images
+			// 3. Seller
 			var auction = await _auctionRepository.GetAuctionWithBidsSellerNoTrackingAsync(request.AuctionId, cancellationToken);
 
+			// Check if the auction exists
 			if (auction is null) {
 				return Result<AuctionDetailsDTO>.Failure(Errors.AuctionNotFound(request.AuctionId));
 			}
 
+
+			// Map the auction to DTO
+			// Make sure to not display the bid amount of other bidders
+			// Only show the fact that there are bids
+			// And also the their names & surnames
 			return Result<AuctionDetailsDTO>.Success(Map(auction));
 		}
 

@@ -1,6 +1,9 @@
 ﻿using Application.Common.EmailService;
 
 namespace IntegrationTests.Environment.FakeServices {
+
+	// Fake implementation of IEmailService for testing purposes
+	// So that the real service is not called
 	public class FakeEmailService : IEmailService {
 
 		public Task SendAdminRegistrationEmailAsync(string email, string password, CancellationToken cancellationToken = default) {

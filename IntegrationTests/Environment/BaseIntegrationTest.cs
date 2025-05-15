@@ -3,6 +3,8 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace IntegrationTests.Environment {
+
+	// Abstract base for integration tests provide access to general services
 	public abstract class BaseIntegrationTest : IClassFixture<ContainerFactory<Program>> {
 
 		protected readonly IServiceScope _serviceScope;

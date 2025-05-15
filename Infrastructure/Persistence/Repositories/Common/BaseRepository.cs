@@ -1,7 +1,6 @@
 ﻿using Application.Contracts.Repositories.Common;
 using Domain.Common;
 using Microsoft.EntityFrameworkCore;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Infrastructure.Persistence.Repositories.Common {
 	public abstract class BaseRepository<T> : IRepository<T> where T : AbstractEntity {
@@ -71,12 +70,10 @@ namespace Infrastructure.Persistence.Repositories.Common {
 			return true;
 		}
 
-		[ExcludeFromCodeCoverage]
 		public IQueryable<T> SetNoTracking() {
 			return _context.Set<T>().AsNoTracking();
 		}
 
-		[ExcludeFromCodeCoverage]
 		public DbSet<T> SetTracking() {
 			return _context.Set<T>();
 		}

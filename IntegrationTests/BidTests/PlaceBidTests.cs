@@ -13,6 +13,9 @@ namespace IntegrationTests.BidTests {
 		public async Task PlaceBid_HappyPath_FirstBid() {
 
 			// Arrange
+
+			// Seller with auction
+			// Bidder
 			var auctionId = Guid.NewGuid();
 
 			var seller = new User {
@@ -63,6 +66,7 @@ namespace IntegrationTests.BidTests {
 			// Assert
 			Assert.True(result.IsSuccess);
 
+			// Assert bid created
 			var bid = await _databaseContext.Bids.Include(x => x.Bidder)
 												 .FirstOrDefaultAsync(x => x.Id == result.Value);
 
@@ -70,6 +74,7 @@ namespace IntegrationTests.BidTests {
 			Assert.Equal(150m, bid.Amount);
 			Assert.Equal(bidder.Id, bid.BidderId);
 
+			// Assert balance frozen
 			var updatedWallet = await _databaseContext.Wallets.Include(w => w.Transactions)
 															  .FirstOrDefaultAsync(w => w.UserId == bidder.Id);
 
@@ -82,6 +87,9 @@ namespace IntegrationTests.BidTests {
 		public async Task PlaceBid_HappyPath_ExstingPreviousBid() {
 
 			// Arrange
+
+			// Seller with auction
+			// Bidder with existing bid
 			var auctionId = Guid.NewGuid();
 			var bidderId = Guid.NewGuid();
 			var bidId = Guid.NewGuid();
@@ -152,13 +160,17 @@ namespace IntegrationTests.BidTests {
 			Assert.True(result.IsSuccess);
 			Assert.Equal(bidId, result.Value);
 
+			// Assert bid updated with new amount
 			var updatedBid = await _databaseContext.Bids.FirstOrDefaultAsync(b => b.Id == bidId);
 			Assert.Equal(300m, updatedBid.Amount);
 
 			var wallet = await _databaseContext.Wallets.Include(w => w.Transactions)
 													   .FirstOrDefaultAsync(w => w.UserId == bidderId);
 
+			// Assert frozen balance updated
 			Assert.Equal(300m, wallet.FrozenBalance);
+
+			// Assert 2 transactions (1 previous freeze + new freeze)
 			Assert.Equal(2, wallet.Transactions.Count);
 			Assert.Contains(wallet.Transactions, x => x.TransactionType == (int)WalletTransactionEnum.Freeze && x.Amount == 100m);
 		}

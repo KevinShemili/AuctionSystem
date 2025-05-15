@@ -101,12 +101,16 @@ namespace IntegrationTests.AuctionTests {
 			await auctionCloser.AutomaticClose();
 
 			// Assert
+
+			// Auction should be ended
 			var updatedAuction = await _databaseContext.Auctions.AsNoTracking().FirstOrDefaultAsync(a => a.Id == auction.Id);
 			Assert.Equal((int)AuctionStatusEnum.Ended, updatedAuction.Status);
 
+			// Bid should be marked as winning
 			var updatedBid = await _databaseContext.Bids.AsNoTracking().FirstOrDefaultAsync(b => b.Id == bidId);
 			Assert.True(updatedBid.IsWinningBid);
 
+			// Bidder should have their wallet updated
 			var bidder = await _databaseContext.Users.AsNoTracking()
 													 .Include(x => x.Wallet)
 														.ThenInclude(x => x.Transactions)
@@ -114,16 +118,19 @@ namespace IntegrationTests.AuctionTests {
 			Assert.Equal(0m, bidder.Wallet.FrozenBalance);
 			Assert.Equal(0m, bidder.Wallet.Balance);
 
+			// Seller should have their wallet updated
 			var seller = await _databaseContext.Users.AsNoTracking()
 													 .Include(x => x.Wallet)
 														.ThenInclude(x => x.Transactions)
 													 .FirstOrDefaultAsync(x => x.Id == selledId);
 			Assert.Equal(bidAmount, seller.Wallet.Balance);
 
+			// Bidder should have 2 transactions 
 			Assert.Equal(2, bidder.Wallet.Transactions.Count);
 			Assert.Contains(bidder.Wallet.Transactions, x => x.TransactionType == (int)WalletTransactionEnum.Unfreeze && x.Amount == bidAmount);
 			Assert.Contains(bidder.Wallet.Transactions, x => x.TransactionType == (int)WalletTransactionEnum.Debit && x.Amount == bidAmount);
 
+			// Seller should have 1 transaction
 			Assert.Single(seller.Wallet.Transactions);
 			Assert.Contains(seller.Wallet.Transactions, x => x.TransactionType == (int)WalletTransactionEnum.Credit && x.Amount == bidAmount);
 		}
@@ -132,6 +139,7 @@ namespace IntegrationTests.AuctionTests {
 		public async Task AutomaticClose_HappyPath_MultipleBids() {
 
 			// Arrange
+			// 1 auction with 3 bids
 			var auctionId = Guid.NewGuid();
 			var selledId = Guid.NewGuid();
 
@@ -228,12 +236,15 @@ namespace IntegrationTests.AuctionTests {
 			await auctionCloser.AutomaticClose();
 
 			// Assert
+
+			// Auction should be ended
 			var updatedAuction = await _databaseContext.Auctions.AsNoTracking()
 																.Include(x => x.Bids)
 																.FirstOrDefaultAsync(a => a.Id == auction.Id);
 
 			Assert.Equal((int)AuctionStatusEnum.Ended, updatedAuction.Status);
 
+			// Bid should be marked as winning
 			var winningBid = updatedAuction.Bids.FirstOrDefault(x => x.BidderId == winnerBidderId);
 			Assert.True(winningBid.IsWinningBid);
 
@@ -243,11 +254,14 @@ namespace IntegrationTests.AuctionTests {
 													.Include(x => x.Bids)
 													.ToListAsync();
 
+			// Seller should have been credited the second highest amount
 			Assert.Equal(secondHighestAmount, users.FirstOrDefault(x => x.Id == selledId).Wallet.Balance);
 
+			// Winner should have wallet unfrozen and debited the second highest amount
 			Assert.Equal(0, users.FirstOrDefault(x => x.Id == winnerBidderId).Wallet.FrozenBalance);
 			Assert.Equal(1000m - 250m, users.FirstOrDefault(x => x.Id == winnerBidderId).Wallet.Balance);
 
+			// Other bidders should have their wallets unfrozen
 			foreach (var bid in updatedAuction.Bids.Where(x => x.BidderId != winnerBidderId)) {
 
 				var user = users.FirstOrDefault(x => x.Id == bid.BidderId);
@@ -257,11 +271,13 @@ namespace IntegrationTests.AuctionTests {
 			}
 
 
+			// Winner should have 2 transactions
 			var winner = users.FirstOrDefault(x => x.Id == winnerBidderId);
 			Assert.Equal(2, winner.Wallet.Transactions.Count);
 			Assert.Contains(winner.Wallet.Transactions, x => x.TransactionType == (int)WalletTransactionEnum.Unfreeze && x.Amount == highestAmount);
 			Assert.Contains(winner.Wallet.Transactions, x => x.TransactionType == (int)WalletTransactionEnum.Debit && x.Amount == secondHighestAmount);
 
+			// Other bidders should have 1 transaction
 			var second = users.FirstOrDefault(x => x.Id == secondHighestBidderId);
 			Assert.Single(second.Wallet.Transactions);
 			Assert.Contains(second.Wallet.Transactions, x => x.TransactionType == (int)WalletTransactionEnum.Unfreeze && x.Amount == secondHighestAmount);
@@ -270,6 +286,7 @@ namespace IntegrationTests.AuctionTests {
 			Assert.Single(loser.Wallet.Transactions);
 			Assert.Contains(loser.Wallet.Transactions, x => x.TransactionType == (int)WalletTransactionEnum.Unfreeze && x.Amount == loserBidAmount);
 
+			// Seller should have 1 transaction
 			var seller = users.FirstOrDefault(x => x.Id == selledId);
 			Assert.Single(seller.Wallet.Transactions);
 			Assert.Contains(seller.Wallet.Transactions, x => x.TransactionType == (int)WalletTransactionEnum.Credit && x.Amount == secondHighestAmount);

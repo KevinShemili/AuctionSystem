@@ -20,17 +20,19 @@ namespace Application.UseCases.Bidding.Queries {
 
 		private readonly IBidRepository _bidRepository;
 
+		// Injecting the dependencies through the constructor.
 		public GetBidsQueryHandler(IBidRepository bidRepository) {
 			_bidRepository = bidRepository;
 		}
 
 		public async Task<Result<PagedResponse<BidDTO>>> Handle(GetBidsQuery request, CancellationToken cancellationToken) {
 
+			// Get all bids for the user
 			var pagedBids = await _bidRepository.GetAllByBidderNoTracking(request.UserId)
 										   .ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize, request.SortBy, request.SortDesc);
 
 
-
+			// Map to DTO
 			return Result<PagedResponse<BidDTO>>.Success(Map(pagedBids));
 		}
 

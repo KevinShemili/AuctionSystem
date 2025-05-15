@@ -14,6 +14,9 @@ namespace IntegrationTests.AdministratorTests {
 		public async Task ForceCloseAuction_ExistingBids_HappyPath() {
 
 			// Arrange
+
+			// Auction with 2 existing bids
+			// Acting admin
 			var auctionId = Guid.NewGuid();
 			var bidAdmount1 = 350m;
 			var bidAdmount2 = 250m;
@@ -109,11 +112,15 @@ namespace IntegrationTests.AdministratorTests {
 																.Include(x => x.Bids)
 																.FirstOrDefaultAsync(x => x.Id == auction.Id);
 
+			// Auction should be ended
 			Assert.NotNull(updatedAuction);
 			Assert.Equal((int)AuctionStatusEnum.Ended, updatedAuction.Status);
 			Assert.Equal(actingAdmin.Id, updatedAuction.ForceClosedBy);
+
+			// Auction should have no bids
 			Assert.Empty(updatedAuction.Bids);
 
+			// Bidders should have their frozen balances released
 			var updatedBidder1 = await _databaseContext.Users.AsNoTracking()
 															 .Include(u => u.Wallet)
 																.ThenInclude(w => w.Transactions)

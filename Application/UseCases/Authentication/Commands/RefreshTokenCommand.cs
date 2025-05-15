@@ -25,6 +25,7 @@ namespace Application.UseCases.Authentication.Commands {
 		private readonly IUserRepository _userRepository;
 		private readonly IAuthenticationTokenRepository _authenticationTokenRepository;
 
+		// Injecting the dependencies through the constructor.
 		public RefreshTokenCommandHandler(ILogger<RefreshTokenCommandHandler> logger,
 									IUnitOfWork unitOfWork,
 									ITokenService tokenService,
@@ -41,6 +42,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 			ClaimsPrincipal claims;
 
+			// Get the claims from the JWT 
 			try {
 				claims = _tokenService.GetClaims(request.AccessToken);
 			}
@@ -49,6 +51,7 @@ namespace Application.UseCases.Authentication.Commands {
 				return Result<RefreshTokenDTO>.Failure(Errors.InvalidToken);
 			}
 
+			// Get the user from the JWT
 			var email = claims.FindFirst(ClaimTypes.Email)!.Value;
 
 			var user = await _userRepository.GetUserWithAuthenticationTokensAsync(email, cancellationToken);
@@ -61,8 +64,10 @@ namespace Application.UseCases.Authentication.Commands {
 				return Result<RefreshTokenDTO>.Failure(Errors.ServerError);
 			}
 
+			// Decode the refresh token
 			var decodedRefreshToken = Transcode.DecodeURL(request.RefreshToken);
 
+			// Check if the refresh token is valid
 			var currentRefreshToken = user.AuthenticationTokens.FirstOrDefault(x => x.RefreshToken == decodedRefreshToken);
 
 			if (currentRefreshToken is null) {
@@ -75,15 +80,18 @@ namespace Application.UseCases.Authentication.Commands {
 				return Result<RefreshTokenDTO>.Failure(Errors.Unauthorized);
 			}
 
+			// Check if the refresh token is expired -> Perform normal login
 			if (currentRefreshToken.Expiry <= DateTime.UtcNow) {
 				_logger.LogWarning("Refresh Token Command failed. Expired refresh. User: {User}", user.Email);
 				return Result<RefreshTokenDTO>.Failure(Errors.Unauthorized);
 			}
 
+			// Generate new JWT & refresh token
 			var newAccessToken = _tokenService.GenerateAccessToken(claims.Claims);
 			(var newRefreshToken, var expiry) = _tokenService.GenerateRefreshToken();
 
 			_ = await _authenticationTokenRepository.DeleteAsync(currentRefreshToken, cancellationToken: cancellationToken);
+
 			_ = await _authenticationTokenRepository.CreateAsync(new AuthenticationToken {
 				RefreshToken = newRefreshToken,
 				AccessToken = newAccessToken,

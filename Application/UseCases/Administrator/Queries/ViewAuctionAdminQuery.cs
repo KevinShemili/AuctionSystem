@@ -38,6 +38,8 @@ namespace Application.UseCases.Administrator.Queries {
 			}
 
 			// Map result to DTO
+			// Since the user is an administrator, we can show all the bids
+			// with their amounts
 			return Result<AuctionAdminDTO>.Success(MapResponse(auction));
 		}
 

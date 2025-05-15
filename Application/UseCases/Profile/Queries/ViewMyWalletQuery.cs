@@ -20,18 +20,23 @@ namespace Application.UseCases.Profile.Queries {
 
 		public async Task<Result<WalletDTO>> Handle(ViewMyWalletQuery request, CancellationToken cancellationToken) {
 
+			// Get the user with:
+			// 1. Wallet -> Transactions
 			var user = await _userRepository.GetUserWithWalletAndTransactionsNoTrackingAsync(request.UserId, cancellationToken);
 
+			// Check if the user exists
 			if (user is null) {
 				return Result<WalletDTO>.Failure(Errors.UserNotFound(request.UserId));
 			}
 
+			// Check if the user is administrator
 			if (user.IsAdministrator is true) {
 				return Result<WalletDTO>.Failure(Errors.NotAccessibleByAdmins);
 			}
 
 			var wallet = user.Wallet;
 
+			// Map to DTO
 			var walletDto = new WalletDTO {
 				Id = wallet.Id,
 				Balance = wallet.Balance,

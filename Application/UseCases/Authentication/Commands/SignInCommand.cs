@@ -27,6 +27,7 @@ namespace Application.UseCases.Authentication.Commands {
 		private readonly ILogger<SignInCommandHandler> _logger;
 		private readonly IAuthenticationTokenRepository _authenticationTokenRepository;
 
+		// Injecting the dependencies through the constructor.
 		public SignInCommandHandler(ITokenService tokenService,
 							  IConfiguration configuration,
 							  IUnitOfWork unitOfWork,
@@ -43,29 +44,37 @@ namespace Application.UseCases.Authentication.Commands {
 
 		public async Task<Result<SignInDTO>> Handle(SignInCommand request, CancellationToken cancellationToken) {
 
+			// Get the user by email
 			var user = await _userRepository.GetUserWithAuthenticationTokensAsync(request.Email, cancellationToken: cancellationToken);
 
+			// Check if the user exists
 			if (user is null) {
 				_logger.LogWarning("SignIn attempt failed: Email {Email} does not exist.", request.Email);
 				return Result<SignInDTO>.Failure(Errors.UserNotFound(request.Email));
 			}
 
+			// Check if the user has verified their email
 			if (user.IsEmailVerified is false) {
 				_logger.LogWarning("SignIn attempt failed: Email {Email} is not verified.", request.Email);
 				return Result<SignInDTO>.Failure(Errors.AccountNotVerified);
 			}
 
+			// Check if the user is blocked
 			if (user.IsBlocked is true) {
 				_logger.LogWarning("SignIn attempt failed: User {FirstName} {LastName} is blocked.", user.FirstName, user.LastName);
 				return Result<SignInDTO>.Failure(Errors.LockedOut);
 			}
 
+			// Verify the password
 			var isPasswordCorrect = Hasher.VerifyPassword(request.Password, user.PasswordHash, user.PasswordSalt);
 
+			// The user may provide a wrong password only a few times
 			if (isPasswordCorrect is false) {
 				var maxTries = int.Parse(_configuration["FailedLogin:MaxTries"]);
 
+				// Check if the user has reached the max tries -> block
 				if (user.FailedLoginTries >= maxTries) {
+
 					user.IsBlocked = true;
 					user.BlockReason = "Max login attempts reached.";
 
@@ -81,14 +90,17 @@ namespace Application.UseCases.Authentication.Commands {
 				return Result<SignInDTO>.Failure(Errors.SignInFailure);
 			}
 
+			// Reset the failed login tries if the password is correct
 			user.FailedLoginTries = 0;
 
+			// Provide JWT & Refresh token
 			var accessToken = await _tokenService.GenerateAccessTokenAsync(request.Email, cancellationToken);
 			(var refreshToken, var refreshExpiry) = _tokenService.GenerateRefreshToken();
 
 			var lastestRefreshToken = user.AuthenticationTokens.OrderByDescending(x => x.DateCreated)
-													 .FirstOrDefault();
+															   .FirstOrDefault();
 
+			// Delete old auth tokens if any
 			if (lastestRefreshToken is not null)
 				_ = await _authenticationTokenRepository.DeleteAsync(lastestRefreshToken, cancellationToken: cancellationToken);
 
@@ -99,6 +111,7 @@ namespace Application.UseCases.Authentication.Commands {
 				DateCreated = DateTime.UtcNow,
 			});
 
+			// Persist the changes
 			_ = await _unitOfWork.SaveChangesAsync(cancellationToken);
 
 			return Result<SignInDTO>.Success(new SignInDTO {

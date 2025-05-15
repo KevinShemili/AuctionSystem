@@ -12,6 +12,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.PostgreSql;
 
 namespace IntegrationTests.Environment {
+
+	// Spins up a backend instance with a PostgreSQL test container for isolated tests
 	public sealed class ContainerFactory<T> : WebApplicationFactory<T>, IAsyncLifetime where T : class {
 
 		private PostgreSqlContainer _dbContainer;
@@ -19,6 +21,7 @@ namespace IntegrationTests.Environment {
 
 		public async Task InitializeAsync() {
 
+			// Spins up postgres container before any tests run
 			_dbContainer = new PostgreSqlBuilder()
 				.WithImage("postgres:17.4")
 				.WithDatabase("IntegrationTestDB")
@@ -30,6 +33,7 @@ namespace IntegrationTests.Environment {
 			await _dbContainer.StartAsync();
 		}
 
+		// Cleans up postgres container after tests
 		async Task IAsyncLifetime.DisposeAsync() {
 			if (_dbContainer is not null)
 				await _dbContainer.DisposeAsync().AsTask();

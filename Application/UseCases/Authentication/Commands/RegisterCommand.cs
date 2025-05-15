@@ -30,6 +30,7 @@ namespace Application.UseCases.Authentication.Commands {
 		private readonly IUnitOfWork _unitOfWork;
 		private readonly ILogger<RegisterCommandHandler> _logger;
 
+		// Injecting the dependencies through the constructor.
 		public RegisterCommandHandler(IUserRepository userRepository,
 								ITokenService tokenService,
 								IEmailService emailService,
@@ -48,6 +49,7 @@ namespace Application.UseCases.Authentication.Commands {
 
 		public async Task<Result<bool>> Handle(RegisterCommand request, CancellationToken cancellationToken) {
 
+			// Validate password format
 			if (IsValidPassword(request.Password) is false) {
 				_logger.LogWarning("Registration attempt failed: invalid password provided.");
 				return Result<bool>.Failure(Errors.InvalidPasswordFormat);
@@ -101,6 +103,13 @@ namespace Application.UseCases.Authentication.Commands {
 			return Result<bool>.Success(true);
 		}
 
+		// Format:
+		// 1. At least 8 characters long
+		// 2. At most 50 characters long
+		// 3. At least one digit
+		// 4. At least one uppercase letter
+		// 5. At least one lowercase letter
+		// 6. No special characters
 		private static bool IsValidPassword(string password) {
 			if (string.IsNullOrEmpty(password)) return false;
 			if (password.Length < 8 || password.Length > 50) return false;

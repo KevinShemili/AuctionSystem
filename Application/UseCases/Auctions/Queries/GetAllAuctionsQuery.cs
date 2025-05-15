@@ -20,15 +20,24 @@ namespace Application.UseCases.Auctions.Queries {
 
 		private readonly IAuctionRepository _auctionRepository;
 
+		// Injecting the dependencies through the constructor.
 		public GetAllAuctionsQueryHandler(IAuctionRepository auctionRepository) {
 			_auctionRepository = auctionRepository;
 		}
 
 		public async Task<Result<PagedResponse<AuctionDTO>>> Handle(GetAllAuctionsQuery request, CancellationToken cancellationToken) {
+
+			// Based on the Active only, get either all auctions or only active auctions
+			// With:
+			// 1. Images
+			// 2. Bids
 			var pagedAuctions = await _auctionRepository.GetAllNoTracking(request.ActiveOnly)
 														.ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize,
 																				request.SortBy, request.SortDesc);
 
+			// Map the paged auctions to DTOs
+			// In the dto we only want to show the fact there exists bids
+			// But not the bid amount themselves
 			return Result<PagedResponse<AuctionDTO>>.Success(Map(pagedAuctions));
 		}
 
@@ -51,7 +60,7 @@ namespace Application.UseCases.Auctions.Queries {
 					StartTime = auction.StartTime,
 					EndTime = auction.EndTime,
 					Images = auction.Images.Select(x => x.FilePath),
-					NumberOfBids = auction.Bids.Count()
+					NumberOfBids = auction.Bids.Count
 				};
 
 				pagedDto.Items.Add(auctionDto);
