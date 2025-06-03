@@ -54,6 +54,9 @@ namespace Application.UseCases.Administrator.Queries {
 				StartTime = auction.StartTime,
 				Name = auction.Name,
 				Images = auction.Images.Select(x => x.FilePath),
+				SellerFirstName = auction.Seller.FirstName,
+				SellerLastName = auction.Seller.LastName,
+				SellerId = auction.Seller.Id,
 				Bids = new List<BidAdminDTO>()
 			};
 

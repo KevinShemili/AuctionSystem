@@ -9,6 +9,9 @@ namespace Application.UseCases.Administrator.DTOs {
 		public DateTime StartTime { get; set; }
 		public DateTime EndTime { get; set; }
 		public int Status { get; set; }
+		public Guid SellerId { get; set; }
+		public string SellerFirstName { get; set; }
+		public string SellerLastName { get; set; }
 
 		[SwaggerSchema(Format = "uri")]
 		public IEnumerable<string> Images { get; set; }
