@@ -1,4 +1,7 @@
-﻿using Application.UseCases.Bidding.Commands;
+﻿using Application.Common.ResultPattern;
+using Application.Common.Tools.Pagination;
+using Application.UseCases.Bidding.Commands;
+using Application.UseCases.Bidding.DTOs;
 using Application.UseCases.Bidding.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -17,9 +20,30 @@ namespace WebAPI.Controllers {
 		public BidController(IMediator mediator) : base(mediator) {
 		}
 
+		[SwaggerOperation(
+			Summary = "Place a bid",
+			Description = @"
+			Places a bid for a user on a specific auction.
+			- Auction must exist and be active.
+			- Bidder cannot be the seller or an administrator.
+			- Bid amount must be at least the baseline price.
+			- User must have sufficient available balance.
+			- If the bidder has already placed a bid, the existing bid is updated (with funds adjusted).
+			- Broadcasts a NEW-BID event to notify clients.
+
+			Request body:
+			- auctionId (GUID, required): ID of the auction to place a bid on.
+			- bidderId (GUID, required): ID of the user placing the bid.
+			- amount (decimal, required): Amount of the bid.")]
 		[Authorize]
-		[SwaggerOperation(Summary = "Place a bid")]
 		[HttpPost]
+		[ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(typeof(Error), StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(typeof(Error), StatusCodes.Status409Conflict)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> PlaceBid([FromBody] PlaceBidDTO dto) {
 
 			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -38,9 +62,23 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
+		[SwaggerOperation(
+			Summary = "Current user bid history",
+			Description = @"
+			Retrieves a paginated list of bids placed by the user making the request.
+
+			Query parameters:
+			- pageNumber (int, optional): Page index. Defaults to 1.  
+			- pageSize (int, optional): Number of items per page. Defaults to 10.
+			- filter (string, optional): Match against filter.
+			- sortBy (string, optional): Field name to sort on.
+			- sortDesc (bool, optional): true -> descending. false -> ascending")]
 		[Authorize]
-		[SwaggerOperation(Summary = "Current user bid history")]
 		[HttpGet]
+		[ProducesResponseType(typeof(PagedResponse<BidDTO>), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ViewBids([FromQuery] PagedParamsDTO pagedParams) {
 
 			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);

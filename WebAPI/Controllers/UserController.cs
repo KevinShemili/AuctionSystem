@@ -1,4 +1,6 @@
-﻿using Application.UseCases.Profile.Queries;
+﻿using Application.Common.ResultPattern;
+using Application.UseCases.Profile.DTOs;
+using Application.UseCases.Profile.Queries;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -13,9 +15,19 @@ namespace WebAPI.Controllers {
 		public UserController(IMediator mediator) : base(mediator) {
 		}
 
+		[SwaggerOperation(
+			Summary = "Profile of current user",
+			Description = @"
+			Retrieves the profile for the user making the request, 
+			including wallet details (balance, frozen balance) 
+			and a list of their own auctions.")]
 		[Authorize]
-		[SwaggerOperation(Summary = "Profile of current user")]
 		[HttpGet]
+		[ProducesResponseType(typeof(ProfileDTO), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(typeof(Error), StatusCodes.Status403Forbidden)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> GetMe() {
 
 			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
@@ -33,9 +45,18 @@ namespace WebAPI.Controllers {
 			return Ok(result.Value);
 		}
 
+		[SwaggerOperation(
+			Summary = "Current user wallet & transactions",
+			Description = @"
+			Retrieves the wallet details theuser making the request, 
+			including balance, frozen balance, and transaction history.")]
 		[Authorize]
-		[SwaggerOperation(Summary = "Current user wallet & transactions")]
 		[HttpGet("wallet")]
+		[ProducesResponseType(typeof(WalletDTO), StatusCodes.Status200OK)]
+		[ProducesResponseType(StatusCodes.Status400BadRequest)]
+		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
+		[ProducesResponseType(typeof(Error), StatusCodes.Status404NotFound)]
+		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ViewTransactions() {
 
 			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
