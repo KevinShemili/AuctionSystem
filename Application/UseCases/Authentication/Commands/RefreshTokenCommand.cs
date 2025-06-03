@@ -60,7 +60,7 @@ namespace Application.UseCases.Authentication.Commands {
 			if (user is null) {
 				_logger.LogCritical("This command has been hit, with a valid a valid JWT & Refresh, although no such user exists in the system" +
 					"User: {User}. AccessToken: {AccessToken}, RefreshToken: {RefreshToken}"
-					, user.Email, request.AccessToken, request.RefreshToken);
+					, email, request.AccessToken, request.RefreshToken);
 				return Result<RefreshTokenDTO>.Failure(Errors.ServerError);
 			}
 
