@@ -68,8 +68,8 @@
 			var result = await reader.ReadToEndAsync(cancellationToken);
 
 			var body = result.Replace("AUCTION-NAME", auctionName);
-			body = result.Replace("REASON-HERE", reason);
-			body = result.Replace("SELLER-NAME", sellerName);
+			body = body.Replace("REASON-HERE", reason);
+			body = body.Replace("SELLER-NAME", sellerName);
 
 			return body;
 		}
