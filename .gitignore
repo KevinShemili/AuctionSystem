@@ -9,6 +9,5 @@ publish/
 artifacts/
 *.nupkg
 *.snupkg
-.env
 secrets.json
 appsettings.Full.json
