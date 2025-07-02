@@ -4,7 +4,9 @@ using FluentValidation.AspNetCore;
 using Hangfire;
 using Infrastructure.DependencyConfigurations;
 using Infrastructure.Hangfire;
+using Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using Serilog;
@@ -91,6 +93,7 @@ ConfigureLogging();
 builder.Host.UseSerilog();
 
 var app = builder.Build();
+ApplyMigration();
 
 app.UseMiddleware<GlobalExceptionHandler>();
 
@@ -149,6 +152,12 @@ static void ConfigureLogging() {
 			.ReadFrom.Configuration(config)
 			.CreateLogger();
 	}
+}
+
+void ApplyMigration() {
+	using var scope = app.Services.CreateScope();
+	var db = scope.ServiceProvider.GetRequiredService<DatabaseContext>();
+	db.Database.Migrate();
 }
 
 public partial class Program { }
