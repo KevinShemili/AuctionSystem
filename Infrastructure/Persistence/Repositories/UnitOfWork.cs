@@ -1,5 +1,4 @@
 ﻿using Application.Contracts.Repositories.UnitOfWork;
-using System.Diagnostics.CodeAnalysis;
 
 namespace Infrastructure.Persistence.Repositories {
 	public class UnitOfWork : IUnitOfWork {
@@ -10,7 +9,6 @@ namespace Infrastructure.Persistence.Repositories {
 			_context = context;
 		}
 
-		[ExcludeFromCodeCoverage]
 		public async Task<bool> SaveChangesAsync(CancellationToken cancellationToken = default) {
 
 			_ = await _context.SaveChangesAsync(cancellationToken);
