@@ -206,7 +206,7 @@ namespace WebAPI.Controllers {
 
 			Path parameters:
 			- auctionId (GUID, required): Unique identifier of the auction to retrieve.")]
-		[AllowAnonymous]
+		[Authorize]
 		[HttpGet("auctions/{auctionId}")]
 		[ProducesResponseType(typeof(AuctionDTO), StatusCodes.Status200OK)]
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
@@ -215,8 +215,11 @@ namespace WebAPI.Controllers {
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
 		public async Task<IActionResult> ViewAuction([FromRoute] Guid auctionId) {
 
+			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
+
 			var query = new GetAuctionQuery {
 				AuctionId = auctionId,
+				UserId = userId
 			};
 
 			var result = await _mediator.Send(query);

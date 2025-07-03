@@ -66,6 +66,7 @@ namespace Application.UseCases.Administrator.Queries {
 					Description = x.Description,
 					Permissions = x.Permissions.Select(x => new PermissionDTO {
 						Id = x.Id,
+						Key = x.Key,
 						Name = x.Name,
 						Description = x.Description
 					})

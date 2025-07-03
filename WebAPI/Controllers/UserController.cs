@@ -19,8 +19,10 @@ namespace WebAPI.Controllers {
 			Summary = "Profile of current user",
 			Description = @"
 			Retrieves the profile for the user making the request, 
-			including wallet details (balance, frozen balance) 
-			and a list of their own auctions.")]
+			including wallet details (balance, frozen balance),
+			a list of their created auctions,
+			and a list of their placed bids if a normal user.
+			Otherwise shows roles / permissions of admin making the request.")]
 		[Authorize]
 		[HttpGet]
 		[ProducesResponseType(typeof(ProfileDTO), StatusCodes.Status200OK)]
@@ -48,7 +50,7 @@ namespace WebAPI.Controllers {
 		[SwaggerOperation(
 			Summary = "Current user wallet & transactions",
 			Description = @"
-			Retrieves the wallet details theuser making the request, 
+			Retrieves the wallet details of the user making the request, 
 			including balance, frozen balance, and transaction history.")]
 		[Authorize]
 		[HttpGet("wallet")]

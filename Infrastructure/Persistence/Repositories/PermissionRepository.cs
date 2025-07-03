@@ -16,5 +16,17 @@ namespace Infrastructure.Persistence.Repositories {
 
 			return existingIds.Count == permissionIds.Count;
 		}
+
+		public IQueryable<Permission> SetNoTracking(string filter) {
+
+			if (string.IsNullOrWhiteSpace(filter))
+				return SetNoTracking();
+
+			filter = filter.ToLower();
+
+			return SetNoTracking().Where(x => x.Description.ToLower().Contains(filter) ||
+										 x.Name.ToLower().Contains(filter) ||
+										 x.Key.ToLower().Contains(filter));
+		}
 	}
 }

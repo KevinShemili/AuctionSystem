@@ -29,6 +29,7 @@ namespace Application.UseCases.Administrator.Queries {
 			// Map result to DTO
 			var permissionDTO = new PermissionDTO {
 				Id = permission.Id,
+				Key = permission.Key,
 				Name = permission.Name,
 				Description = permission.Description
 			};

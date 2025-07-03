@@ -8,7 +8,8 @@ namespace Application.Contracts.Repositories {
 		Task<IEnumerable<Auction>> GetAuctionsCreatedByUserNoTrackingAsync(Guid userId, CancellationToken cancellationToken = default);
 		Task<IEnumerable<Auction>> GetAuctionsPartecipatedByUserNoTrackingAsync(Guid userId, CancellationToken cancellationToken = default);
 		Task<Auction> GetAuctionWithBidsSellerNoTrackingAsync(Guid id, CancellationToken cancellationToken = default);
-		IQueryable<Auction> GetAllNoTracking(bool activeOnly);
+		IQueryable<Auction> SetNoTracking(string filter, bool activeOnly);
 		Task<Auction> GetAuctionWithBidsAsync(Guid id, CancellationToken cancellationToken = default);
+
 	}
 }

@@ -26,9 +26,8 @@ namespace Application.UseCases.Administrator.Queries {
 		public async Task<Result<PagedResponse<UserDTO>>> Handle(GetAllUsersQuery request, CancellationToken cancellationToken) {
 
 			// Get all the users without tracking, apply pagination based on the received parameters
-			var pagedUsers = await _userRepository.SetNoTracking()
-												  .ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize,
-																		request.SortBy, request.SortDesc);
+			var pagedUsers = await _userRepository.SetNoTracking(request.Filter)
+												  .ToPagedResponseAsync(request.PageNumber, request.PageSize, request.SortBy, request.SortDesc);
 
 			// Map domain entity to DTO
 			var pagedDTO = Map(pagedUsers);

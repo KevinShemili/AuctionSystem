@@ -33,5 +33,16 @@ namespace Infrastructure.Persistence.Repositories {
 
 			return role;
 		}
+
+		public IQueryable<Role> SetNoTracking(string filter) {
+
+			if (string.IsNullOrWhiteSpace(filter))
+				return SetNoTracking();
+
+			filter = filter.ToLower();
+
+			return SetNoTracking().Where(x => x.Description.ToLower().Contains(filter) ||
+										 x.Name.ToLower().Contains(filter));
+		}
 	}
 }

@@ -31,9 +31,8 @@ namespace Application.UseCases.Auctions.Queries {
 			// With:
 			// 1. Images
 			// 2. Bids
-			var pagedAuctions = await _auctionRepository.GetAllNoTracking(request.ActiveOnly)
-														.ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize,
-																				request.SortBy, request.SortDesc);
+			var pagedAuctions = await _auctionRepository.SetNoTracking(request.Filter, request.ActiveOnly)
+														.ToPagedResponseAsync(request.PageNumber, request.PageSize, request.SortBy, request.SortDesc);
 
 			// Map the paged auctions to DTOs
 			// In the dto we only want to show the fact there exists bids

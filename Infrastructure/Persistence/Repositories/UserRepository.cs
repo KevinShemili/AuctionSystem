@@ -113,9 +113,14 @@ namespace Infrastructure.Persistence.Repositories {
 			return user;
 		}
 
-		public async Task<User> GetUserWithAuctionWalletNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+		public async Task<User> GetUserWithAuctionWalletBidsRolesPermissionsNoTrackingAsync(Guid id, CancellationToken cancellationToken = default) {
+
 			var user = await SetNoTracking().Include(x => x.Wallet)
 											.Include(x => x.Auctions)
+											.Include(x => x.Bids)
+												.ThenInclude(x => x.Auction)
+											.Include(x => x.Roles)
+												.ThenInclude(x => x.Permissions)
 											.Where(x => x.Id == id)
 											.FirstOrDefaultAsync(cancellationToken: cancellationToken);
 
@@ -145,6 +150,19 @@ namespace Infrastructure.Persistence.Repositories {
 
 			return user;
 
+		}
+
+		public IQueryable<User> SetNoTracking(string filter) {
+
+			if (string.IsNullOrWhiteSpace(filter))
+				return SetNoTracking();
+
+			filter = filter.ToLower();
+
+			var users = SetNoTracking().Where(x => x.FirstName.Contains(filter) ||
+											  x.LastName.Contains(filter) ||
+											  x.Email.Contains(filter));
+			return users;
 		}
 	}
 }

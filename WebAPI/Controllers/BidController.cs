@@ -70,7 +70,6 @@ namespace WebAPI.Controllers {
 			Query parameters:
 			- pageNumber (int, optional): Page index. Defaults to 1.  
 			- pageSize (int, optional): Number of items per page. Defaults to 10.
-			- filter (string, optional): Match against filter.
 			- sortBy (string, optional): Field name to sort on.
 			- sortDesc (bool, optional): true -> descending. false -> ascending")]
 		[Authorize]
@@ -79,13 +78,12 @@ namespace WebAPI.Controllers {
 		[ProducesResponseType(StatusCodes.Status400BadRequest)]
 		[ProducesResponseType(StatusCodes.Status401Unauthorized)]
 		[ProducesResponseType(StatusCodes.Status500InternalServerError)]
-		public async Task<IActionResult> ViewBids([FromQuery] PagedParamsDTO pagedParams) {
+		public async Task<IActionResult> ViewBids([FromQuery] PagedParamsNoFilterDTO pagedParams) {
 
 			var userId = Guid.Parse(User.FindFirst(ClaimTypes.NameIdentifier)!.Value);
 
 			var query = new GetBidsQuery {
 				UserId = userId,
-				Filter = pagedParams.Filter,
 				PageNumber = pagedParams.PageNumber,
 				PageSize = pagedParams.PageSize,
 				SortBy = pagedParams.SortBy,

@@ -6,5 +6,6 @@ namespace Application.Contracts.Repositories {
 		Task<bool> DoRolesExistAsync(List<Guid> roleIds, CancellationToken cancellationToken = default);
 		Task<Role> GetRoleWithRolePermissionsAsync(Guid roleId, CancellationToken cancellationToken = default);
 		Task<Role> GetRoleWithPermissionsNoTrackingAsync(Guid roleId, CancellationToken cancellationToken = default);
+		IQueryable<Role> SetNoTracking(string filter);
 	}
 }

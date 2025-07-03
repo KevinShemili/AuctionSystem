@@ -6,7 +6,7 @@ using Domain.Entities;
 using MediatR;
 
 namespace Application.UseCases.Administrator.Queries {
-	public class ViewRolesQuery : IRequest<Result<PagedResponse<RoleDTO>>> {
+	public class ViewRolesQuery : IRequest<Result<PagedResponse<AllRolesDTO>>> {
 		public int PageNumber { get; set; }
 		public int PageSize { get; set; }
 		public string Filter { get; set; }
@@ -14,7 +14,7 @@ namespace Application.UseCases.Administrator.Queries {
 		public bool SortDesc { get; set; }
 	}
 
-	public class ViewRolesQueryHandler : IRequestHandler<ViewRolesQuery, Result<PagedResponse<RoleDTO>>> {
+	public class ViewRolesQueryHandler : IRequestHandler<ViewRolesQuery, Result<PagedResponse<AllRolesDTO>>> {
 
 		private readonly IRoleRepository _roleRepository;
 
@@ -23,25 +23,24 @@ namespace Application.UseCases.Administrator.Queries {
 			_roleRepository = roleRepository;
 		}
 
-		public async Task<Result<PagedResponse<RoleDTO>>> Handle(ViewRolesQuery request, CancellationToken cancellationToken) {
+		public async Task<Result<PagedResponse<AllRolesDTO>>> Handle(ViewRolesQuery request, CancellationToken cancellationToken) {
 
 			// Get all the roles without tracking, apply pagination based on the received parameters
-			var pagedRoles = await _roleRepository.SetNoTracking()
-												  .ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize,
-																		request.SortBy, request.SortDesc);
+			var pagedRoles = await _roleRepository.SetNoTracking(request.Filter)
+												  .ToPagedResponseAsync(request.PageNumber, request.PageSize, request.SortBy, request.SortDesc);
 
 			// Map domain entity to DTO
 			var pagedDTO = Map(pagedRoles);
 
-			return Result<PagedResponse<RoleDTO>>.Success(pagedDTO);
+			return Result<PagedResponse<AllRolesDTO>>.Success(pagedDTO);
 		}
-		private static PagedResponse<RoleDTO> Map(PagedResponse<Role> pagedRoles) {
+		private static PagedResponse<AllRolesDTO> Map(PagedResponse<Role> pagedRoles) {
 
-			var pagedDTO = new PagedResponse<RoleDTO> {
+			var pagedDTO = new PagedResponse<AllRolesDTO> {
 				PageNumber = pagedRoles.PageNumber,
 				PageSize = pagedRoles.PageSize,
 				TotalRecords = pagedRoles.TotalRecords,
-				Items = pagedRoles.Items.Select(role => new RoleDTO {
+				Items = pagedRoles.Items.Select(role => new AllRolesDTO {
 					Id = role.Id,
 					Name = role.Name,
 					Description = role.Description,

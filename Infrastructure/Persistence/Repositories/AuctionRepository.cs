@@ -77,18 +77,24 @@ namespace Infrastructure.Persistence.Repositories {
 			return auctions;
 		}
 
-		public IQueryable<Auction> GetAllNoTracking(bool activeOnly) {
+		public IQueryable<Auction> SetNoTracking(string filter, bool activeOnly) {
 
-			var auctions = activeOnly ? SetNoTracking().Include(x => x.Images)
-													   .Include(x => x.Bids)
-													   .Where(x => x.Status == (int)AuctionStatusEnum.Active) :
+			var auctions = SetNoTracking().Include(x => x.Images)
+										  .Include(x => x.Bids);
 
-										SetNoTracking().Include(x => x.Images)
-													   .Include(x => x.Bids)
-													   .Where(x => x.Status == (int)AuctionStatusEnum.Active ||
-																   x.Status == (int)AuctionStatusEnum.Ended);
+			var filteredAuctions = activeOnly ? auctions.Where(x => x.Status == (int)AuctionStatusEnum.Active) :
+												auctions.Where(x => x.Status == (int)AuctionStatusEnum.Active || x.Status == (int)AuctionStatusEnum.Ended);
 
-			return auctions;
+			if (string.IsNullOrWhiteSpace(filter) is false) {
+
+				filter = filter.ToLower();
+
+				filteredAuctions = filteredAuctions.Where(x => x.Name.ToLower().Contains(filter) ||
+															   x.Description.ToLower().Contains(filter) ||
+															   x.BaselinePrice.ToString().Contains(filter));
+			}
+
+			return filteredAuctions;
 		}
 
 		public async Task<Auction> GetAuctionWithBidsAsync(Guid id, CancellationToken cancellationToken = default) {

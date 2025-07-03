@@ -1,6 +1,8 @@
 ﻿using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Contracts.Repositories;
+using Application.UseCases.Administrator.DTOs;
+using Application.UseCases.Bidding.DTOs;
 using Application.UseCases.Profile.DTOs;
 using Domain.Entities;
 using MediatR;
@@ -27,18 +29,14 @@ namespace Application.UseCases.Profile.Queries {
 			// Get the user with:
 			// 1. Auctions
 			// 2. Wallet
-			var user = await _userRepository.GetUserWithAuctionWalletNoTrackingAsync(request.UserId, cancellationToken);
+			// 3. Bids
+			// 4. Roles -> Permissions -> if Admin
+			var user = await _userRepository.GetUserWithAuctionWalletBidsRolesPermissionsNoTrackingAsync(request.UserId, cancellationToken);
 
 			// Check if the user exists
 			if (user is null) {
 				_logger.LogCritical("User bypassed authorization. {UserId} not found", request.UserId);
 				return Result<ProfileDTO>.Failure(Errors.Unauthorized);
-			}
-
-			// Check if the user is an administrator
-			if (user.IsAdministrator is true) {
-				_logger.LogWarning("User is an administrator. {UserId} is not allowed to access this endpoint", request.UserId);
-				return Result<ProfileDTO>.Failure(Errors.NotAccessibleByAdmins);
 			}
 
 			// Map to DTO
@@ -47,7 +45,26 @@ namespace Application.UseCases.Profile.Queries {
 
 		private static ProfileDTO MapResponse(User user) {
 
-			var profile = new ProfileDTO {
+			var profile = user.IsAdministrator ?
+			new ProfileDTO {
+				Id = user.Id,
+				FirstName = user.FirstName,
+				LastName = user.LastName,
+				Email = user.Email,
+				IsAdmin = user.IsAdministrator,
+				Roles = user.Roles.Select(role => new RoleDTO {
+					Id = role.Id,
+					Name = role.Name,
+					Description = role.Description,
+					Permissions = role.Permissions.Select(permission => new PermissionDTO {
+						Id = permission.Id,
+						Key = permission.Key,
+						Name = permission.Name,
+						Description = permission.Description
+					}).ToList()
+				}).ToList()
+			} :
+			new ProfileDTO {
 				Id = user.Id,
 				FirstName = user.FirstName,
 				LastName = user.LastName,
@@ -55,13 +72,19 @@ namespace Application.UseCases.Profile.Queries {
 				WalletId = user.Wallet.Id,
 				Balance = user.Wallet.Balance,
 				FrozenBalance = user.Wallet.FrozenBalance,
-				OwnAuctions = user.Auctions.Select(a => new OwnAuctionsDTO {
-					Id = a.Id,
-					Name = a.Name,
-					BaselinePrice = a.BaselinePrice,
-					StartTime = a.StartTime,
-					EndTime = a.EndTime,
-					Status = a.Status
+				OwnAuctions = user.Auctions.Select(x => new OwnAuctionsDTO {
+					Id = x.Id,
+					Name = x.Name,
+					BaselinePrice = x.BaselinePrice,
+					StartTime = x.StartTime,
+					EndTime = x.EndTime,
+					Status = x.Status
+				}).ToList(),
+				PlacedBids = user.Bids.Select(x => new BidDTO {
+					Id = x.Id,
+					AuctionId = x.Auction.Id,
+					Amount = x.Amount,
+					IsWinningBid = x.IsWinningBid
 				}).ToList()
 			};
 

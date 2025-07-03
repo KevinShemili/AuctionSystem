@@ -1,4 +1,7 @@
-﻿namespace Application.UseCases.Profile.DTOs {
+﻿using Application.UseCases.Administrator.DTOs;
+using Application.UseCases.Bidding.DTOs;
+
+namespace Application.UseCases.Profile.DTOs {
 	public class ProfileDTO {
 		public Guid Id { get; set; }
 		public string FirstName { get; set; }
@@ -8,6 +11,9 @@
 		public decimal Balance { get; set; }
 		public decimal FrozenBalance { get; set; }
 		public List<OwnAuctionsDTO> OwnAuctions { get; set; }
+		public List<BidDTO> PlacedBids { get; set; }
+		public bool IsAdmin { get; set; }
+		public List<RoleDTO> Roles { get; set; }
 	}
 
 	public class OwnAuctionsDTO {

@@ -11,7 +11,6 @@ namespace Application.UseCases.Bidding.Queries {
 		public Guid UserId { get; set; }
 		public int PageNumber { get; set; }
 		public int PageSize { get; set; }
-		public string Filter { get; set; }
 		public string SortBy { get; set; }
 		public bool SortDesc { get; set; }
 	}
@@ -29,7 +28,7 @@ namespace Application.UseCases.Bidding.Queries {
 
 			// Get all bids for the user
 			var pagedBids = await _bidRepository.GetAllByBidderNoTracking(request.UserId)
-										   .ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize, request.SortBy, request.SortDesc);
+												.ToPagedResponseAsync(request.PageNumber, request.PageSize, request.SortBy, request.SortDesc);
 
 
 			// Map to DTO

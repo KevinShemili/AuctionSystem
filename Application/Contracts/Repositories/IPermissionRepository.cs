@@ -4,5 +4,6 @@ using Domain.Entities;
 namespace Application.Contracts.Repositories {
 	public interface IPermissionRepository : IRepository<Permission> {
 		Task<bool> DoPermissionsExistAsync(List<Guid> permissionIds, CancellationToken cancellationToken = default);
+		IQueryable<Permission> SetNoTracking(string filter);
 	}
 }

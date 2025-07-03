@@ -26,9 +26,8 @@ namespace Application.UseCases.Administrator.Queries {
 		public async Task<Result<PagedResponse<PermissionDTO>>> Handle(ViewPermissionsQuery request, CancellationToken cancellationToken) {
 
 			// Get all the permissions without tracking, apply pagination based on the received parameters
-			var pagedPermissions = await _permissionRepository.SetNoTracking()
-															  .ToPagedResponseAsync(request.Filter, request.PageNumber, request.PageSize,
-																					request.SortBy, request.SortDesc);
+			var pagedPermissions = await _permissionRepository.SetNoTracking(request.Filter)
+															  .ToPagedResponseAsync(request.PageNumber, request.PageSize, request.SortBy, request.SortDesc);
 
 			// Map domain entity to DTO
 			var pagedDTO = Map(pagedPermissions);
@@ -43,6 +42,7 @@ namespace Application.UseCases.Administrator.Queries {
 				TotalRecords = pagedPermissions.TotalRecords,
 				Items = pagedPermissions.Items.Select(permission => new PermissionDTO {
 					Id = permission.Id,
+					Key = permission.Key,
 					Name = permission.Name,
 					Description = permission.Description,
 				}).ToList()

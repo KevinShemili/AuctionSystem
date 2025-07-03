@@ -34,10 +34,11 @@ namespace Application.UseCases.Administrator.Queries {
 				Id = role.Id,
 				Name = role.Name,
 				Description = role.Description,
-				Permissions = role.Permissions.Select(p => new PermissionDTO {
-					Id = p.Id,
-					Name = p.Name,
-					Description = p.Description
+				Permissions = role.Permissions.Select(x => new PermissionDTO {
+					Id = x.Id,
+					Name = x.Name,
+					Key = x.Key,
+					Description = x.Description
 				})
 			};
 

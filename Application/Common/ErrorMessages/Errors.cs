@@ -31,6 +31,9 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error AuctionNotPaused = new(StatusCodes.Status409Conflict,
 			"Auction is not in state paused.");
 
+		public static readonly Error AuctionPaused = new(StatusCodes.Status409Conflict,
+			"Paused auctions may be viewed only by creator.");
+
 		public static readonly Error AuctionHasBids = new(StatusCodes.Status409Conflict,
 			"Cannot perform changes on this auction as it has active bids.");
 

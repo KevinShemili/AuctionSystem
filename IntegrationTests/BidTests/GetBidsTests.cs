@@ -72,7 +72,6 @@ namespace IntegrationTests.BidTests {
 				UserId = user.Id,
 				PageNumber = 1,
 				PageSize = 10,
-				Filter = string.Empty,
 				SortBy = nameof(Bid.Amount),
 				SortDesc = false
 			};

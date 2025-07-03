@@ -3,12 +3,14 @@ using Application.Common.ResultPattern;
 using Application.Contracts.Repositories;
 using Application.UseCases.Auctions.DTOs;
 using Domain.Entities;
+using Domain.Enumerations;
 using FluentValidation;
 using MediatR;
 
 namespace Application.UseCases.Auctions.Queries {
 	public class GetAuctionQuery : IRequest<Result<AuctionDetailsDTO>> {
 		public Guid AuctionId { get; set; }
+		public Guid UserId { get; set; } // User making request
 	}
 
 	public class GetAuctionQueryHandler : IRequestHandler<GetAuctionQuery, Result<AuctionDetailsDTO>> {
@@ -32,6 +34,10 @@ namespace Application.UseCases.Auctions.Queries {
 				return Result<AuctionDetailsDTO>.Failure(Errors.AuctionNotFound(request.AuctionId));
 			}
 
+			// Check if auction is paused. If yes -> Only seller sees it.
+			if (auction.Status == (int)AuctionStatusEnum.Paused && auction.SellerId != request.UserId) {
+				return Result<AuctionDetailsDTO>.Failure(Errors.AuctionPaused);
+			}
 
 			// Map the auction to DTO
 			// Make sure to not display the bid amount of other bidders

@@ -1,4 +1,5 @@
 ﻿using Application.Common.Broadcast;
+using Application.Common.EmailService;
 using Application.Common.ErrorMessages;
 using Application.Common.ResultPattern;
 using Application.Contracts.Repositories;
@@ -23,6 +24,7 @@ namespace Application.UseCases.Administrator.Commands {
 		private readonly IBroadcastService _broadcastService;
 		private readonly IBidRepository _bidRepository;
 		private readonly IAuctionRepository _auctionRepository;
+		private readonly IEmailService _emailService;
 
 		// Injecting the dependencies through the constructor.
 		public BanUserCommandHandler(IUnitOfWork unitOfWork,
@@ -30,13 +32,15 @@ namespace Application.UseCases.Administrator.Commands {
 							   IUserRepository userRepository,
 							   IBroadcastService broadcastService,
 							   IBidRepository bidRepository,
-							   IAuctionRepository auctionRepository) {
+							   IAuctionRepository auctionRepository,
+							   IEmailService emailService) {
 			_unitOfWork = unitOfWork;
 			_logger = logger;
 			_userRepository = userRepository;
 			_broadcastService = broadcastService;
 			_bidRepository = bidRepository;
 			_auctionRepository = auctionRepository;
+			_emailService = emailService;
 		}
 
 		public async Task<Result<bool>> Handle(BanUserCommand request, CancellationToken cancellationToken) {
@@ -94,6 +98,8 @@ namespace Application.UseCases.Administrator.Commands {
 						// Delete the bid
 						_ = await _userRepository.UpdateAsync(bid.Bidder, cancellationToken: cancellationToken);
 						_ = await _bidRepository.DeleteAsync(bid, cancellationToken: cancellationToken);
+
+						await _emailService.SendBidRemovedEmailAsync(bid.Bidder.Email, auction.Name, cancellationToken);
 					}
 
 					// Dellete the auction
