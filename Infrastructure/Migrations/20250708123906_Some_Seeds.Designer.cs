@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250708123906_Some_Seeds")]
+    partial class Some_Seeds
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,60 +82,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SellerId");
 
                     b.ToTable("Auctions", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("a507ebae-effd-4317-aa59-8df75282a953"),
-                            BaselinePrice = 1000m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "A well-maintained Mercedes C-Class from 2010, perfect for city driving and long trips.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "Mercedes C-Class 2010",
-                            SellerId = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
-                            StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("19d17521-1036-418b-9911-613e607c7be4"),
-                            BaselinePrice = 300m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "A beautiful painting of a city at night, perfect for art lovers.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "City Night Painting",
-                            SellerId = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
-                            StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("9619c8d2-52ce-4185-b5c4-06a304ae936b"),
-                            BaselinePrice = 250m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Sneakers from a high-end fashion brand, perfect for collectors.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "High End Fashion Sneakers",
-                            SellerId = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa"),
-                            StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("4f32e981-8c1e-4e3c-8e47-c98122d8ed49"),
-                            BaselinePrice = 850m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "A powerful workstation laptop, ideal for professionals and gamers.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "Workstation Laptop",
-                            SellerId = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa"),
-                            StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.AuctionImage", b =>
@@ -652,14 +601,14 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "admin",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "F1A4073D6510A5D192160B9AC27F61BE7B933762B7FDD9C480F43FD6424025DB6B321A0D28DB913A42AB7FA2AE7DD7326866871A44EDA252ABE96C396B35D506",
+                            PasswordSalt = "F2F59DB8341FA04AA9C0AE248F457C82492D222270EE221AC9B18C3A564C568B934D32FD9FEE8509018FDE0A00683E2E0FBA85B3CC695C4BF51A1D45C17F08FA"
                         },
                         new
                         {
-                            Id = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
+                            Id = new Guid("82704478-0262-4116-94ec-ebb174bb6f68"),
                             DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "kevinshemili5@gmail.com",
+                            Email = "kevinshemili5@mail.com",
                             FailedLoginTries = 0,
                             FirstName = "Kevin",
                             IsAdministrator = false,
@@ -667,38 +616,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Shemili",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
-                        },
-                        new
-                        {
-                            Id = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa"),
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "kevin.shemili@edu.unifi.it",
-                            FailedLoginTries = 0,
-                            FirstName = "John",
-                            IsAdministrator = false,
-                            IsBlocked = false,
-                            IsDeleted = false,
-                            IsEmailVerified = true,
-                            LastName = "Johnson",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
-                        },
-                        new
-                        {
-                            Id = new Guid("783855e1-d39d-402a-9235-175eaf1eb472"),
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Email = "kevin001sh@gmail.com",
-                            FailedLoginTries = 0,
-                            FirstName = "Adam",
-                            IsAdministrator = false,
-                            IsBlocked = false,
-                            IsDeleted = false,
-                            IsEmailVerified = true,
-                            LastName = "Smith",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "F1A4073D6510A5D192160B9AC27F61BE7B933762B7FDD9C480F43FD6424025DB6B321A0D28DB913A42AB7FA2AE7DD7326866871A44EDA252ABE96C396B35D506",
+                            PasswordSalt = "F2F59DB8341FA04AA9C0AE248F457C82492D222270EE221AC9B18C3A564C568B934D32FD9FEE8509018FDE0A00683E2E0FBA85B3CC695C4BF51A1D45C17F08FA"
                         });
                 });
 
@@ -841,30 +760,12 @@ namespace Infrastructure.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("1da693bc-9c40-4ca4-a0f4-1c5af1a9d391"),
+                            Id = new Guid("e6cec8c2-25f2-4851-adde-4b1a0254f6c8"),
                             Balance = 1000m,
                             DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             FrozenBalance = 0m,
                             IsDeleted = false,
-                            UserId = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992")
-                        },
-                        new
-                        {
-                            Id = new Guid("14e2427a-99f2-47d5-a02d-e565e212fc03"),
-                            Balance = 1000m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            FrozenBalance = 0m,
-                            IsDeleted = false,
-                            UserId = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa")
-                        },
-                        new
-                        {
-                            Id = new Guid("aa9bf01e-3879-4ce7-8ebb-07a18818ebe7"),
-                            Balance = 1000m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            FrozenBalance = 0m,
-                            IsDeleted = false,
-                            UserId = new Guid("783855e1-d39d-402a-9235-175eaf1eb472")
+                            UserId = new Guid("82704478-0262-4116-94ec-ebb174bb6f68")
                         });
                 });
 

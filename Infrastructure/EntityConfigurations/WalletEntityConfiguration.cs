@@ -1,4 +1,5 @@
 ﻿using Domain.Entities;
+using Infrastructure.EntityConfigurations.Seeds;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
@@ -37,6 +38,8 @@ namespace Infrastructure.EntityConfigurations {
 				   .HasForeignKey(x => x.WalletId)
 				   .IsRequired()
 				   .OnDelete(DeleteBehavior.NoAction);
+
+			builder.HasData(SeedData.Wallets);
 		}
 	}
 }

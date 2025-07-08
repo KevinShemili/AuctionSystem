@@ -115,7 +115,114 @@ namespace Infrastructure.EntityConfigurations.Seeds {
 			PasswordSalt = Hasher.AdminSalt,
 			DateCreated = SeedDate
 		};
-		public static readonly List<User> Users = new() { Admin };
+
+		public static readonly User User1 = new User {
+			Id = Guid.Parse("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
+			FirstName = "Kevin",
+			LastName = "Shemili",
+			Email = "kevinshemili5@gmail.com",
+			IsEmailVerified = true,
+			PasswordHash = Hasher.AdminHash,
+			PasswordSalt = Hasher.AdminSalt,
+			DateCreated = SeedDate
+		};
+
+		public static readonly User User2 = new User {
+			Id = Guid.Parse("8884546c-45cc-496e-97b1-b7c861c3cafa"),
+			FirstName = "John",
+			LastName = "Johnson",
+			Email = "kevin.shemili@edu.unifi.it",
+			IsEmailVerified = true,
+			PasswordHash = Hasher.AdminHash,
+			PasswordSalt = Hasher.AdminSalt,
+			DateCreated = SeedDate
+		};
+
+		public static readonly User User3 = new User {
+			Id = Guid.Parse("783855e1-d39d-402a-9235-175eaf1eb472"),
+			FirstName = "Adam",
+			LastName = "Smith",
+			Email = "kevin001sh@gmail.com",
+			IsEmailVerified = true,
+			PasswordHash = Hasher.AdminHash,
+			PasswordSalt = Hasher.AdminSalt,
+			DateCreated = SeedDate
+		};
+
+		public static readonly List<User> Users = new() { Admin, User1, User2, User3 };
+		#endregion
+
+		#region Wallets
+		public static readonly Wallet User1Wallet = new Wallet {
+			Id = Guid.Parse("1da693bc-9c40-4ca4-a0f4-1c5af1a9d391"),
+			Balance = 1000m,
+			DateCreated = SeedDate,
+			UserId = User1.Id
+		};
+
+		public static readonly Wallet User2Wallet = new Wallet {
+			Id = Guid.Parse("14e2427a-99f2-47d5-a02d-e565e212fc03"),
+			Balance = 1000m,
+			DateCreated = SeedDate,
+			UserId = User2.Id
+		};
+
+		public static readonly Wallet User3Wallet = new Wallet {
+			Id = Guid.Parse("aa9bf01e-3879-4ce7-8ebb-07a18818ebe7"),
+			Balance = 1000m,
+			DateCreated = SeedDate,
+			UserId = User3.Id
+		};
+
+		public static readonly List<Wallet> Wallets = new() { User1Wallet, User2Wallet, User3Wallet };
+		#endregion
+
+		#region Auctions
+		public static readonly Auction CarAuction = new Auction {
+			Id = Guid.Parse("a507ebae-effd-4317-aa59-8df75282a953"),
+			Name = "Mercedes C-Class 2010",
+			Description = "A well-maintained Mercedes C-Class from 2010, perfect for city driving and long trips.",
+			BaselinePrice = 1000m,
+			DateCreated = SeedDate,
+			EndTime = SeedDate.AddDays(2),
+			StartTime = SeedDate,
+			SellerId = User1.Id
+		};
+
+		public static readonly Auction PaintingAuction = new Auction {
+			Id = Guid.Parse("19d17521-1036-418b-9911-613e607c7be4"),
+			Name = "City Night Painting",
+			Description = "A beautiful painting of a city at night, perfect for art lovers.",
+			BaselinePrice = 300m,
+			DateCreated = SeedDate,
+			EndTime = SeedDate.AddDays(2),
+			StartTime = SeedDate,
+			SellerId = User1.Id
+		};
+
+		public static readonly Auction SneakersAuction = new Auction {
+			Id = Guid.Parse("9619c8d2-52ce-4185-b5c4-06a304ae936b"),
+			Name = "High End Fashion Sneakers",
+			Description = "Sneakers from a high-end fashion brand, perfect for collectors.",
+			BaselinePrice = 250m,
+			DateCreated = SeedDate,
+			EndTime = SeedDate.AddDays(2),
+			StartTime = SeedDate,
+			SellerId = User2.Id
+		};
+
+		public static readonly Auction LaptopAuction = new Auction {
+			Id = Guid.Parse("4f32e981-8c1e-4e3c-8e47-c98122d8ed49"),
+			Name = "Workstation Laptop",
+			Description = "A powerful workstation laptop, ideal for professionals and gamers.",
+			BaselinePrice = 850m,
+			DateCreated = SeedDate,
+			EndTime = SeedDate.AddDays(2),
+			StartTime = SeedDate,
+			SellerId = User2.Id
+		};
+
+		public static readonly List<Auction> Auctions = new() { CarAuction, PaintingAuction, SneakersAuction, LaptopAuction };
 		#endregion
 
 		#region RolePermissions

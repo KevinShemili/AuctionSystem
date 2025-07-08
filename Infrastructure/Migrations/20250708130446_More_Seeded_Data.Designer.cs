@@ -3,6 +3,7 @@ using System;
 using Infrastructure.Persistence;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    partial class DatabaseContextModelSnapshot : ModelSnapshot
+    [Migration("20250708130446_More_Seeded_Data")]
+    partial class More_Seeded_Data
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -79,60 +82,6 @@ namespace Infrastructure.Migrations
                     b.HasIndex("SellerId");
 
                     b.ToTable("Auctions", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("a507ebae-effd-4317-aa59-8df75282a953"),
-                            BaselinePrice = 1000m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "A well-maintained Mercedes C-Class from 2010, perfect for city driving and long trips.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "Mercedes C-Class 2010",
-                            SellerId = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
-                            StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("19d17521-1036-418b-9911-613e607c7be4"),
-                            BaselinePrice = 300m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "A beautiful painting of a city at night, perfect for art lovers.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "City Night Painting",
-                            SellerId = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
-                            StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("9619c8d2-52ce-4185-b5c4-06a304ae936b"),
-                            BaselinePrice = 250m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "Sneakers from a high-end fashion brand, perfect for collectors.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "High End Fashion Sneakers",
-                            SellerId = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa"),
-                            StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
-                        },
-                        new
-                        {
-                            Id = new Guid("4f32e981-8c1e-4e3c-8e47-c98122d8ed49"),
-                            BaselinePrice = 850m,
-                            DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Description = "A powerful workstation laptop, ideal for professionals and gamers.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
-                            IsDeleted = false,
-                            Name = "Workstation Laptop",
-                            SellerId = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa"),
-                            StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
-                        });
                 });
 
             modelBuilder.Entity("Domain.Entities.AuctionImage", b =>
@@ -652,8 +601,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "admin",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "4BB93947F95E96BC11D6C3571B9BD5EBA2C8265D3326433369A260505F385FD68C17140ECA6F023C9D04892593F3535C11D7F28989E315CBB2795D42DD102584",
+                            PasswordSalt = "80FA97ED8D320FD157D360274FFB940FE3BBECC994300D856A366B422F28665F7610D8C4D9E9A9422D8D16F6A436D4EBE55FC69F6D586DD0BB0BEDCE68D4425F"
                         },
                         new
                         {
@@ -667,8 +616,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Shemili",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "4BB93947F95E96BC11D6C3571B9BD5EBA2C8265D3326433369A260505F385FD68C17140ECA6F023C9D04892593F3535C11D7F28989E315CBB2795D42DD102584",
+                            PasswordSalt = "80FA97ED8D320FD157D360274FFB940FE3BBECC994300D856A366B422F28665F7610D8C4D9E9A9422D8D16F6A436D4EBE55FC69F6D586DD0BB0BEDCE68D4425F"
                         },
                         new
                         {
@@ -682,8 +631,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Johnson",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "4BB93947F95E96BC11D6C3571B9BD5EBA2C8265D3326433369A260505F385FD68C17140ECA6F023C9D04892593F3535C11D7F28989E315CBB2795D42DD102584",
+                            PasswordSalt = "80FA97ED8D320FD157D360274FFB940FE3BBECC994300D856A366B422F28665F7610D8C4D9E9A9422D8D16F6A436D4EBE55FC69F6D586DD0BB0BEDCE68D4425F"
                         },
                         new
                         {
@@ -697,8 +646,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Smith",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "4BB93947F95E96BC11D6C3571B9BD5EBA2C8265D3326433369A260505F385FD68C17140ECA6F023C9D04892593F3535C11D7F28989E315CBB2795D42DD102584",
+                            PasswordSalt = "80FA97ED8D320FD157D360274FFB940FE3BBECC994300D856A366B422F28665F7610D8C4D9E9A9422D8D16F6A436D4EBE55FC69F6D586DD0BB0BEDCE68D4425F"
                         });
                 });
 
