@@ -23,18 +23,16 @@ namespace WebAPI.Controllers {
 		[SwaggerOperation(
 			Summary = "Place a bid",
 			Description = @"
-			Places a bid for a user on a specific auction.
-			- Auction must exist and be active.
-			- Bidder cannot be the seller or an administrator.
-			- Bid amount must be at least the baseline price.
-			- User must have sufficient available balance.
-			- If the bidder has already placed a bid, the existing bid is updated (with funds adjusted).
-			- Broadcasts a NEW-BID event to notify clients.
+			Places a bid for a user on a specific auction
+			- Auction must exist and be active
+			- Bidder cannot be the seller or an administrator
+			- Bid amount must be at least the baseline price
+			- User must have sufficient available balance
+			- If the bidder has already placed a bid, the existing bid is updated (with funds adjusted)
 
 			Request body:
-			- auctionId (GUID, required): ID of the auction to place a bid on.
-			- bidderId (GUID, required): ID of the user placing the bid.
-			- amount (decimal, required): Amount of the bid.")]
+			- auctionId (GUID, required): ID of the auction to place a bid on
+			- amount (decimal, required): Bid amount")]
 		[Authorize]
 		[HttpPost]
 		[ProducesResponseType(typeof(Guid), StatusCodes.Status200OK)]
@@ -65,12 +63,12 @@ namespace WebAPI.Controllers {
 		[SwaggerOperation(
 			Summary = "Current user bid history",
 			Description = @"
-			Retrieves a paginated list of bids placed by the user making the request.
+			Retrieves a paginated list of bids placed by the user making the request
 
 			Query parameters:
-			- pageNumber (int, optional): Page index. Defaults to 1.  
-			- pageSize (int, optional): Number of items per page. Defaults to 10.
-			- sortBy (string, optional): Field name to sort on.
+			- pageNumber (int, optional): Page index -> defaults to 1
+			- pageSize (int, optional): Number of items per page -> defaults to 10
+			- sortBy (string, optional): Field name to sort on
 			- sortDesc (bool, optional): true -> descending. false -> ascending")]
 		[Authorize]
 		[HttpGet]

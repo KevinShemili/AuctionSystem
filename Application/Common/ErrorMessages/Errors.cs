@@ -13,7 +13,7 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error OneOrMoreImages = new(StatusCodes.Status400BadRequest,
 			"Please upload one or more images.");
 
-		public static readonly Error AtLeastOneImage = new(StatusCodes.Status409Conflict,
+		public static readonly Error AtLeastOneImage = new(StatusCodes.Status400BadRequest,
 			"Auction must have at least one image.");
 
 		public static readonly Error NotAccessibleByAdmins = new(StatusCodes.Status403Forbidden,
@@ -22,7 +22,7 @@ namespace Application.Common.ErrorMessages {
 		public static Error AuctionNotFound(Guid id) => new(StatusCodes.Status404NotFound,
 			$"Auction with ID: {id} does not exist in the system");
 
-		public static readonly Error OnlyAssignRolesToAdmin = new(StatusCodes.Status403Forbidden,
+		public static readonly Error OnlyAssignRolesToAdmin = new(StatusCodes.Status400BadRequest,
 			"Can only assign roles to admin.");
 
 		public static readonly Error AuctionNotActive = new(StatusCodes.Status409Conflict,
@@ -31,16 +31,16 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error AuctionNotPaused = new(StatusCodes.Status409Conflict,
 			"Auction is not in state paused.");
 
-		public static readonly Error AuctionPaused = new(StatusCodes.Status409Conflict,
+		public static readonly Error AuctionPaused = new(StatusCodes.Status403Forbidden,
 			"Paused auctions may be viewed only by creator.");
 
 		public static readonly Error AuctionHasBids = new(StatusCodes.Status409Conflict,
 			"Cannot perform changes on this auction as it has active bids.");
 
-		public static readonly Error BidTooLow = new(StatusCodes.Status409Conflict,
+		public static readonly Error BidTooLow = new(StatusCodes.Status400BadRequest,
 			"Bid must be at least equal to the baseline price.");
 
-		public static readonly Error InsufficientFunds = new(StatusCodes.Status409Conflict,
+		public static readonly Error InsufficientFunds = new(StatusCodes.Status400BadRequest,
 			"Insufficient available funds to place this bid.");
 
 		public static readonly Error EmptyRoles = new(StatusCodes.Status400BadRequest,
@@ -49,7 +49,7 @@ namespace Application.Common.ErrorMessages {
 		public static readonly Error InvalidRoles = new(StatusCodes.Status400BadRequest,
 			"Provided role list contains invalid entries.");
 
-		public static readonly Error IncreaseBidInsufficientFunds = new(StatusCodes.Status409Conflict,
+		public static readonly Error IncreaseBidInsufficientFunds = new(StatusCodes.Status400BadRequest,
 			"Insufficient available funds to increase this bid.");
 
 		public static readonly Error InvalidBidAmount = new(StatusCodes.Status400BadRequest,
@@ -108,7 +108,7 @@ namespace Application.Common.ErrorMessages {
 
 		public static Error BlockReason(string reason) => new(StatusCodes.Status403Forbidden, reason);
 
-		public static readonly Error AlreadyBlocked = new(StatusCodes.Status403Forbidden,
+		public static readonly Error AlreadyBlocked = new(StatusCodes.Status409Conflict,
 			"User is already blocked");
 
 		public static Error UserNotFound(Guid id) => new(StatusCodes.Status404NotFound,

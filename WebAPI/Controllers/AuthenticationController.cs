@@ -22,13 +22,13 @@ namespace WebAPI.Controllers {
 			Description = @"
 			Creates a new user account. Validates password format, checks for existing email, generates an email verification token, 
 			initializes the user’s wallet with a default balance, 
-			and sends a confirmation email.
+			and sends a confirmation email
 
 			Request body:
-			- firstName (string, required): User’s first name.
-			- lastName (string, required): User’s last name.
-			- email (string, required): User’s email address (must be unique).
-			- password (string, required): Password (8–50 characters, at least one digit, one uppercase letter, one lowercase letter, no special characters).")]
+			- firstName (string, required): User’s first name
+			- lastName (string, required): User’s last name
+			- email (string, required): User’s email address (must be unique)
+			- password (string, required): Password (8–50 characters, at least one digit, one uppercase letter, one lowercase letter, no special characters)")]
 		[AllowAnonymous]
 		[HttpPost("register")]
 		[ProducesResponseType(typeof(bool), StatusCodes.Status200OK)]
@@ -58,11 +58,11 @@ namespace WebAPI.Controllers {
 			Description = @"
 			Authenticates a user using email and password. Validates credentials,
 			checks email verification and block status, tracks failed login attempts (blocking on too many failures), 
-			and returns a JWT access token & refresh token on success.
+			and returns a JWT access token & refresh token on success
 
 			Request body:
-			- email (string, required): User's registered email.
-			- password (string, required): User's password.")]
+			- email (string, required): User's registered email
+			- password (string, required): User's password")]
 		[AllowAnonymous]
 		[HttpPost("login")]
 		[ProducesResponseType(typeof(SignInDTO), StatusCodes.Status200OK)]
@@ -90,11 +90,11 @@ namespace WebAPI.Controllers {
 		[SwaggerOperation(
 			Summary = "Refresh Token & JWT",
 			Description = @"
-			Validates the provided access token and refresh token, then issues a new access token and refresh token pair.
+			Validates the provided access token and refresh token, then issues a new access token and refresh token pair
 
 			Request body:
-			- accessToken (string, required): Current JWT access token.
-			- refreshToken (string, required): Current refresh token (Encoded).")]
+			- accessToken (string, required): Current JWT access token
+			- refreshToken (string, required): Current refresh token")]
 		[AllowAnonymous]
 		[HttpPost("refresh-token")]
 		[ProducesResponseType(typeof(RefreshTokenDTO), StatusCodes.Status200OK)]
@@ -119,12 +119,12 @@ namespace WebAPI.Controllers {
 		[SwaggerOperation(
 			Summary = "Confirm Email",
 			Description = @"
-			Validates the provided email verification token and marks the user's email as verified. 
-			If the token has expired, a new one is issued and sent.
+			Validates the provided email verification token and marks the user's email as verified
+			If the token has expired, a new one is issued and sent
 
 			Request body:
-			- email (string, required): User’s email address.
-			- token (string, required): Encoded email verification token.")]
+			- email (string, required): User’s email address
+			- token (string, required): Encoded email verification token")]
 		// [FromQuery] is always a GET request.
 		[AllowAnonymous]
 		[HttpGet("confirm-email")]
