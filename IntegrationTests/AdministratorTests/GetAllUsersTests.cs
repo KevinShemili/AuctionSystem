@@ -64,8 +64,8 @@ namespace IntegrationTests.AdministratorTests {
 			// Verify pagination
 			Assert.Equal(1, pagedResult.PageNumber);
 			Assert.Equal(10, pagedResult.PageSize);
-			Assert.Equal(4, pagedResult.TotalRecords); // 3 added + 1 seed
-			Assert.Equal(4, pagedResult.Items.Count);
+			Assert.Equal(7, pagedResult.TotalRecords); // 3 added + 4 seed
+			Assert.Equal(7, pagedResult.Items.Count);
 
 			var returnedEmails = pagedResult.Items.Select(dto => dto.Email).ToList();
 			Assert.Contains(user1.Email, returnedEmails);
