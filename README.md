@@ -4,53 +4,38 @@
 [![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
 [![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=KevinShemili_AuctionSystem&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=KevinShemili_AuctionSystem)
 
-# Auction System
+# Vickrey AuctionSystem
 
-# Setting Up The Development Environment (.NET Core 7 + PostgreSQL 17.4 + PGAdmin)
+## Running the Application
 
-## Configuration Setup
+The application is fully containerized, making it easy to run locally without requiring any runtime or development kits installed on the local machine. The only prerequisites are:
 
-The following configuration files need to be created and filled with own local configurations:
+- Docker & Docker Compose
+- Git
 
-- `.env`
-- `appsettings.json`
-- `appsettings.Docker.json`
+### Steps to Run Locally
 
----
+1. **Clone the repository** and navigate into the project directory:
 
-### `.env`
+    ```bash
+    git clone https://github.com/KevinShemili/AuctionSystem.git
+    cd AuctionSystem
+    ```
 
-This file should reside in the same directory as the `docker-compose.yml` file. There should be defined the environment variables required by PostgreSQL & PGAdmin containers.
+2. **Build and start the services** using Docker Compose:
 
-```env
-POSTGRES_USER=...
-POSTGRES_PASSWORD=...
-PGADMIN_EMAIL=...
-PGADMIN_PASSWORD=...
-```
+    ```bash
+    docker compose up --build
+    ```
 
----
+### What This Command Does
 
-### `appsettings.json`
-
-Should be based on the structure of `appsettings.Template.json`. The connection string defined here should apply migrations to the containerized PostgreSQL. To that end, the host should be set to localhost, and the port should be set to the host port.
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=localhost;Port=hostport;Database=...;Username=...;Password=..."
-  }
-```
+- Builds the application image using the provided `Dockerfile`.
+- Starts the following services:
+  - **AuctionSystem (Backend)** – accessible at [http://localhost:8080](http://localhost:8080)
+  - **PostgreSQL** – the relational database service
+  - **pgAdmin UI** – accessible at [http://localhost:5050](http://localhost:5050)
+  - **ELK Stack** – for logging and monitoring
+  - **Kibana** – accessible at [http://localhost:5601](http://localhost:5601)
 
 ---
-
-### `appsettings.Docker.json`
-
-Should be based on the structure of `appsettings.Template.json`. The connection string defined here will be used by the application during runtime, therefore inside of the container. Thus, the containers communicate with their own ports. To that end, the host should be changed to to the name of the PostgreSQL container, and the port should be set to the container port.
-
-```json
-{
-  "ConnectionStrings": {
-    "DefaultConnection": "Host=containername;Port=containerport;Database=...;Username=...;Password=..."
-  }
-```
