@@ -4,7 +4,7 @@ name: SonarCloud
 
 on:
   push:
-    branches: [ main ] # should be master
+    branches: [ master ]
   workflow_dispatch: # Allow manual runs
 
 jobs:
