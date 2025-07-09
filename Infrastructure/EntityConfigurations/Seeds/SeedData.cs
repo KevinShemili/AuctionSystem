@@ -1,6 +1,7 @@
 ﻿using Application.Common.Tools.Passwords;
 using Application.PermissionKeys;
 using Domain.Entities;
+using Domain.Enumerations;
 
 // Static Time (DateTime) and static UUIDs (Guid) have been 
 // used in order to prevent EF Drift, which would occur due to
@@ -186,7 +187,8 @@ namespace Infrastructure.EntityConfigurations.Seeds {
 			DateCreated = SeedDate,
 			EndTime = SeedDate.AddDays(2),
 			StartTime = SeedDate,
-			SellerId = User1.Id
+			SellerId = User1.Id,
+			Status = (int)AuctionStatusEnum.Active
 		};
 
 		public static readonly Auction PaintingAuction = new Auction {
@@ -197,7 +199,8 @@ namespace Infrastructure.EntityConfigurations.Seeds {
 			DateCreated = SeedDate,
 			EndTime = SeedDate.AddDays(2),
 			StartTime = SeedDate,
-			SellerId = User1.Id
+			SellerId = User1.Id,
+			Status = (int)AuctionStatusEnum.Active
 		};
 
 		public static readonly Auction SneakersAuction = new Auction {
@@ -208,7 +211,8 @@ namespace Infrastructure.EntityConfigurations.Seeds {
 			DateCreated = SeedDate,
 			EndTime = SeedDate.AddDays(2),
 			StartTime = SeedDate,
-			SellerId = User2.Id
+			SellerId = User2.Id,
+			Status = (int)AuctionStatusEnum.Active
 		};
 
 		public static readonly Auction LaptopAuction = new Auction {
@@ -219,7 +223,8 @@ namespace Infrastructure.EntityConfigurations.Seeds {
 			DateCreated = SeedDate,
 			EndTime = SeedDate.AddDays(2),
 			StartTime = SeedDate,
-			SellerId = User2.Id
+			SellerId = User2.Id,
+			Status = (int)AuctionStatusEnum.Active
 		};
 
 		public static readonly List<Auction> Auctions = new() { CarAuction, PaintingAuction, SneakersAuction, LaptopAuction };

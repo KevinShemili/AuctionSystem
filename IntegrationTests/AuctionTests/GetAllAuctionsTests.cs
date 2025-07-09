@@ -120,12 +120,12 @@ namespace IntegrationTests.AuctionTests {
 			// Verify pagination data
 			Assert.Equal(1, pagedResult.PageNumber);
 			Assert.Equal(10, pagedResult.PageSize);
-			Assert.Equal(1, pagedResult.TotalRecords); // only 1 since -> ActiveOnly = true
-			Assert.Single(pagedResult.Items);
+			Assert.Equal(5, pagedResult.TotalRecords);
+			Assert.Equal(5, pagedResult.Items.Count);
 
-			var DTO = pagedResult.Items.First();
+			var DTO = pagedResult.Items.FirstOrDefault(x => x.Id == activeAuction.Id);
 
-			// Verify fields of the active auction
+			// Verify fields of inserted active auction
 			Assert.Equal(activeAuction.Id, DTO.Id);
 			Assert.Equal(activeAuction.Name, DTO.Name);
 			Assert.Equal(activeAuction.Description, DTO.Description);

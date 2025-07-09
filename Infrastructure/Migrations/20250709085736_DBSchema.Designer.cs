@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.Migrations
 {
     [DbContext(typeof(DatabaseContext))]
-    [Migration("20250708130731_Auction_Seeds")]
-    partial class Auction_Seeds
+    [Migration("20250709085736_DBSchema")]
+    partial class DBSchema
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -95,7 +95,7 @@ namespace Infrastructure.Migrations
                             Name = "Mercedes C-Class 2010",
                             SellerId = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
                             StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
+                            Status = 1
                         },
                         new
                         {
@@ -108,7 +108,7 @@ namespace Infrastructure.Migrations
                             Name = "City Night Painting",
                             SellerId = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
                             StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
+                            Status = 1
                         },
                         new
                         {
@@ -121,7 +121,7 @@ namespace Infrastructure.Migrations
                             Name = "High End Fashion Sneakers",
                             SellerId = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa"),
                             StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
+                            Status = 1
                         },
                         new
                         {
@@ -134,7 +134,7 @@ namespace Infrastructure.Migrations
                             Name = "Workstation Laptop",
                             SellerId = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa"),
                             StartTime = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            Status = 0
+                            Status = 1
                         });
                 });
 
@@ -655,8 +655,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "admin",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "2B5B211063CE1167E4F9DC0729CFF8FAB66E94CFB6639FD00250C41ED2BA9E5B95D334BB57C467BC8444C191589DDE3266ACA2CA2AABA3972E843C6119C332E1",
+                            PasswordSalt = "F463E5D03B7BC74F0EA1E92DEE6EB9738A1D6AA706B5B901CE79F913A0F182D50E53BC818A94831B7D07FEE7AA3248218955E3393A809A1F1898FDB0B7B2D059"
                         },
                         new
                         {
@@ -670,8 +670,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Shemili",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "2B5B211063CE1167E4F9DC0729CFF8FAB66E94CFB6639FD00250C41ED2BA9E5B95D334BB57C467BC8444C191589DDE3266ACA2CA2AABA3972E843C6119C332E1",
+                            PasswordSalt = "F463E5D03B7BC74F0EA1E92DEE6EB9738A1D6AA706B5B901CE79F913A0F182D50E53BC818A94831B7D07FEE7AA3248218955E3393A809A1F1898FDB0B7B2D059"
                         },
                         new
                         {
@@ -685,8 +685,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Johnson",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "2B5B211063CE1167E4F9DC0729CFF8FAB66E94CFB6639FD00250C41ED2BA9E5B95D334BB57C467BC8444C191589DDE3266ACA2CA2AABA3972E843C6119C332E1",
+                            PasswordSalt = "F463E5D03B7BC74F0EA1E92DEE6EB9738A1D6AA706B5B901CE79F913A0F182D50E53BC818A94831B7D07FEE7AA3248218955E3393A809A1F1898FDB0B7B2D059"
                         },
                         new
                         {
@@ -700,8 +700,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Smith",
-                            PasswordHash = "B6A47A6149DD7EA70F2DD58484DAAB210EDA9FFB64EBA70D9B9B62BAB00243FC51D4CBFE30DCDE5C8B3D54D20E7A6C3B4C52AC98CC20BE9391D7533AF7921644",
-                            PasswordSalt = "17EDD51F0D912E62D8320FA1324045F519B8AFA64F1446F68DEAE300A174A1980BE1FABDF4B502E1089DF4C84A49B8FAF906BDFBBC2C2DF7BEA6697F7CA6E7D1"
+                            PasswordHash = "2B5B211063CE1167E4F9DC0729CFF8FAB66E94CFB6639FD00250C41ED2BA9E5B95D334BB57C467BC8444C191589DDE3266ACA2CA2AABA3972E843C6119C332E1",
+                            PasswordSalt = "F463E5D03B7BC74F0EA1E92DEE6EB9738A1D6AA706B5B901CE79F913A0F182D50E53BC818A94831B7D07FEE7AA3248218955E3393A809A1F1898FDB0B7B2D059"
                         });
                 });
 
