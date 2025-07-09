@@ -2,7 +2,7 @@ name: CI Build and Test
 
 on:
   push:
-    branches: [ main ] # Should be master, but left it main, not to trigger flow too many times (not to get flaged)
+    branches: [ master ]
   workflow_dispatch: # Allow manual runs
 
 jobs:
