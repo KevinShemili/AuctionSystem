@@ -84,10 +84,10 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("a507ebae-effd-4317-aa59-8df75282a953"),
-                            BaselinePrice = 1000m,
+                            BaselinePrice = 3500m,
                             DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "A well-maintained Mercedes C-Class from 2010, perfect for city driving and long trips.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2025, 7, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
                             Name = "Mercedes C-Class 2010",
                             SellerId = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
@@ -100,7 +100,7 @@ namespace Infrastructure.Migrations
                             BaselinePrice = 300m,
                             DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "A beautiful painting of a city at night, perfect for art lovers.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2025, 7, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
                             Name = "City Night Painting",
                             SellerId = new Guid("c75ce5c0-cf73-44be-849b-7e1de26ae992"),
@@ -110,10 +110,10 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("9619c8d2-52ce-4185-b5c4-06a304ae936b"),
-                            BaselinePrice = 250m,
+                            BaselinePrice = 750m,
                             DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "Sneakers from a high-end fashion brand, perfect for collectors.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2025, 7, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
                             Name = "High End Fashion Sneakers",
                             SellerId = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa"),
@@ -123,10 +123,10 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("4f32e981-8c1e-4e3c-8e47-c98122d8ed49"),
-                            BaselinePrice = 850m,
+                            BaselinePrice = 3500m,
                             DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             Description = "A powerful workstation laptop, ideal for professionals and gamers.",
-                            EndTime = new DateTime(2025, 1, 3, 0, 0, 0, 0, DateTimeKind.Utc),
+                            EndTime = new DateTime(2025, 7, 25, 0, 0, 0, 0, DateTimeKind.Utc),
                             IsDeleted = false,
                             Name = "Workstation Laptop",
                             SellerId = new Guid("8884546c-45cc-496e-97b1-b7c861c3cafa"),
@@ -647,13 +647,13 @@ namespace Infrastructure.Migrations
                             Email = "admin@mail.com",
                             FailedLoginTries = 0,
                             FirstName = "admin",
-                            IsAdministrator = false,
+                            IsAdministrator = true,
                             IsBlocked = false,
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "admin",
-                            PasswordHash = "2B5B211063CE1167E4F9DC0729CFF8FAB66E94CFB6639FD00250C41ED2BA9E5B95D334BB57C467BC8444C191589DDE3266ACA2CA2AABA3972E843C6119C332E1",
-                            PasswordSalt = "F463E5D03B7BC74F0EA1E92DEE6EB9738A1D6AA706B5B901CE79F913A0F182D50E53BC818A94831B7D07FEE7AA3248218955E3393A809A1F1898FDB0B7B2D059"
+                            PasswordHash = "A2C876FB4C7FA47020BA34A7B8A89BB60D0F8108E5F44EF3741C8D1C4A00B7CF5905F1D65EF981CC4AC875D7487D57BA14A5F40E0F51BD89AD8B009C52441A0E",
+                            PasswordSalt = "97AC86598485B237B0593D0E87C2A2B54041443FCD6D506B32EF63EF88C8F829C8F09BAEF3DE798C95188C798F822FE7B4CA085C370B8C9E188043542957DC1A"
                         },
                         new
                         {
@@ -667,8 +667,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Shemili",
-                            PasswordHash = "2B5B211063CE1167E4F9DC0729CFF8FAB66E94CFB6639FD00250C41ED2BA9E5B95D334BB57C467BC8444C191589DDE3266ACA2CA2AABA3972E843C6119C332E1",
-                            PasswordSalt = "F463E5D03B7BC74F0EA1E92DEE6EB9738A1D6AA706B5B901CE79F913A0F182D50E53BC818A94831B7D07FEE7AA3248218955E3393A809A1F1898FDB0B7B2D059"
+                            PasswordHash = "A2C876FB4C7FA47020BA34A7B8A89BB60D0F8108E5F44EF3741C8D1C4A00B7CF5905F1D65EF981CC4AC875D7487D57BA14A5F40E0F51BD89AD8B009C52441A0E",
+                            PasswordSalt = "97AC86598485B237B0593D0E87C2A2B54041443FCD6D506B32EF63EF88C8F829C8F09BAEF3DE798C95188C798F822FE7B4CA085C370B8C9E188043542957DC1A"
                         },
                         new
                         {
@@ -682,8 +682,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Johnson",
-                            PasswordHash = "2B5B211063CE1167E4F9DC0729CFF8FAB66E94CFB6639FD00250C41ED2BA9E5B95D334BB57C467BC8444C191589DDE3266ACA2CA2AABA3972E843C6119C332E1",
-                            PasswordSalt = "F463E5D03B7BC74F0EA1E92DEE6EB9738A1D6AA706B5B901CE79F913A0F182D50E53BC818A94831B7D07FEE7AA3248218955E3393A809A1F1898FDB0B7B2D059"
+                            PasswordHash = "A2C876FB4C7FA47020BA34A7B8A89BB60D0F8108E5F44EF3741C8D1C4A00B7CF5905F1D65EF981CC4AC875D7487D57BA14A5F40E0F51BD89AD8B009C52441A0E",
+                            PasswordSalt = "97AC86598485B237B0593D0E87C2A2B54041443FCD6D506B32EF63EF88C8F829C8F09BAEF3DE798C95188C798F822FE7B4CA085C370B8C9E188043542957DC1A"
                         },
                         new
                         {
@@ -697,8 +697,8 @@ namespace Infrastructure.Migrations
                             IsDeleted = false,
                             IsEmailVerified = true,
                             LastName = "Smith",
-                            PasswordHash = "2B5B211063CE1167E4F9DC0729CFF8FAB66E94CFB6639FD00250C41ED2BA9E5B95D334BB57C467BC8444C191589DDE3266ACA2CA2AABA3972E843C6119C332E1",
-                            PasswordSalt = "F463E5D03B7BC74F0EA1E92DEE6EB9738A1D6AA706B5B901CE79F913A0F182D50E53BC818A94831B7D07FEE7AA3248218955E3393A809A1F1898FDB0B7B2D059"
+                            PasswordHash = "A2C876FB4C7FA47020BA34A7B8A89BB60D0F8108E5F44EF3741C8D1C4A00B7CF5905F1D65EF981CC4AC875D7487D57BA14A5F40E0F51BD89AD8B009C52441A0E",
+                            PasswordSalt = "97AC86598485B237B0593D0E87C2A2B54041443FCD6D506B32EF63EF88C8F829C8F09BAEF3DE798C95188C798F822FE7B4CA085C370B8C9E188043542957DC1A"
                         });
                 });
 
@@ -842,7 +842,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("1da693bc-9c40-4ca4-a0f4-1c5af1a9d391"),
-                            Balance = 1000m,
+                            Balance = 10000m,
                             DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             FrozenBalance = 0m,
                             IsDeleted = false,
@@ -851,7 +851,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("14e2427a-99f2-47d5-a02d-e565e212fc03"),
-                            Balance = 1000m,
+                            Balance = 10000m,
                             DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             FrozenBalance = 0m,
                             IsDeleted = false,
@@ -860,7 +860,7 @@ namespace Infrastructure.Migrations
                         new
                         {
                             Id = new Guid("aa9bf01e-3879-4ce7-8ebb-07a18818ebe7"),
-                            Balance = 1000m,
+                            Balance = 10000m,
                             DateCreated = new DateTime(2025, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
                             FrozenBalance = 0m,
                             IsDeleted = false,

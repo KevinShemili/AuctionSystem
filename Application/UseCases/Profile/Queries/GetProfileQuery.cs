@@ -5,6 +5,7 @@ using Application.UseCases.Administrator.DTOs;
 using Application.UseCases.Bidding.DTOs;
 using Application.UseCases.Profile.DTOs;
 using Domain.Entities;
+using Domain.Enumerations;
 using MediatR;
 using Microsoft.Extensions.Logging;
 
@@ -80,12 +81,13 @@ namespace Application.UseCases.Profile.Queries {
 					EndTime = x.EndTime,
 					Status = x.Status
 				}).ToList(),
-				PlacedBids = user.Bids.Select(x => new BidDTO {
+				PlacedBids = user.Bids.Where(x => x.Auction.Status == (int)AuctionStatusEnum.Active).Select(x => new BidDTO {
 					Id = x.Id,
 					AuctionId = x.Auction.Id,
 					Amount = x.Amount,
-					IsWinningBid = x.IsWinningBid
-				}).ToList()
+					IsWinningBid = x.IsWinningBid,
+					IsExpired = false
+				}).ToList(),
 			};
 
 			return profile;

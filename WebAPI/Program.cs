@@ -109,7 +109,7 @@ if (builder.Environment.EnvironmentName != "Testing") {
 	recurringJobManager.AddOrUpdate<IAuctionCloser>(
 		"Close Expired Auctions",
 		job => job.AutomaticClose(),
-		Cron.Monthly(1) // Change to Minutely(1)
+		Cron.Minutely()
 	);
 }
 

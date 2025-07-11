@@ -63,7 +63,17 @@ namespace Application.UseCases.Auctions.Queries {
 				Bidders = auction.Bids.Select(x => new BiddersDTO {
 					FirstName = x.Bidder.FirstName,
 					LastName = x.Bidder.LastName
-				})
+				}),
+				WinnerBid = auction.Bids.Any(x => x.IsWinningBid) ?
+							auction.Bids.Where(x => x.IsWinningBid).Select(x => x.Amount).FirstOrDefault() :
+							0m,
+				WinnerSignature = auction.Bids.Any(x => x.IsWinningBid) ?
+								  auction.Bids.Where(x => x.IsWinningBid).Select(x => $"{x.Bidder.FirstName} {x.Bidder.LastName}").FirstOrDefault() :
+								auction.Status == (int)AuctionStatusEnum.Ended ? "No bids placed. Auction has no Winner." :
+							"",
+				WinnerPaid = auction.Bids.Any(x => x.IsWinningBid) ?
+							 auction.Bids.OrderByDescending(x => x.Amount).ThenBy(x => x.DateCreated).Select(x => x.Amount).Skip(1).FirstOrDefault() :
+							 0m
 			};
 
 			return dto;

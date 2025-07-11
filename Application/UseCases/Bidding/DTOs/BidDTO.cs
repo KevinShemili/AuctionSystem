@@ -4,5 +4,6 @@
 		public decimal Amount { get; set; }
 		public bool IsWinningBid { get; set; }
 		public Guid? AuctionId { get; set; }
+		public bool IsExpired { get; set; }
 	}
 }

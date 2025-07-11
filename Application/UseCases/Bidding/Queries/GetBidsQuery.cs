@@ -3,6 +3,7 @@ using Application.Common.Tools.Pagination;
 using Application.Contracts.Repositories;
 using Application.UseCases.Bidding.DTOs;
 using Domain.Entities;
+using Domain.Enumerations;
 using FluentValidation;
 using MediatR;
 
@@ -26,7 +27,7 @@ namespace Application.UseCases.Bidding.Queries {
 
 		public async Task<Result<PagedResponse<BidDTO>>> Handle(GetBidsQuery request, CancellationToken cancellationToken) {
 
-			// Get all bids for the user
+			// Get all bids for the user + auctions
 			var pagedBids = await _bidRepository.GetAllByBidderNoTracking(request.UserId)
 												.ToPagedResponseAsync(request.PageNumber, request.PageSize, request.SortBy, request.SortDesc);
 
@@ -51,6 +52,7 @@ namespace Application.UseCases.Bidding.Queries {
 					Amount = bid.Amount,
 					AuctionId = bid.AuctionId,
 					IsWinningBid = bid.IsWinningBid,
+					IsExpired = bid.Auction.Status == (int)AuctionStatusEnum.Ended
 				};
 				pagedDto.Items.Add(bidDto);
 			}

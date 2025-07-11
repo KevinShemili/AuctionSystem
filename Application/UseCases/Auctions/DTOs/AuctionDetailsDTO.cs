@@ -12,6 +12,9 @@ namespace Application.UseCases.Auctions.DTOs {
 		public string SellerFirstName { get; set; }
 		public string SellerLastName { get; set; }
 		public string SellerEmail { get; set; }
+		public string WinnerSignature { get; set; }
+		public decimal WinnerBid { get; set; }
+		public decimal WinnerPaid { get; set; }
 
 		[SwaggerSchema(Format = "uri")]
 		public IEnumerable<string> Images { get; set; }
